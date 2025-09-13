@@ -14,6 +14,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Access frontend at `http://localhost:8000`
 - API documentation at `http://localhost:8000/docs`
 
+### Testing
+- `uv run pytest` - Run all tests
+- `uv run pytest tests/test_schemas.py` - Run specific test file
+- `uv run pytest tests/test_schemas.py::TestFinancialRatiosDataValidation::test_financial_ratios_complete_data` - Run specific test
+- `uv run pytest -v` - Run tests with verbose output
+- `uv run pytest --cov=app` - Run tests with coverage report
+- `uv run pytest --cov=app --cov-report=html` - Generate HTML coverage report
+- `uv run pytest -k "test_contract"` - Run tests matching pattern
+- `uv run pytest tests/test_integration.py -v` - Run integration tests
+
 ### Dependency Management
 - `uv sync` - Install/update dependencies from pyproject.toml
 - `uv add <package>` - Add new dependency
@@ -89,8 +99,10 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 **Financial Data Handling:**
 - Comprehensive field mapping covers all Vietnamese financial statement line items
 - Safe data extraction with null handling (`_safe_get`, `_safe_get_str`, `_safe_get_int`)
-- MultiIndex DataFrame flattening for ratio data
+- Multi-column fallback extraction (`_safe_get_multi`) for API compatibility
+- MultiIndex DataFrame flattening for ratio data with vnstock v3+ parameters
 - Error handling for vnstock API rate limits and data availability
+- Debug logging for field mapping validation and troubleshooting
 
 **Backend-First Processing Architecture:**
 - **All data processing, transformation, and formatting must be done in backend services**
@@ -102,3 +114,83 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 This architecture supports the current static frontend while being designed for future React migration with minimal backend changes.
 - decouple backend code with frontend so that backend can be reused for other apps
 - decouple backend logic with frontend so that it can be reused in other app
+
+## Troubleshooting and Best Practices
+
+### vnstock API Integration
+- Always use `flatten_columns=True` parameter for ratio data to ensure proper DataFrame structure
+- Implement multi-column fallback mapping (`_safe_get_multi`) for field extraction resilience
+- Add debug logging when integrating new vnstock endpoints to identify column name discrepancies
+- Test with multiple Vietnamese stocks across different sectors (tech, banking, utilities, real estate)
+- Handle graceful fallbacks for unsupported vnstock parameters
+
+### Data Integration Debugging
+- Use raw data endpoints to verify actual API response structure
+- Check server logs for debug output when troubleshooting missing fields
+- Compare expected vs. actual column names from vnstock responses
+- Verify MultiIndex DataFrame handling with `flatten_hierarchical_index`
+
+### Financial Ratio Validation
+- Cross-verify ratio calculations with multiple data sources
+- Account for industry-specific ratio availability (e.g., banks vs. manufacturing)
+- Implement null handling for ratios not applicable to certain business models
+- Test edge cases with companies having unusual financial structures
+
+## Testing Framework
+
+### Test Organization
+The test suite is organized into comprehensive categories to ensure reliability and maintainability:
+
+- **`tests/test_imports.py`** - Module import validation and circular dependency detection
+- **`tests/test_schemas.py`** - Pydantic model validation and schema contract testing  
+- **`tests/test_contract_alignment.py`** - Frontend-backend field mapping consistency
+- **`tests/test_backend_reusability.py`** - Standalone service function testing for external app integration
+- **`tests/test_integration.py`** - End-to-end API testing and system integration
+- **`tests/conftest.py`** - Shared test fixtures and sample data
+
+### Test Categories
+
+**Schema Validation Tests:**
+- Comprehensive field coverage validation (34+ financial ratio fields)
+- Type coercion and validation error handling
+- Backward/forward compatibility testing
+- JSON serialization/deserialization validation
+
+**Contract Alignment Tests:**
+- Frontend JavaScript field extraction and validation
+- API response structure validation against frontend expectations
+- Cross-language data type compatibility (Python ↔ JavaScript)
+- Field naming convention consistency
+
+**Backend Reusability Tests:**
+- Standalone service function testing without web framework dependencies
+- External application integration patterns (wrapper classes, plugins, microservices)
+- Modular import patterns for code reuse
+- Service layer isolation from FastAPI context
+
+**Integration Tests:**
+- Full API endpoint testing with mocked vnstock responses
+- Error handling and resilience under various failure conditions
+- CORS configuration and static file serving
+- Performance and memory usage validation
+
+### Best Practices for Testing
+
+**Writing New Tests:**
+- Use comprehensive test fixtures from `conftest.py` for consistent sample data
+- Test both success and failure scenarios
+- Include edge cases and boundary conditions
+- Validate external API integration with mocked responses
+
+**Maintaining Tests:**
+- Update test fixtures when adding new financial data fields
+- Ensure contract alignment tests reflect current frontend field requirements
+- **IMPORTANT**: Always update `app/schemas/` after making schema-related changes and run tests to verify compatibility
+- Run full test suite before committing changes
+- Use coverage reports to identify untested code paths
+
+**External Application Testing:**
+- Test that backend services can be imported without FastAPI dependencies
+- Verify schemas can be used independently for data validation
+- Ensure utility functions work with any pandas DataFrame structure
+- Validate plugin-style integration patterns

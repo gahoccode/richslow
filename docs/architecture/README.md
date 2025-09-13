@@ -208,6 +208,10 @@ class BalanceSheetData:
 class CashFlowData:
     # 36 fields covering operating, investing, financing
     fields: OperatingCashFlow, InvestingCashFlow...
+
+class FinancialRatiosData:
+    # 34+ fields covering comprehensive financial analysis
+    fields: ROE, ROA, DebtToEquity, CashConversionCycle...
 ```
 
 ---
@@ -430,10 +434,12 @@ graph TD
 - **Business Rules**: Period types, data availability
 
 #### Data Quality Assurance
-- **Null Handling**: Safe extraction functions
+- **Null Handling**: Safe extraction functions with multi-column fallback
 - **Type Conversion**: Numeric data validation
-- **Consistency**: Standardized field naming
-- **Completeness**: Comprehensive field coverage
+- **Consistency**: Standardized field naming with flexible mapping
+- **Completeness**: Comprehensive field coverage (34+ financial ratios)
+- **API Compatibility**: vnstock v3+ parameter optimization
+- **Debug Logging**: Proactive field mapping validation
 
 ---
 

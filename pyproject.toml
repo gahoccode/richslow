@@ -1,6 +1,6 @@
 [project]
 name = "richslow"
-version = "0.1.0"
+version = "1.0.0"
 description = "Vietnamese Stock Market Financial Analysis Web Application"
 requires-python = ">=3.10"
 dependencies = [
@@ -28,4 +28,11 @@ line-ending = "auto"
 [dependency-groups]
 dev = [
     "ruff>=0.13.0",
+]
+test = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.25.0",
+    "pytest-mock>=3.11.0",
+    "pytest-cov>=4.1.0",
 ]

@@ -25,6 +25,7 @@ Each ADR follows this format:
 | 003 | Stateless Architecture | Accepted | 2024-01-01 |
 | 004 | Frontend Architecture | Accepted | 2024-01-01 |
 | 005 | Error Handling Strategy | Accepted | 2024-01-01 |
+| 006 | vnstock v3+ Compatibility | Accepted | 2024-09-13 |
 
 ## How to Create a New ADR
 

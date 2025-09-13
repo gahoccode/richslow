@@ -47,13 +47,30 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
         income_statement_df = stock.finance.income_statement(
             period=period_param, lang="en", dropna=True
         )
-        ratio_df = stock.finance.ratio(period=period_param, lang="en", dropna=True)
 
-        # Flatten MultiIndex columns in ratios DataFrame
+        # Updated vnstock v3+ ratio API call - removed problematic drop_levels parameter
+        try:
+            ratio_df = stock.finance.ratio(
+                period=period_param, lang="en", flatten_columns=True, dropna=True
+            )
+        except TypeError:
+            # Fallback to basic call if flatten_columns parameter isn't supported
+            ratio_df = stock.finance.ratio(period=period_param, lang="en", dropna=True)
+
+        # Debug logging for ratio column names
+        if not ratio_df.empty:
+            print(f"DEBUG - Ratio DataFrame columns: {list(ratio_df.columns)}")
+            print(f"DEBUG - Ratio DataFrame shape: {ratio_df.shape}")
+            print("DEBUG - Sample ratio data (first row):")
+            print(ratio_df.iloc[0].to_dict() if len(ratio_df) > 0 else "No data")
+
+        # Handle MultiIndex columns if present
         if not ratio_df.empty and isinstance(ratio_df.columns, pd.MultiIndex):
+            print("DEBUG - MultiIndex detected, applying flatten_hierarchical_index")
             ratio_df = flatten_hierarchical_index(
                 ratio_df, separator="_", handle_duplicates=True, drop_levels=0
             )
+            print(f"DEBUG - After flattening, columns: {list(ratio_df.columns)}")
 
         # Process income statements
         income_statements = _process_income_statements(income_statement_df)
@@ -385,6 +402,15 @@ def _process_ratios(df: pd.DataFrame) -> list[FinancialRatiosData]:
     ratios = []
 
     for _, row in df.iterrows():
+        # Helper function to try multiple column names
+        def _safe_get_multi(row, *column_names):
+            """Try multiple column names and return the first non-null value."""
+            for col_name in column_names:
+                value = _safe_get(row, col_name)
+                if value is not None:
+                    return value
+            return None
+
         # Map vnstock ratio fields to Pydantic model fields
         ratios.append(
             FinancialRatiosData(
@@ -400,13 +426,35 @@ def _process_ratios(df: pd.DataFrame) -> list[FinancialRatiosData]:
                 outstanding_shares=_safe_get(row, "Shares Outstanding (M)"),
                 earnings_per_share=_safe_get(row, "EPS (VND)"),
                 book_value_per_share=_safe_get(row, "BVPS (VND)"),
-                dividend_yield=_safe_get(row, "Dividend Yield (%)"),
-                # Profitability Ratios
-                roe=_safe_get(row, "ROE (%)"),
-                roa=_safe_get(row, "ROA (%)"),
+                # Fixed: Use correct vnstock column name
+                dividend_yield=_safe_get_multi(
+                    row,
+                    "Dividend yield (%)",  # Actual vnstock column name
+                    "Dividend Yield (%)",  # Fallback
+                ),
+                # Profitability Ratios - Fixed with correct vnstock column names
+                roe=_safe_get_multi(
+                    row,
+                    "ROE (%)",  # Actual vnstock column name
+                    "Return on Equity (%)",
+                ),
+                roa=_safe_get_multi(
+                    row,
+                    "ROA (%)",  # Actual vnstock column name
+                    "Return on Assets (%)",
+                ),
                 roic=_safe_get(row, "ROIC (%)"),
-                gross_profit_margin=_safe_get(row, "Gross Margin (%)"),
-                net_profit_margin=_safe_get(row, "Net Margin (%)"),
+                # Fixed: Use correct vnstock column names
+                gross_profit_margin=_safe_get_multi(
+                    row,
+                    "Gross Profit Margin (%)",  # Actual vnstock column name
+                    "Gross Margin (%)",
+                ),
+                net_profit_margin=_safe_get_multi(
+                    row,
+                    "Net Profit Margin (%)",  # Actual vnstock column name
+                    "Net Margin (%)",
+                ),
                 ebit_margin=_safe_get(row, "EBIT Margin (%)"),
                 ebitda=_safe_get(row, "EBITDA (Bn. VND)"),
                 ebit=_safe_get(row, "EBIT (Bn. VND)"),
@@ -415,23 +463,62 @@ def _process_ratios(df: pd.DataFrame) -> list[FinancialRatiosData]:
                 quick_ratio=_safe_get(row, "Quick Ratio"),
                 cash_ratio=_safe_get(row, "Cash Ratio"),
                 interest_coverage_ratio=_safe_get(row, "Interest Coverage"),
-                # Leverage/Capital Structure Ratios
-                debt_to_equity=_safe_get(row, "D/E"),
-                bank_loans_long_term_debt_to_equity=_safe_get(
-                    row, "(Bank Loans + Long-term Debt) / Equity"
+                # Leverage/Capital Structure Ratios - Fixed with correct vnstock column names
+                debt_to_equity=_safe_get_multi(
+                    row,
+                    "Debt/Equity",  # Actual vnstock column name
+                    "D/E",
+                    "Debt-to-Equity",
+                    "Debt to Equity",
+                ),
+                # Fixed: Use actual vnstock column name
+                bank_loans_long_term_debt_to_equity=_safe_get_multi(
+                    row,
+                    "(ST+LT borrowings)/Equity",  # Actual vnstock column name
+                    "(Bank Loans + Long-term Debt) / Equity",
+                    "Total Borrowings to Equity",
+                    "Bank Loans + Long-term Debt / Equity",
+                    "Total Debt to Equity",
                 ),
                 fixed_assets_to_equity=_safe_get(row, "Fixed Assets / Equity Capital"),
                 equity_to_registered_capital=_safe_get(
                     row, "Equity Capital / Registered Capital"
                 ),
-                # Efficiency/Activity Ratios
+                # Efficiency/Activity Ratios - Fixed with correct vnstock column names
                 asset_turnover=_safe_get(row, "Asset Turnover"),
                 fixed_asset_turnover=_safe_get(row, "Fixed Asset Turnover"),
                 inventory_turnover=_safe_get(row, "Inventory Turnover"),
-                average_collection_days=_safe_get(row, "Average Collection Days"),
-                average_inventory_days=_safe_get(row, "Average Inventory Days"),
-                average_payment_days=_safe_get(row, "Average Payment Days"),
-                cash_conversion_cycle=_safe_get(row, "Cash Conversion Cycle"),
+                # Fixed: Use actual vnstock column names
+                average_collection_days=_safe_get_multi(
+                    row,
+                    "Days Sales Outstanding",  # Actual vnstock column name
+                    "Average Collection Days",
+                    "DSO",
+                    "Collection Period",
+                    "Receivables Days",
+                ),
+                average_inventory_days=_safe_get_multi(
+                    row,
+                    "Days Inventory Outstanding",  # Actual vnstock column name
+                    "Average Inventory Days",
+                    "DIO",
+                    "Inventory Days",
+                    "Inventory Period",
+                ),
+                average_payment_days=_safe_get_multi(
+                    row,
+                    "Days Payable Outstanding",  # Actual vnstock column name
+                    "Average Payment Days",
+                    "DPO",
+                    "Payment Period",
+                    "Payables Days",
+                ),
+                cash_conversion_cycle=_safe_get_multi(
+                    row,
+                    "Cash Cycle",  # Actual vnstock column name
+                    "Cash Conversion Cycle",
+                    "CCC",
+                ),
             )
         )
 
