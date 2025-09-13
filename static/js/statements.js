@@ -145,10 +145,18 @@ function populateIncomeStatement() {
         return;
     }
     
+    // Create year-indexed data for easier access
+    const incomeByYear = {};
+    incomes.forEach(income => {
+        if (income.year_report) {
+            incomeByYear[income.year_report] = income;
+        }
+    });
+    
     // Define metrics to display - comprehensive income statement line items
     const metrics = [
         // Revenue and Sales
-        { key: 'revenue', label: 'Revenue (Bn. VND)' },
+        { key: 'revenue', label: 'Revenue' },
         { key: 'revenue_yoy', label: 'Revenue YoY Growth (%)', isPercentage: true },
         { key: 'sales', label: 'Gross Sales' },
         { key: 'sales_deductions', label: 'Sales Deductions' },
@@ -167,7 +175,7 @@ function populateIncomeStatement() {
         
         // Attributable Profits
         { key: 'attributable_to_parent', label: 'Attributable to Parent Company' },
-        { key: 'attributable_to_parent_vnd', label: 'Attributable to Parent (Bn. VND)' },
+        { key: 'attributable_to_parent_vnd', label: 'Attributable to Parent' },
         { key: 'attributable_to_parent_yoy', label: 'Attributable to Parent YoY (%)', isPercentage: true },
         { key: 'minority_interest', label: 'Minority Interest' },
         
@@ -194,10 +202,11 @@ function populateIncomeStatement() {
         const row = document.createElement('tr');
         row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric.label}</td>`;
         
-        incomes.forEach(income => {
-            const value = income[metric.key];
-            const formattedValue = metric.isPercentage ? formatPercentage(value) : formatNumber(value);
-            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedValue}</td>`;
+        years.forEach(year => {
+            const yearData = incomeByYear[year];
+            const value = yearData ? yearData[metric.key] : null;
+            const displayValue = value !== null && value !== undefined ? value : '-';
+            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${displayValue}</td>`;
         });
         
         tbody.appendChild(row);
@@ -225,20 +234,30 @@ function populateBalanceSheet() {
         return;
     }
     
+    // Create year-indexed data for easier access
+    const balanceByYear = {};
+    balances.forEach(balance => {
+        if (balance.year_report) {
+            balanceByYear[balance.year_report] = balance;
+        }
+    });
+    
     // Define metrics to display - comprehensive balance sheet line items
     const metrics = [
         // Assets - Current
-        { key: 'current_assets', label: 'Current Assets (Bn. VND)' },
+        { key: 'current_assets', label: 'Current Assets' },
         { key: 'cash_and_equivalents', label: 'Cash and Cash Equivalents' },
         { key: 'short_term_investments', label: 'Short-term Investments' },
         { key: 'accounts_receivable', label: 'Accounts Receivable' },
         { key: 'short_term_loans_receivable', label: 'Short-term Loans Receivable' },
         { key: 'inventories_net', label: 'Net Inventories' },
+        { key: 'net_inventories', label: 'Net Inventories (alt)' },
         { key: 'prepayments_to_suppliers', label: 'Prepayments to Suppliers' },
         { key: 'other_current_assets', label: 'Other Current Assets' },
+        { key: 'other_current_assets_vnd', label: 'Other Current Assets (VND)' },
         
         // Assets - Long-term
-        { key: 'long_term_assets', label: 'Long-term Assets (Bn. VND)' },
+        { key: 'long_term_assets', label: 'Long-term Assets' },
         { key: 'fixed_assets', label: 'Fixed Assets' },
         { key: 'long_term_investments', label: 'Long-term Investments' },
         { key: 'investment_properties', label: 'Investment in Properties' },
@@ -248,13 +267,14 @@ function populateBalanceSheet() {
         { key: 'goodwill', label: 'Goodwill' },
         { key: 'other_non_current_assets', label: 'Other Non-current Assets' },
         { key: 'other_long_term_assets', label: 'Other Long-term Assets' },
+        { key: 'other_long_term_receivables', label: 'Other Long-term Receivables' },
         
         // Total Assets
         { key: 'total_assets', label: 'Total Assets' },
         { key: 'total_resources', label: 'Total Resources' },
         
         // Liabilities
-        { key: 'total_liabilities', label: 'Total Liabilities (Bn. VND)' },
+        { key: 'total_liabilities', label: 'Total Liabilities' },
         { key: 'current_liabilities', label: 'Current Liabilities' },
         { key: 'short_term_borrowings', label: 'Short-term Borrowings' },
         { key: 'advances_from_customers', label: 'Advances from Customers' },
@@ -262,7 +282,7 @@ function populateBalanceSheet() {
         { key: 'long_term_borrowings', label: 'Long-term Borrowings' },
         
         // Equity
-        { key: 'owners_equity', label: 'Owner\'s Equity (Bn. VND)' },
+        { key: 'owners_equity', label: 'Owner\'s Equity' },
         { key: 'capital_and_reserves', label: 'Capital and Reserves' },
         { key: 'paid_in_capital', label: 'Paid-in Capital' },
         { key: 'common_shares', label: 'Common Shares' },
@@ -276,10 +296,11 @@ function populateBalanceSheet() {
         const row = document.createElement('tr');
         row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric.label}</td>`;
         
-        balances.forEach(balance => {
-            const value = balance[metric.key];
-            const formattedValue = formatNumber(value);
-            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedValue}</td>`;
+        years.forEach(year => {
+            const yearData = balanceByYear[year];
+            const value = yearData ? yearData[metric.key] : null;
+            const displayValue = value !== null && value !== undefined ? value : '-';
+            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${displayValue}</td>`;
         });
         
         tbody.appendChild(row);
@@ -306,6 +327,14 @@ function populateCashFlow() {
         tbody.innerHTML = '<tr><td colspan="100%" class="px-6 py-4 text-center text-gray-500">No cash flow data available</td></tr>';
         return;
     }
+    
+    // Create year-indexed data for easier access
+    const cashFlowByYear = {};
+    cashFlows.forEach(flow => {
+        if (flow.year_report) {
+            cashFlowByYear[flow.year_report] = flow;
+        }
+    });
     
     // Define metrics to display - comprehensive cash flow line items
     const metrics = [
@@ -360,10 +389,11 @@ function populateCashFlow() {
         const row = document.createElement('tr');
         row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric.label}</td>`;
         
-        cashFlows.forEach(flow => {
-            const value = flow[metric.key];
-            const formattedValue = formatNumber(value);
-            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedValue}</td>`;
+        years.forEach(year => {
+            const yearData = cashFlowByYear[year];
+            const value = yearData ? yearData[metric.key] : null;
+            const displayValue = value !== null && value !== undefined ? value : '-';
+            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${displayValue}</td>`;
         });
         
         tbody.appendChild(row);
@@ -391,6 +421,12 @@ function populateRatios() {
         return;
     }
     
+    // Create year-indexed data for easier access
+    const ratiosByYear = {};
+    ratiosData.forEach(ratio => {
+        ratiosByYear[ratio.Year] = ratio;
+    });
+    
     // Define key financial ratios to display using actual API field names
     const ratioMetrics = [
         // Valuation Ratios
@@ -401,12 +437,12 @@ function populateRatios() {
         { key: 'BVPS (VND)', label: 'Book Value per Share (VND)' },
         
         // Profitability Ratios
-        { key: 'ROE (%)', label: 'Return on Equity (%)', isPercentage: true },
-        { key: 'ROA (%)', label: 'Return on Assets (%)', isPercentage: true },
-        { key: 'ROIC (%)', label: 'Return on Invested Capital (%)', isPercentage: true },
-        { key: 'Net Profit Margin (%)', label: 'Net Profit Margin (%)', isPercentage: true },
-        { key: 'Gross Profit Margin (%)', label: 'Gross Profit Margin (%)', isPercentage: true },
-        { key: 'EBIT Margin (%)', label: 'EBIT Margin (%)', isPercentage: true },
+        { key: 'ROE (%)', label: 'Return on Equity (%)' },
+        { key: 'ROA (%)', label: 'Return on Assets (%)' },
+        { key: 'ROIC (%)', label: 'Return on Invested Capital (%)' },
+        { key: 'Net Profit Margin (%)', label: 'Net Profit Margin (%)' },
+        { key: 'Gross Profit Margin (%)', label: 'Gross Profit Margin (%)' },
+        { key: 'EBIT Margin (%)', label: 'EBIT Margin (%)' },
         
         // Liquidity Ratios
         { key: 'Current Ratio', label: 'Current Ratio' },
@@ -428,12 +464,6 @@ function populateRatios() {
         { key: 'Cash Cycle', label: 'Cash Conversion Cycle' }
     ];
     
-    // Create year-indexed data for easier access
-    const ratiosByYear = {};
-    ratiosData.forEach(ratio => {
-        ratiosByYear[ratio.Year] = ratio;
-    });
-    
     ratioMetrics.forEach(metric => {
         const row = document.createElement('tr');
         row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric.label}</td>`;
@@ -441,8 +471,8 @@ function populateRatios() {
         years.forEach(year => {
             const yearData = ratiosByYear[year];
             const value = yearData ? yearData[metric.key] : null;
-            const formattedValue = metric.isPercentage ? formatPercentage(value) : formatNumber(value);
-            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedValue}</td>`;
+            const displayValue = value !== null && value !== undefined ? value : '-';
+            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${displayValue}</td>`;
         });
         
         tbody.appendChild(row);
