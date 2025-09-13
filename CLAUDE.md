@@ -19,6 +19,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `uv add <package>` - Add new dependency
 - `uv add <package> --dev` - Add development dependency
 
+### Changelog Maintenance
+- Update `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format
+- Add entries to "Unreleased" section during development
+- Move to versioned section before releases
+- See `.changelog-template.md` for entry examples
+
 ## Architecture Overview
 
 ### Vietnamese Stock Market Financial Analysis Web Application
