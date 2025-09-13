@@ -118,6 +118,7 @@ function populateStatements() {
     populateIncomeStatement();
     populateBalanceSheet();
     populateCashFlow();
+    populateRatios();
     populateRawData();
     
     showToast('Financial statements loaded successfully!', 'success');
@@ -362,6 +363,85 @@ function populateCashFlow() {
         cashFlows.forEach(flow => {
             const value = flow[metric.key];
             const formattedValue = formatNumber(value);
+            row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedValue}</td>`;
+        });
+        
+        tbody.appendChild(row);
+    });
+}
+
+function populateRatios() {
+    const ratiosData = financialData?.raw_data?.ratios || [];
+    const years = financialData?.years || [];
+    
+    // Create table headers
+    const headerRow = document.getElementById('ratiosTableHeader');
+    headerRow.innerHTML = '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th>';
+    
+    years.forEach(year => {
+        headerRow.innerHTML += `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${year}</th>`;
+    });
+    
+    // Create table body
+    const tbody = document.getElementById('ratiosTableBody');
+    tbody.innerHTML = '';
+    
+    if (ratiosData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="100%" class="px-6 py-4 text-center text-gray-500">No financial ratios data available</td></tr>';
+        return;
+    }
+    
+    // Define key financial ratios to display using actual API field names
+    const ratioMetrics = [
+        // Valuation Ratios
+        { key: 'P/E', label: 'Price-to-Earnings Ratio' },
+        { key: 'P/B', label: 'Price-to-Book Ratio' },
+        { key: 'P/S', label: 'Price-to-Sales Ratio' },
+        { key: 'EV/EBITDA', label: 'EV/EBITDA Ratio' },
+        { key: 'BVPS (VND)', label: 'Book Value per Share (VND)' },
+        
+        // Profitability Ratios
+        { key: 'ROE (%)', label: 'Return on Equity (%)', isPercentage: true },
+        { key: 'ROA (%)', label: 'Return on Assets (%)', isPercentage: true },
+        { key: 'ROIC (%)', label: 'Return on Invested Capital (%)', isPercentage: true },
+        { key: 'Net Profit Margin (%)', label: 'Net Profit Margin (%)', isPercentage: true },
+        { key: 'Gross Profit Margin (%)', label: 'Gross Profit Margin (%)', isPercentage: true },
+        { key: 'EBIT Margin (%)', label: 'EBIT Margin (%)', isPercentage: true },
+        
+        // Liquidity Ratios
+        { key: 'Current Ratio', label: 'Current Ratio' },
+        { key: 'Quick Ratio', label: 'Quick Ratio' },
+        { key: 'Cash Ratio', label: 'Cash Ratio' },
+        
+        // Leverage Ratios
+        { key: 'Debt/Equity', label: 'Debt-to-Equity Ratio' },
+        { key: '(ST+LT borrowings)/Equity', label: 'Total Borrowings to Equity' },
+        { key: 'Interest Coverage Ratio', label: 'Interest Coverage Ratio' },
+        
+        // Efficiency Ratios
+        { key: 'Asset Turnover', label: 'Asset Turnover' },
+        { key: 'Inventory Turnover', label: 'Inventory Turnover' },
+        { key: 'Fixed Asset Turnover', label: 'Fixed Asset Turnover' },
+        { key: 'Days Sales Outstanding', label: 'Days Sales Outstanding' },
+        { key: 'Days Inventory Outstanding', label: 'Days Inventory Outstanding' },
+        { key: 'Days Payable Outstanding', label: 'Days Payable Outstanding' },
+        { key: 'Cash Cycle', label: 'Cash Conversion Cycle' }
+    ];
+    
+    // Create year-indexed data for easier access
+    const ratiosByYear = {};
+    ratiosData.forEach(ratio => {
+        ratiosByYear[ratio.Year] = ratio;
+    });
+    
+    ratioMetrics.forEach(metric => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric.label}</td>`;
+        
+        years.forEach(year => {
+            const yearData = ratiosByYear[year];
+            const value = yearData ? yearData[metric.key] : null;
+            const formattedValue = metric.isPercentage ? formatPercentage(value) : formatNumber(value);
             row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedValue}</td>`;
         });
         

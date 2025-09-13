@@ -96,6 +96,9 @@
                     <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="cashflow">
                         Cash Flow
                     </button>
+                    <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="ratios">
+                        Financial Ratios
+                    </button>
                     <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="raw">
                         Raw Data
                     </button>
@@ -165,6 +168,27 @@
                 </div>
             </div>
 
+            <!-- Financial Ratios Tab -->
+            <div id="ratios-tab" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Financial Ratios</h3>
+                        <p class="mt-1 text-sm text-gray-500">Valuation, profitability, liquidity, and efficiency ratios</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="ratiosTable">
+                            <thead class="bg-gray-50">
+                                <tr id="ratiosTableHeader">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="ratiosTableBody">
+                                <!-- Ratios data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             <!-- Raw Data Tab -->
             <div id="raw-tab" class="tab-content hidden">
                 <div class="bg-white rounded-lg shadow overflow-hidden">
