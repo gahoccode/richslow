@@ -314,9 +314,46 @@ class FinancialStatementsResponse(BaseModel):
 
 class FinancialRatiosData(BaseModel):
     year_report: int = Field(..., description="Report year")
+
+    # Valuation Ratios
     pe_ratio: float | None = Field(None, description="Price-to-earnings ratio")
     pb_ratio: float | None = Field(None, description="Price-to-book ratio")
+    ps_ratio: float | None = Field(None, description="Price-to-sales ratio")
+    p_cash_flow: float | None = Field(None, description="Price-to-cash flow ratio")
+    ev_ebitda: float | None = Field(None, description="EV/EBITDA ratio")
+    market_cap: float | None = Field(None, description="Market capitalization")
+    outstanding_shares: float | None = Field(None, description="Outstanding shares")
+    earnings_per_share: float | None = Field(None, description="Earnings per share")
+    book_value_per_share: float | None = Field(None, description="Book value per share")
+    dividend_yield: float | None = Field(None, description="Dividend yield")
+
+    # Profitability Ratios
     roe: float | None = Field(None, description="Return on equity")
     roa: float | None = Field(None, description="Return on assets")
-    debt_to_equity: float | None = Field(None, description="Debt-to-equity ratio")
+    roic: float | None = Field(None, description="Return on invested capital")
+    gross_profit_margin: float | None = Field(None, description="Gross profit margin")
+    net_profit_margin: float | None = Field(None, description="Net profit margin")
+    ebit_margin: float | None = Field(None, description="EBIT margin")
+    ebitda: float | None = Field(None, description="EBITDA")
+    ebit: float | None = Field(None, description="EBIT")
+
+    # Liquidity Ratios
     current_ratio: float | None = Field(None, description="Current ratio")
+    quick_ratio: float | None = Field(None, description="Quick ratio")
+    cash_ratio: float | None = Field(None, description="Cash ratio")
+    interest_coverage_ratio: float | None = Field(None, description="Interest coverage ratio")
+
+    # Leverage/Capital Structure Ratios
+    debt_to_equity: float | None = Field(None, description="Debt-to-equity ratio")
+    bank_loans_long_term_debt_to_equity: float | None = Field(None, description="(Bank Loans + Long-term Debt) / Equity")
+    fixed_assets_to_equity: float | None = Field(None, description="Fixed Assets / Equity Capital")
+    equity_to_registered_capital: float | None = Field(None, description="Equity Capital / Registered Capital")
+
+    # Efficiency/Activity Ratios
+    asset_turnover: float | None = Field(None, description="Asset turnover")
+    fixed_asset_turnover: float | None = Field(None, description="Fixed asset turnover")
+    inventory_turnover: float | None = Field(None, description="Inventory turnover")
+    average_collection_days: float | None = Field(None, description="Average collection days")
+    average_inventory_days: float | None = Field(None, description="Average inventory days")
+    average_payment_days: float | None = Field(None, description="Average payment days")
+    cash_conversion_cycle: float | None = Field(None, description="Cash conversion cycle")

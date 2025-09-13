@@ -144,16 +144,49 @@ function populateIncomeStatement() {
         return;
     }
     
-    // Define metrics to display
+    // Define metrics to display - comprehensive income statement line items
     const metrics = [
-        { key: 'revenue', label: 'Revenue' },
-        { key: 'revenue_yoy', label: 'Revenue YoY Growth', isPercentage: true },
+        // Revenue and Sales
+        { key: 'revenue', label: 'Revenue (Bn. VND)' },
+        { key: 'revenue_yoy', label: 'Revenue YoY Growth (%)', isPercentage: true },
+        { key: 'sales', label: 'Gross Sales' },
+        { key: 'sales_deductions', label: 'Sales Deductions' },
         { key: 'net_sales', label: 'Net Sales' },
+        
+        // Costs and Expenses
         { key: 'cost_of_sales', label: 'Cost of Sales' },
+        { key: 'selling_expenses', label: 'Selling Expenses' },
+        { key: 'general_admin_expenses', label: 'General & Admin Expenses' },
+        
+        // Profit Metrics
         { key: 'gross_profit', label: 'Gross Profit' },
-        { key: 'operating_profit', label: 'Operating Profit' },
-        { key: 'net_profit', label: 'Net Profit' },
-        { key: 'attributable_to_parent', label: 'Attributable to Parent' }
+        { key: 'operating_profit', label: 'Operating Profit/Loss' },
+        { key: 'profit_before_tax', label: 'Profit Before Tax' },
+        { key: 'net_profit', label: 'Net Profit For the Year' },
+        
+        // Attributable Profits
+        { key: 'attributable_to_parent', label: 'Attributable to Parent Company' },
+        { key: 'attributable_to_parent_vnd', label: 'Attributable to Parent (Bn. VND)' },
+        { key: 'attributable_to_parent_yoy', label: 'Attributable to Parent YoY (%)', isPercentage: true },
+        { key: 'minority_interest', label: 'Minority Interest' },
+        
+        // Financial Income/Expenses
+        { key: 'financial_income', label: 'Financial Income' },
+        { key: 'financial_expenses', label: 'Financial Expenses' },
+        { key: 'interest_expenses', label: 'Interest Expenses' },
+        
+        // Tax
+        { key: 'business_tax_current', label: 'Business Income Tax - Current' },
+        { key: 'business_tax_deferred', label: 'Business Income Tax - Deferred' },
+        
+        // Other Income
+        { key: 'other_income', label: 'Other Income' },
+        { key: 'other_income_expenses', label: 'Other Income/Expenses' },
+        { key: 'net_other_income', label: 'Net Other Income/Expenses' },
+        
+        // Investment Related
+        { key: 'gain_loss_joint_ventures', label: 'Gain/(Loss) from Joint Ventures' },
+        { key: 'net_income_associated_companies', label: 'Net Income from Associated Companies' }
     ];
     
     metrics.forEach(metric => {
@@ -191,16 +224,51 @@ function populateBalanceSheet() {
         return;
     }
     
-    // Define metrics to display
+    // Define metrics to display - comprehensive balance sheet line items
     const metrics = [
+        // Assets - Current
+        { key: 'current_assets', label: 'Current Assets (Bn. VND)' },
+        { key: 'cash_and_equivalents', label: 'Cash and Cash Equivalents' },
+        { key: 'short_term_investments', label: 'Short-term Investments' },
+        { key: 'accounts_receivable', label: 'Accounts Receivable' },
+        { key: 'short_term_loans_receivable', label: 'Short-term Loans Receivable' },
+        { key: 'inventories_net', label: 'Net Inventories' },
+        { key: 'prepayments_to_suppliers', label: 'Prepayments to Suppliers' },
+        { key: 'other_current_assets', label: 'Other Current Assets' },
+        
+        // Assets - Long-term
+        { key: 'long_term_assets', label: 'Long-term Assets (Bn. VND)' },
+        { key: 'fixed_assets', label: 'Fixed Assets' },
+        { key: 'long_term_investments', label: 'Long-term Investments' },
+        { key: 'investment_properties', label: 'Investment in Properties' },
+        { key: 'long_term_loans_receivable', label: 'Long-term Loans Receivable' },
+        { key: 'long_term_trade_receivables', label: 'Long-term Trade Receivables' },
+        { key: 'long_term_prepayments', label: 'Long-term Prepayments' },
+        { key: 'goodwill', label: 'Goodwill' },
+        { key: 'other_non_current_assets', label: 'Other Non-current Assets' },
+        { key: 'other_long_term_assets', label: 'Other Long-term Assets' },
+        
+        // Total Assets
         { key: 'total_assets', label: 'Total Assets' },
-        { key: 'current_assets', label: 'Current Assets' },
-        { key: 'long_term_assets', label: 'Long-term Assets' },
-        { key: 'cash_and_equivalents', label: 'Cash & Equivalents' },
-        { key: 'total_liabilities', label: 'Total Liabilities' },
+        { key: 'total_resources', label: 'Total Resources' },
+        
+        // Liabilities
+        { key: 'total_liabilities', label: 'Total Liabilities (Bn. VND)' },
         { key: 'current_liabilities', label: 'Current Liabilities' },
+        { key: 'short_term_borrowings', label: 'Short-term Borrowings' },
+        { key: 'advances_from_customers', label: 'Advances from Customers' },
         { key: 'long_term_liabilities', label: 'Long-term Liabilities' },
-        { key: 'owners_equity', label: 'Owner\'s Equity' }
+        { key: 'long_term_borrowings', label: 'Long-term Borrowings' },
+        
+        // Equity
+        { key: 'owners_equity', label: 'Owner\'s Equity (Bn. VND)' },
+        { key: 'capital_and_reserves', label: 'Capital and Reserves' },
+        { key: 'paid_in_capital', label: 'Paid-in Capital' },
+        { key: 'common_shares', label: 'Common Shares' },
+        { key: 'investment_development_funds', label: 'Investment and Development Funds' },
+        { key: 'other_reserves', label: 'Other Reserves' },
+        { key: 'undistributed_earnings', label: 'Undistributed Earnings' },
+        { key: 'minority_interests', label: 'Minority Interests' }
     ];
     
     metrics.forEach(metric => {
@@ -238,13 +306,53 @@ function populateCashFlow() {
         return;
     }
     
-    // Define metrics to display
+    // Define metrics to display - comprehensive cash flow line items
     const metrics = [
-        { key: 'operating_cash_flow', label: 'Operating Cash Flow' },
-        { key: 'investing_cash_flow', label: 'Investing Cash Flow' },
-        { key: 'financing_cash_flow', label: 'Financing Cash Flow' },
-        { key: 'net_change_in_cash', label: 'Net Change in Cash' },
-        { key: 'profit_before_tax', label: 'Profit Before Tax' }
+        // Starting Cash Flow Items
+        { key: 'profit_before_tax', label: 'Net Profit/Loss Before Tax' },
+        { key: 'depreciation_amortisation', label: 'Depreciation and Amortisation' },
+        { key: 'provision_credit_losses', label: 'Provision for Credit Losses' },
+        { key: 'unrealized_fx_gain_loss', label: 'Unrealized Foreign Exchange Gain/Loss' },
+        { key: 'profit_loss_investing', label: 'Profit/Loss from Investing Activities' },
+        { key: 'interest_expense', label: 'Interest Expense' },
+        { key: 'operating_profit_before_wc_changes', label: 'Operating Profit Before WC Changes' },
+        
+        // Working Capital Changes
+        { key: 'increase_decrease_receivables', label: 'Increase/Decrease in Receivables' },
+        { key: 'increase_decrease_inventories', label: 'Increase/Decrease in Inventories' },
+        { key: 'increase_decrease_payables', label: 'Increase/Decrease in Payables' },
+        { key: 'increase_decrease_prepaid', label: 'Increase/Decrease in Prepaid Expenses' },
+        
+        // Operating Cash Flow
+        { key: 'interest_paid', label: 'Interest Paid' },
+        { key: 'business_tax_paid', label: 'Business Income Tax Paid' },
+        { key: 'other_receipts_operating', label: 'Other Receipts from Operating Activities' },
+        { key: 'other_payments_operating', label: 'Other Payments on Operating Activities' },
+        { key: 'operating_cash_flow', label: 'Net Cash from Operating Activities' },
+        
+        // Investing Activities
+        { key: 'purchase_fixed_assets', label: 'Purchase of Fixed Assets' },
+        { key: 'proceeds_disposal_assets', label: 'Proceeds from Disposal of Fixed Assets' },
+        { key: 'loans_granted', label: 'Loans Granted, Debt Instrument Purchases' },
+        { key: 'collection_loans', label: 'Collection of Loans, Debt Sales Proceeds' },
+        { key: 'investment_other_entities', label: 'Investment in Other Entities' },
+        { key: 'proceeds_divestment', label: 'Proceeds from Divestment in Other Entities' },
+        { key: 'gain_dividend', label: 'Gain on Dividend' },
+        { key: 'investing_cash_flow', label: 'Net Cash from Investing Activities' },
+        
+        // Financing Activities
+        { key: 'increase_charter_capital', label: 'Increase in Charter Capital' },
+        { key: 'share_repurchases', label: 'Payments for Share Repurchases' },
+        { key: 'proceeds_borrowings', label: 'Proceeds from Borrowings' },
+        { key: 'repayment_borrowings', label: 'Repayment of Borrowings' },
+        { key: 'dividends_paid', label: 'Dividends Paid' },
+        { key: 'financing_cash_flow', label: 'Cash Flows from Financial Activities' },
+        
+        // Net Cash Flow
+        { key: 'net_change_in_cash', label: 'Net Increase/Decrease in Cash' },
+        { key: 'cash_beginning', label: 'Cash and Cash Equivalents at Beginning' },
+        { key: 'fx_adjustment', label: 'Foreign Exchange Differences Adjustment' },
+        { key: 'cash_end_period', label: 'Cash at End of Period' }
     ];
     
     metrics.forEach(metric => {
