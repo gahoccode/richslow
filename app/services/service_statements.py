@@ -7,6 +7,7 @@ from vnstock.core.utils.transform import flatten_hierarchical_index
 from app.schemas.schema_statements import (
     BalanceSheetData,
     CashFlowData,
+    FinancialRatiosData,
     FinancialStatementsResponse,
     IncomeStatementData,
     StatementsRequest,
@@ -63,6 +64,9 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
         # Process cash flows
         cash_flows = _process_cash_flows(cash_flow_df)
 
+        # Process financial ratios
+        ratios = _process_ratios(ratio_df) if not ratio_df.empty else []
+
         # Get available years
         years = sorted(
             income_statement_df["yearReport"].unique().tolist(), reverse=True
@@ -82,6 +86,7 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
             income_statements=income_statements,
             balance_sheets=balance_sheets,
             cash_flows=cash_flows,
+            ratios=ratios,
             years=years,
             raw_data=raw_data,
         )
@@ -373,3 +378,61 @@ def _safe_float(value: Any) -> float | None:
         return float(value)
     except (ValueError, TypeError):
         return None
+
+
+def _process_ratios(df: pd.DataFrame) -> list[FinancialRatiosData]:
+    """Process raw financial ratios data into structured format."""
+    ratios = []
+
+    for _, row in df.iterrows():
+        # Map vnstock ratio fields to Pydantic model fields
+        ratios.append(
+            FinancialRatiosData(
+                # Meta fields
+                year_report=_safe_get_int(row, "yearReport"),
+                # Valuation Ratios
+                pe_ratio=_safe_get(row, "P/E"),
+                pb_ratio=_safe_get(row, "P/B"),
+                ps_ratio=_safe_get(row, "P/S"),
+                p_cash_flow=_safe_get(row, "P/CF"),
+                ev_ebitda=_safe_get(row, "EV/EBITDA"),
+                market_cap=_safe_get(row, "Market Cap (Bn. VND)"),
+                outstanding_shares=_safe_get(row, "Shares Outstanding (M)"),
+                earnings_per_share=_safe_get(row, "EPS (VND)"),
+                book_value_per_share=_safe_get(row, "BVPS (VND)"),
+                dividend_yield=_safe_get(row, "Dividend Yield (%)"),
+                # Profitability Ratios
+                roe=_safe_get(row, "ROE (%)"),
+                roa=_safe_get(row, "ROA (%)"),
+                roic=_safe_get(row, "ROIC (%)"),
+                gross_profit_margin=_safe_get(row, "Gross Margin (%)"),
+                net_profit_margin=_safe_get(row, "Net Margin (%)"),
+                ebit_margin=_safe_get(row, "EBIT Margin (%)"),
+                ebitda=_safe_get(row, "EBITDA (Bn. VND)"),
+                ebit=_safe_get(row, "EBIT (Bn. VND)"),
+                # Liquidity Ratios
+                current_ratio=_safe_get(row, "Current Ratio"),
+                quick_ratio=_safe_get(row, "Quick Ratio"),
+                cash_ratio=_safe_get(row, "Cash Ratio"),
+                interest_coverage_ratio=_safe_get(row, "Interest Coverage"),
+                # Leverage/Capital Structure Ratios
+                debt_to_equity=_safe_get(row, "D/E"),
+                bank_loans_long_term_debt_to_equity=_safe_get(
+                    row, "(Bank Loans + Long-term Debt) / Equity"
+                ),
+                fixed_assets_to_equity=_safe_get(row, "Fixed Assets / Equity Capital"),
+                equity_to_registered_capital=_safe_get(
+                    row, "Equity Capital / Registered Capital"
+                ),
+                # Efficiency/Activity Ratios
+                asset_turnover=_safe_get(row, "Asset Turnover"),
+                fixed_asset_turnover=_safe_get(row, "Fixed Asset Turnover"),
+                inventory_turnover=_safe_get(row, "Inventory Turnover"),
+                average_collection_days=_safe_get(row, "Average Collection Days"),
+                average_inventory_days=_safe_get(row, "Average Inventory Days"),
+                average_payment_days=_safe_get(row, "Average Payment Days"),
+                cash_conversion_cycle=_safe_get(row, "Cash Conversion Cycle"),
+            )
+        )
+
+    return ratios

@@ -401,7 +401,7 @@ function populateCashFlow() {
 }
 
 function populateRatios() {
-    const ratiosData = financialData?.raw_data?.ratios || [];
+    const ratiosData = financialData?.ratios || [];
     const years = financialData?.years || [];
     
     // Create table headers
@@ -424,44 +424,45 @@ function populateRatios() {
     // Create year-indexed data for easier access
     const ratiosByYear = {};
     ratiosData.forEach(ratio => {
-        ratiosByYear[ratio.Year] = ratio;
+        ratiosByYear[ratio.year_report] = ratio;
     });
     
-    // Define key financial ratios to display using actual API field names
+    // Define key financial ratios to display using processed backend field names
     const ratioMetrics = [
         // Valuation Ratios
-        { key: 'P/E', label: 'Price-to-Earnings Ratio' },
-        { key: 'P/B', label: 'Price-to-Book Ratio' },
-        { key: 'P/S', label: 'Price-to-Sales Ratio' },
-        { key: 'EV/EBITDA', label: 'EV/EBITDA Ratio' },
-        { key: 'BVPS (VND)', label: 'Book Value per Share (VND)' },
+        { key: 'pe_ratio', label: 'Price-to-Earnings Ratio' },
+        { key: 'pb_ratio', label: 'Price-to-Book Ratio' },
+        { key: 'ps_ratio', label: 'Price-to-Sales Ratio' },
+        { key: 'ev_ebitda', label: 'EV/EBITDA Ratio' },
+        { key: 'book_value_per_share', label: 'Book Value per Share (VND)' },
+        { key: 'dividend_yield', label: 'Dividend Yield (%)' },
         
         // Profitability Ratios
-        { key: 'ROE (%)', label: 'Return on Equity (%)' },
-        { key: 'ROA (%)', label: 'Return on Assets (%)' },
-        { key: 'ROIC (%)', label: 'Return on Invested Capital (%)' },
-        { key: 'Net Profit Margin (%)', label: 'Net Profit Margin (%)' },
-        { key: 'Gross Profit Margin (%)', label: 'Gross Profit Margin (%)' },
-        { key: 'EBIT Margin (%)', label: 'EBIT Margin (%)' },
+        { key: 'roe', label: 'Return on Equity (%)' },
+        { key: 'roa', label: 'Return on Assets (%)' },
+        { key: 'roic', label: 'Return on Invested Capital (%)' },
+        { key: 'net_profit_margin', label: 'Net Profit Margin (%)' },
+        { key: 'gross_profit_margin', label: 'Gross Profit Margin (%)' },
+        { key: 'ebit_margin', label: 'EBIT Margin (%)' },
         
         // Liquidity Ratios
-        { key: 'Current Ratio', label: 'Current Ratio' },
-        { key: 'Quick Ratio', label: 'Quick Ratio' },
-        { key: 'Cash Ratio', label: 'Cash Ratio' },
+        { key: 'current_ratio', label: 'Current Ratio' },
+        { key: 'quick_ratio', label: 'Quick Ratio' },
+        { key: 'cash_ratio', label: 'Cash Ratio' },
+        { key: 'interest_coverage_ratio', label: 'Interest Coverage Ratio' },
         
         // Leverage Ratios
-        { key: 'Debt/Equity', label: 'Debt-to-Equity Ratio' },
-        { key: '(ST+LT borrowings)/Equity', label: 'Total Borrowings to Equity' },
-        { key: 'Interest Coverage Ratio', label: 'Interest Coverage Ratio' },
+        { key: 'debt_to_equity', label: 'Debt-to-Equity Ratio' },
+        { key: 'bank_loans_long_term_debt_to_equity', label: 'Total Borrowings to Equity' },
         
         // Efficiency Ratios
-        { key: 'Asset Turnover', label: 'Asset Turnover' },
-        { key: 'Inventory Turnover', label: 'Inventory Turnover' },
-        { key: 'Fixed Asset Turnover', label: 'Fixed Asset Turnover' },
-        { key: 'Days Sales Outstanding', label: 'Days Sales Outstanding' },
-        { key: 'Days Inventory Outstanding', label: 'Days Inventory Outstanding' },
-        { key: 'Days Payable Outstanding', label: 'Days Payable Outstanding' },
-        { key: 'Cash Cycle', label: 'Cash Conversion Cycle' }
+        { key: 'asset_turnover', label: 'Asset Turnover' },
+        { key: 'inventory_turnover', label: 'Inventory Turnover' },
+        { key: 'fixed_asset_turnover', label: 'Fixed Asset Turnover' },
+        { key: 'average_collection_days', label: 'Days Sales Outstanding' },
+        { key: 'average_inventory_days', label: 'Days Inventory Outstanding' },
+        { key: 'average_payment_days', label: 'Days Payable Outstanding' },
+        { key: 'cash_conversion_cycle', label: 'Cash Conversion Cycle' }
     ];
     
     ratioMetrics.forEach(metric => {

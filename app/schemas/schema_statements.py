@@ -98,9 +98,7 @@ class BalanceSheetData(BaseModel):
     short_term_investments: float | None = Field(
         None, description="Short-term investments"
     )
-    accounts_receivable: float | None = Field(
-        None, description="Accounts receivable"
-    )
+    accounts_receivable: float | None = Field(None, description="Accounts receivable")
     short_term_loans_receivable: float | None = Field(
         None, description="Short-term loans receivable"
     )
@@ -109,17 +107,13 @@ class BalanceSheetData(BaseModel):
     prepayments_to_suppliers: float | None = Field(
         None, description="Prepayments to suppliers"
     )
-    other_current_assets: float | None = Field(
-        None, description="Other current assets"
-    )
+    other_current_assets: float | None = Field(None, description="Other current assets")
     other_current_assets_vnd: float | None = Field(
         None, description="Other current assets (VND)"
     )
 
     # Assets - Long-term
-    long_term_assets: float | None = Field(
-        None, description="Total long-term assets"
-    )
+    long_term_assets: float | None = Field(None, description="Total long-term assets")
     fixed_assets: float | None = Field(None, description="Fixed assets")
     long_term_investments: float | None = Field(
         None, description="Long-term investments"
@@ -153,9 +147,7 @@ class BalanceSheetData(BaseModel):
 
     # Liabilities
     total_liabilities: float | None = Field(None, description="Total liabilities")
-    current_liabilities: float | None = Field(
-        None, description="Current liabilities"
-    )
+    current_liabilities: float | None = Field(None, description="Current liabilities")
     short_term_borrowings: float | None = Field(
         None, description="Short-term borrowings"
     )
@@ -165,15 +157,11 @@ class BalanceSheetData(BaseModel):
     long_term_liabilities: float | None = Field(
         None, description="Long-term liabilities"
     )
-    long_term_borrowings: float | None = Field(
-        None, description="Long-term borrowings"
-    )
+    long_term_borrowings: float | None = Field(None, description="Long-term borrowings")
 
     # Equity
     owners_equity: float | None = Field(None, description="Owner's equity")
-    capital_and_reserves: float | None = Field(
-        None, description="Capital and reserves"
-    )
+    capital_and_reserves: float | None = Field(None, description="Capital and reserves")
     paid_in_capital: float | None = Field(None, description="Paid-in capital")
     common_shares: float | None = Field(None, description="Common shares")
     investment_development_funds: float | None = Field(
@@ -296,22 +284,6 @@ class CashFlowData(BaseModel):
     cash_end_period: float | None = Field(None, description="Cash at end of period")
 
 
-class FinancialStatementsResponse(BaseModel):
-    ticker: str = Field(..., description="Stock ticker symbol")
-    period: str = Field(..., description="Report period")
-    income_statements: list[IncomeStatementData] = Field(
-        ..., description="Income statement data by year"
-    )
-    balance_sheets: list[BalanceSheetData] = Field(
-        ..., description="Balance sheet data by year"
-    )
-    cash_flows: list[CashFlowData] = Field(..., description="Cash flow data by year")
-    years: list[int] = Field(..., description="Available years")
-    raw_data: dict[str, list[dict[str, Any]]] | None = Field(
-        None, description="Raw financial data"
-    )
-
-
 class FinancialRatiosData(BaseModel):
     year_report: int = Field(..., description="Report year")
 
@@ -341,19 +313,52 @@ class FinancialRatiosData(BaseModel):
     current_ratio: float | None = Field(None, description="Current ratio")
     quick_ratio: float | None = Field(None, description="Quick ratio")
     cash_ratio: float | None = Field(None, description="Cash ratio")
-    interest_coverage_ratio: float | None = Field(None, description="Interest coverage ratio")
+    interest_coverage_ratio: float | None = Field(
+        None, description="Interest coverage ratio"
+    )
 
     # Leverage/Capital Structure Ratios
     debt_to_equity: float | None = Field(None, description="Debt-to-equity ratio")
-    bank_loans_long_term_debt_to_equity: float | None = Field(None, description="(Bank Loans + Long-term Debt) / Equity")
-    fixed_assets_to_equity: float | None = Field(None, description="Fixed Assets / Equity Capital")
-    equity_to_registered_capital: float | None = Field(None, description="Equity Capital / Registered Capital")
+    bank_loans_long_term_debt_to_equity: float | None = Field(
+        None, description="(Bank Loans + Long-term Debt) / Equity"
+    )
+    fixed_assets_to_equity: float | None = Field(
+        None, description="Fixed Assets / Equity Capital"
+    )
+    equity_to_registered_capital: float | None = Field(
+        None, description="Equity Capital / Registered Capital"
+    )
 
     # Efficiency/Activity Ratios
     asset_turnover: float | None = Field(None, description="Asset turnover")
     fixed_asset_turnover: float | None = Field(None, description="Fixed asset turnover")
     inventory_turnover: float | None = Field(None, description="Inventory turnover")
-    average_collection_days: float | None = Field(None, description="Average collection days")
-    average_inventory_days: float | None = Field(None, description="Average inventory days")
+    average_collection_days: float | None = Field(
+        None, description="Average collection days"
+    )
+    average_inventory_days: float | None = Field(
+        None, description="Average inventory days"
+    )
     average_payment_days: float | None = Field(None, description="Average payment days")
-    cash_conversion_cycle: float | None = Field(None, description="Cash conversion cycle")
+    cash_conversion_cycle: float | None = Field(
+        None, description="Cash conversion cycle"
+    )
+
+
+class FinancialStatementsResponse(BaseModel):
+    ticker: str = Field(..., description="Stock ticker symbol")
+    period: str = Field(..., description="Report period")
+    income_statements: list[IncomeStatementData] = Field(
+        ..., description="Income statement data by year"
+    )
+    balance_sheets: list[BalanceSheetData] = Field(
+        ..., description="Balance sheet data by year"
+    )
+    cash_flows: list[CashFlowData] = Field(..., description="Cash flow data by year")
+    ratios: list[FinancialRatiosData] = Field(
+        ..., description="Financial ratios data by year"
+    )
+    years: list[int] = Field(..., description="Available years")
+    raw_data: dict[str, list[dict[str, Any]]] | None = Field(
+        None, description="Raw financial data"
+    )

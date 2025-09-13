@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, HTTPException, Query
 
 from app.schemas.schema_common import PeriodType
@@ -20,7 +19,9 @@ async def fetch_financial_statements(request: StatementsRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/statements/{ticker}", response_model=FinancialStatementsResponse)
@@ -41,7 +42,9 @@ async def fetch_financial_statements_get(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/health")

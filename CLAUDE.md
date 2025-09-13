@@ -86,5 +86,13 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 - MultiIndex DataFrame flattening for ratio data
 - Error handling for vnstock API rate limits and data availability
 
+**Backend-First Processing Architecture:**
+- **All data processing, transformation, and formatting must be done in backend services**
+- **Frontend should only display pre-processed data from API responses** 
+- **No calculations, data manipulation, or business logic in frontend JavaScript**
+- **Backend returns data in final display-ready format through Pydantic models**
+- **Frontend JavaScript handles only DOM manipulation and user interactions**
+
 This architecture supports the current static frontend while being designed for future React migration with minimal backend changes.
 - decouple backend code with frontend so that backend can be reused for other apps
+- decouple backend logic with frontend so that it can be reused in other app
