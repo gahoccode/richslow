@@ -87,3 +87,4 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 - Error handling for vnstock API rate limits and data availability
 
 This architecture supports the current static frontend while being designed for future React migration with minimal backend changes.
+- decouple backend code with frontend so that backend can be reused for other apps
