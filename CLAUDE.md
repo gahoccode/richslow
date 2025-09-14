@@ -236,3 +236,8 @@ The test suite is organized into comprehensive categories to ensure reliability 
 - Test documentation accuracy
 - Adhere to TDD cyle
 - Prioritize making edits to existing files over creating new files
+
+## Memory Notes
+
+### DataFrame and MultiIndex Handling
+- MultiIndex handling: Proper use of flatten_hierarchical_index. When working with the ratio df, remember the original data structure has been tranformed. 
