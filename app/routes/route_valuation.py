@@ -258,7 +258,9 @@ async def get_complete_valuation(
 
         # Market assumptions used (only numeric values for schema compatibility)
         market_assumptions = get_market_assumptions()
-        numeric_assumptions = {k: v for k, v in market_assumptions.items() if isinstance(v, (int, float))}
+        numeric_assumptions = {
+            k: v for k, v in market_assumptions.items() if isinstance(v, (int, float))
+        }
 
         # Optional raw data for debugging/detailed analysis
         raw_data = None
