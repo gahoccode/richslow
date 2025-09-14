@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.routes.route_statements import router as statements_router
+from app.routes.route_valuation import router as valuation_router
 
 app = FastAPI(
     title="RichSlow Financial Analysis API",
@@ -24,6 +25,7 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(statements_router)
+app.include_router(valuation_router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -40,6 +42,12 @@ async def serve_index():
 async def serve_statements():
     """Serve the financial statements page."""
     return FileResponse("static/statements.html")
+
+
+@app.get("/valuation")
+async def serve_valuation():
+    """Serve the valuation analysis page."""
+    return FileResponse("static/valuation.html")
 
 
 # Health check at root level

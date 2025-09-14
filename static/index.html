@@ -22,6 +22,9 @@
                     <li>
                         <a href="/statements" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0">Statements</a>
                     </li>
+                    <li>
+                        <a href="/valuation" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0">Valuation</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -93,7 +96,7 @@
         </div>
 
         <!-- Features Section -->
-        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="mt-16 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div class="text-center">
                 <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,6 +105,15 @@
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Financial Statements</h3>
                 <p class="text-gray-600">Comprehensive income statements, balance sheets, and cash flow analysis</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Valuation Analysis</h3>
+                <p class="text-gray-600">WACC, beta calculation, and cost of capital analysis with Vietnamese market parameters</p>
             </div>
             <div class="text-center">
                 <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
@@ -139,7 +151,7 @@
         });
 
         // Form submission
-        document.getElementById('analysisForm').addEventListener('submit', function(e) {
+        document.getElementById('analysisForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
@@ -156,12 +168,36 @@
             const loadingSpinner = document.getElementById('loadingSpinner');
             
             submitButton.disabled = true;
-            submitText.textContent = 'Analyzing...';
+            submitText.textContent = 'Downloading financial data...';
             loadingSpinner.classList.remove('hidden');
             
-            // Save parameters and redirect
-            saveParams(params.ticker, params.startDate, params.endDate, params.period);
-            window.location.href = '/statements';
+            try {
+                // First, fetch financial statements (prerequisite for valuation)
+                const statementsData = await apiCall('/api/statements', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        ticker: params.ticker,
+                        start_date: params.startDate,
+                        end_date: params.endDate,
+                        period: params.period
+                    })
+                });
+                
+                // Save parameters with financial data
+                saveParamsWithData(params.ticker, params.startDate, params.endDate, params.period, statementsData);
+                
+                // Show analysis options
+                showAnalysisOptions(params.ticker, submitButton, submitText, loadingSpinner);
+                
+            } catch (error) {
+                // Reset loading state
+                submitButton.disabled = false;
+                submitText.textContent = 'Analyze Financial Statements';
+                loadingSpinner.classList.add('hidden');
+                
+                // Show error
+                showToast(`Failed to load financial data: ${error.message}`, 'error');
+            }
         });
     </script>
 </body>

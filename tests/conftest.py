@@ -183,3 +183,154 @@ def sample_api_response() -> Dict[str, Any]:
             "ratios": [],
         },
     }
+
+
+@pytest.fixture
+def sample_stock_price_data() -> pd.DataFrame:
+    """Create sample stock price data for beta calculation testing."""
+    dates = pd.date_range("2023-01-01", "2023-12-31", freq="D")
+    # Filter to only weekdays (Monday=0 to Friday=4)
+    weekdays = dates[dates.weekday < 5]
+    
+    data = {
+        "time": weekdays,
+        "close": [100 + i * 0.1 + (i % 10) * 0.5 for i in range(len(weekdays))],  # Trending with volatility
+        "volume": [1000000 + i * 1000 for i in range(len(weekdays))],
+    }
+    df = pd.DataFrame(data)
+    df.name = "FPT"
+    df.category = "stock"
+    return df
+
+
+@pytest.fixture
+def sample_vnindex_price_data() -> pd.DataFrame:
+    """Create sample VNINDEX price data for beta calculation testing."""
+    dates = pd.date_range("2023-01-01", "2023-12-31", freq="D")
+    # Filter to only weekdays (Monday=0 to Friday=4)
+    weekdays = dates[dates.weekday < 5]
+    
+    data = {
+        "time": weekdays,
+        "close": [1200 + i * 0.05 + (i % 15) * 0.3 for i in range(len(weekdays))],  # Market trend
+        "volume": [50000000 + i * 10000 for i in range(len(weekdays))],
+    }
+    df = pd.DataFrame(data)
+    df.name = "VNINDEX"
+    df.category = "index"
+    return df
+
+
+@pytest.fixture
+def sample_valuation_ratios_data() -> pd.DataFrame:
+    """Create sample ratio data with market capitalization for WACC testing."""
+    data = {
+        "yearReport": [2023, 2022, 2021],
+        "market_cap": [15000000, 14500000, 14000000],  # Market cap in millions VND
+        "Market Capital (Bn. VND)": [15000, 14500, 14000],  # Alternative field name
+        "pe_ratio": [15.5, 16.2, 17.0],
+        "pb_ratio": [2.1, 2.3, 2.5],
+        "roe": [0.225, 0.224, 0.222],
+        "debt_to_equity": [0.6, 0.65, 0.7],
+        "interest_coverage_ratio": [8.5, 8.2, 7.9],
+    }
+    return pd.DataFrame(data)
+
+
+@pytest.fixture
+def sample_valuation_balance_data() -> pd.DataFrame:
+    """Create sample balance sheet data for WACC debt calculation."""
+    data = {
+        "yearReport": [2023, 2022, 2021],
+        "short_term_borrowings": [2000000, 1950000, 1900000],  # Short-term debt
+        "long_term_borrowings": [3000000, 2900000, 2800000],   # Long-term debt
+        "owners_equity": [8000000, 7600000, 7200000],          # Book equity
+        "total_assets": [15000000, 14500000, 14000000],
+    }
+    return pd.DataFrame(data)
+
+
+@pytest.fixture
+def sample_beta_metrics():
+    """Create sample BetaMetrics object for testing."""
+    from app.schemas.schema_valuation import BetaMetrics
+    return BetaMetrics(
+        ticker="FPT",
+        beta=1.25,
+        correlation=0.75,
+        r_squared=0.56,
+        volatility_stock=0.25,
+        volatility_market=0.20,
+        data_points_used=252,
+        start_date="2023-01-01",
+        end_date="2023-12-31"
+    )
+
+
+@pytest.fixture
+def sample_wacc_metrics():
+    """Create sample WACCMetrics object for testing."""
+    from app.schemas.schema_valuation import WACCMetrics
+    return WACCMetrics(
+        ticker="FPT",
+        wacc=0.085,
+        cost_of_equity=0.095,
+        cost_of_debt=0.056,
+        market_value_equity=15000000,
+        market_value_debt=5000000,
+        total_value=20000000,
+        equity_weight=0.75,
+        debt_weight=0.25,
+        tax_rate=0.20,
+        risk_free_rate=0.035,
+        market_risk_premium=0.05,
+        beta=1.25
+    )
+
+
+@pytest.fixture
+def expected_valuation_frontend_fields() -> Dict[str, str]:
+    """Expected frontend field mappings from valuation.js."""
+    return {
+        # WACC Analysis
+        "wacc": "Weighted Average Cost of Capital (WACC)",
+        "cost_of_equity": "Cost of Equity (Re)",
+        "cost_of_debt": "After-tax Cost of Debt (Rd)",
+        "equity_weight": "Equity Weight (E/V)",
+        "debt_weight": "Debt Weight (D/V)",
+        "market_cap": "Market Value of Equity (Bn VND)",
+        "total_debt": "Market Value of Debt (Bn VND)",
+        "enterprise_value": "Enterprise Value (Bn VND)",
+        
+        # Beta Analysis
+        "beta": "Beta (vs VNINDEX)",
+        "correlation": "Correlation with Market",
+        "r_squared": "R-squared (Statistical Quality)",
+        "stock_volatility": "Stock Volatility (Annualized)",
+        "market_volatility": "Market Volatility (Annualized)",
+        
+        # Capital Structure
+        "financial_leverage": "Financial Leverage Ratio",
+        "interest_coverage": "Interest Coverage Ratio",
+        
+        # Market Assumptions
+        "risk_free_rate": "Risk-free Rate",
+        "market_risk_premium": "Market Risk Premium",
+        "tax_rate": "Corporate Tax Rate",
+        "vietnam_corporate_tax_rate": "Vietnamese Corporate Tax Rate",
+        "vietnam_risk_free_rate": "Vietnamese Risk-free Rate",
+        "vietnam_market_risk_premium": "Vietnamese Market Risk Premium",
+        "default_credit_spread": "Default Credit Spread",
+    }
+
+
+@pytest.fixture
+def mock_vnstock_responses(sample_stock_price_data, sample_vnindex_price_data, 
+                          sample_valuation_ratios_data, sample_valuation_balance_data):
+    """Mock vnstock API responses for testing."""
+    return {
+        "stock_history": sample_stock_price_data,
+        "market_history": sample_vnindex_price_data,
+        "ratios": sample_valuation_ratios_data,
+        "balance_sheet": sample_valuation_balance_data,
+    }

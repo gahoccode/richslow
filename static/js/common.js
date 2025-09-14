@@ -19,6 +19,31 @@ function saveParams(ticker, startDate, endDate, period) {
 }
 
 /**
+ * Save analysis parameters with financial data for valuation
+ * @param {string} ticker - Stock ticker symbol
+ * @param {string} startDate - Start date in YYYY-MM-DD format
+ * @param {string} endDate - End date in YYYY-MM-DD format
+ * @param {string} period - Analysis period (year/quarter)
+ * @param {object} financialData - Financial statements data
+ */
+function saveParamsWithData(ticker, startDate, endDate, period, financialData) {
+    const params = {
+        ticker: ticker.toUpperCase(),
+        startDate: startDate,
+        endDate: endDate,
+        period: period,
+        dataLoaded: true,
+        loadedAt: new Date().toISOString(),
+        financialData: {
+            ratios: financialData.ratios || [],
+            years: financialData.years || []
+        }
+    };
+    sessionStorage.setItem("analysisParams", JSON.stringify(params));
+    console.log("Saved analysis parameters with financial data:", params);
+}
+
+/**
  * Retrieve analysis parameters from sessionStorage
  * @returns {object|null} Analysis parameters or null if not found
  */
@@ -50,6 +75,15 @@ function clearParams() {
 function hasValidParams() {
     const params = getParams();
     return params && params.ticker && params.startDate && params.endDate && params.period;
+}
+
+/**
+ * Validate that required parameters and financial data exist for valuation
+ * @returns {boolean} True if valid parameters and financial data exist
+ */
+function hasValidParamsWithData() {
+    const params = getParams();
+    return params && params.ticker && params.startDate && params.endDate && params.period && params.dataLoaded;
 }
 
 /**
@@ -188,4 +222,76 @@ async function apiCall(url, options = {}) {
         showToast(`API Error: ${error.message}`, 'error');
         throw error;
     }
+}
+
+/**
+ * Show analysis options after form submission
+ * @param {string} ticker - Stock ticker symbol
+ * @param {HTMLElement} submitButton - Form submit button
+ * @param {HTMLElement} submitText - Submit button text element
+ * @param {HTMLElement} loadingSpinner - Loading spinner element
+ */
+function showAnalysisOptions(ticker, submitButton, submitText, loadingSpinner) {
+    // Reset loading state
+    submitButton.disabled = false;
+    submitText.textContent = 'Analyze Financial Statements';
+    loadingSpinner.classList.add('hidden');
+    
+    // Create options modal
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+    modal.innerHTML = `
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Financial Data Loaded</h3>
+                <p class="text-sm text-gray-500 mt-2">Financial statements downloaded for <strong>${ticker}</strong>. Choose your analysis:</p>
+                <div class="mt-6 space-y-3">
+                    <button id="statementsOption" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Financial Statements
+                    </button>
+                    <button id="valuationOption" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        Valuation Analysis
+                    </button>
+                </div>
+                <div class="mt-4">
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    document.getElementById('statementsOption').addEventListener('click', () => {
+        window.location.href = '/statements';
+    });
+    
+    document.getElementById('valuationOption').addEventListener('click', () => {
+        window.location.href = '/valuation';
+    });
+    
+    document.getElementById('closeModal').addEventListener('click', () => {
+        modal.remove();
+    });
+    
+    // Close modal on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
 }

@@ -78,10 +78,26 @@ async function loadFinancialData() {
     if (!params) return;
     
     try {
+        // Check if we have cached financial data
+        if (params.dataLoaded && params.financialData) {
+            console.log("Using cached financial data");
+            financialData = params.financialData;
+            populateStatements();
+            return;
+        }
+        
         showLoading();
         
-        const url = `/api/statements/${params.ticker}?start_date=${params.startDate}&end_date=${params.endDate}&period=${params.period}`;
-        financialData = await apiCall(url);
+        // Use POST method as expected by the API
+        financialData = await apiCall('/api/statements', {
+            method: 'POST',
+            body: JSON.stringify({
+                ticker: params.ticker,
+                start_date: params.startDate,
+                end_date: params.endDate,
+                period: params.period
+            })
+        });
         
         hideLoading();
         populateStatements();
