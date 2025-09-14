@@ -7,7 +7,6 @@ class ValuationRequest(AnalysisRequest):
     """Reuses ticker, start_date, end_date, period from AnalysisRequest for consistency."""
 
 
-
 class BetaMetrics(BaseModel):
     """Standalone beta calculation results - reusable across applications."""
 

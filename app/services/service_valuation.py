@@ -12,6 +12,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from vnstock import Finance, Quote
+from vnstock.core.utils.transform import flatten_hierarchical_index
 
 from app.schemas.schema_valuation import BetaMetrics, ValuationMetrics, WACCMetrics
 
@@ -226,6 +227,12 @@ def calculate_wacc(
 
         if ratio_data.empty or balance_data.empty:
             raise ValueError(f"No financial data available for {ticker}")
+
+        # Handle MultiIndex columns if present
+        if isinstance(ratio_data.columns, pd.MultiIndex):
+            ratio_data = flatten_hierarchical_index(
+                ratio_data, separator="_", handle_duplicates=True, drop_levels=0
+            )
 
         # Extract latest period data
         latest_ratio = ratio_data.iloc[0] if not ratio_data.empty else {}

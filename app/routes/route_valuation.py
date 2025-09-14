@@ -156,8 +156,6 @@ async def get_wacc_analysis(
             "market_risk_premium": wacc_metrics.market_risk_premium,
             "tax_rate": wacc_metrics.tax_rate,
             "beta": wacc_metrics.beta,
-            "market_benchmark": "VNINDEX",
-            "debt_valuation_method": "book_value_proxy",
         }
 
         return WACCResponse(
@@ -258,8 +256,9 @@ async def get_complete_valuation(
                 "periods_analyzed": len(valuation_metrics),
             }
 
-        # Market assumptions used
+        # Market assumptions used (only numeric values for schema compatibility)
         market_assumptions = get_market_assumptions()
+        numeric_assumptions = {k: v for k, v in market_assumptions.items() if isinstance(v, (int, float))}
 
         # Optional raw data for debugging/detailed analysis
         raw_data = None
@@ -295,7 +294,7 @@ async def get_complete_valuation(
             valuation_metrics=valuation_metrics,
             summary=summary,
             data_quality=data_quality,
-            assumptions=market_assumptions,
+            assumptions=numeric_assumptions,
             years=years,
             raw_data=raw_data,
         )

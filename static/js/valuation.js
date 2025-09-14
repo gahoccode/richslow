@@ -3,25 +3,65 @@
 let valuationData = null;
 
 // Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    initializePage();
+document.addEventListener('DOMContentLoaded', async function() {
+    await initializePage();
 });
 
-function initializePage() {
+async function initializePage() {
     // Check if we have analysis parameters with financial data
     if (!hasValidParamsWithData()) {
+        // Check if we have basic parameters but no data
+        if (hasValidParams()) {
+            // Try to download statements data first
+            await downloadStatementsDataAndInitialize();
+        } else {
+            showNoParams();
+            return;
+        }
+    } else {
+        // Display analysis info
+        displayAnalysisInfo();
+        
+        // Set up tabs
+        setupTabs();
+        
+        // Load valuation data
+        loadValuationData();
+    }
+}
+
+async function downloadStatementsDataAndInitialize() {
+    const params = getParams();
+    if (!params) {
         showNoParams();
         return;
     }
     
-    // Display analysis info
-    displayAnalysisInfo();
-    
-    // Set up tabs
-    setupTabs();
-    
-    // Load valuation data
-    loadValuationData();
+    try {
+        // Show loading state
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('noParamsState').classList.add('hidden');
+        
+        // Download statements data
+        await downloadStatementsForValuation(
+            params.ticker,
+            params.startDate,
+            params.endDate,
+            params.period
+        );
+        
+        // Now proceed with normal initialization
+        displayAnalysisInfo();
+        setupTabs();
+        loadValuationData();
+        
+    } catch (error) {
+        // Hide loading state and show error
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('errorState').classList.remove('hidden');
+        document.getElementById('errorMessage').textContent = 
+            `Failed to download financial data: ${error.message}. Please start from the home page.`;
+    }
 }
 
 function showNoParams() {

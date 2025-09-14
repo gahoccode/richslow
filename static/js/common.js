@@ -225,6 +225,36 @@ async function apiCall(url, options = {}) {
 }
 
 /**
+ * Download statements data for valuation analysis
+ * @param {string} ticker - Stock ticker symbol
+ * @param {string} startDate - Start date in YYYY-MM-DD format
+ * @param {string} endDate - End date in YYYY-MM-DD format
+ * @param {string} period - Analysis period (year/quarter)
+ * @returns {Promise} Financial statements data
+ */
+async function downloadStatementsForValuation(ticker, startDate, endDate, period) {
+    try {
+        const statementsData = await apiCall('/api/statements', {
+            method: 'POST',
+            body: JSON.stringify({
+                ticker: ticker,
+                start_date: startDate,
+                end_date: endDate,
+                period: period
+            })
+        });
+        
+        // Save the data for use by other pages
+        saveParamsWithData(ticker, startDate, endDate, period, statementsData);
+        
+        return statementsData;
+    } catch (error) {
+        console.error('Failed to download statements data:', error);
+        throw error;
+    }
+}
+
+/**
  * Show analysis options after form submission
  * @param {string} ticker - Stock ticker symbol
  * @param {HTMLElement} submitButton - Form submit button
