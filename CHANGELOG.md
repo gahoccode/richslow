@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+- Navigation issues in RichSlow application where valuation page would load infinitely when accessed from homepage navbar
+- WACC calculation failing for VNM stock due to missing market capitalization data from vnstock API
+- MultiIndex DataFrame handling in valuation service to properly extract market capitalization from ratio data
+- Field name mapping discrepancies between expected and actual vnstock API column names
+- API response validation errors in WACC and valuation endpoints due to non-numeric values in assumptions dictionary
 
 ### Security
 

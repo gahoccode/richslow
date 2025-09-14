@@ -58,19 +58,30 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 - `IncomeStatementData` - 28 fields covering revenue, expenses, profits, taxes
 - `BalanceSheetData` - 39 fields covering assets, liabilities, equity
 - `CashFlowData` - 36 fields covering operating, investing, financing activities
+- `ValuationData` - 30+ fields covering DCF, WACC, multiples, and assumptions
 - Manual field mapping from Vietnamese financial statement column names to standardized Pydantic fields
+
+**Valuation Service Architecture:**
+- **Valuation Engine**: Core valuation calculations (DCF, WACC, multiples)
+- **Assumptions Management**: Configurable discount rates, growth rates, multiples
+- **Cross-Service Integration**: Reuses statements data for comprehensive analysis
+- **Multi-Source Data**: Combines financial statements, ratios, and market data
+- **Error Handling**: Graceful handling of missing data and calculation failures
 
 ### Frontend Architecture (Static HTML/JS)
 
 **File Structure:**
 - `static/index.html` - Landing page with ticker/date input form
 - `static/statements.html` - Financial statements display with tabbed interface
+- `static/valuation.html` - Stock valuation interface with DCF and multiples analysis
 - `static/js/common.js` - Shared utilities and session storage management
 - `static/js/statements.js` - Financial data rendering and API integration
+- `static/js/valuation.js` - Valuation calculations and data visualization
 
 **State Management:**
 - Uses browser `sessionStorage` to persist user inputs (ticker, date range, period)
 - Allows users to input once and navigate between analysis pages
+- Automatic data downloading for valuation page when statements data is missing
 - Ready for future migration to React with global state management
 
 ### Data Flow
@@ -81,6 +92,15 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 4. **Data Processing**: Raw DataFrames processed through manual field mapping functions
 5. **Response**: Comprehensive financial statements returned as validated Pydantic models
 6. **Display**: Frontend renders tabbed interface showing Income Statement, Balance Sheet, Cash Flow
+
+### Valuation Data Flow
+
+1. **Statements Data**: Valuation service reuses existing statements API data
+2. **Market Data**: Additional market cap and ratio data from vnstock
+3. **Valuation Engine**: Backend performs complex DCF and WACC calculations
+4. **Assumptions Processing**: Configurable parameters with validation
+5. **Multiple Methods**: DCF, multiples, and comparable analysis
+6. **Results Display**: Interactive frontend with charts and sensitivity analysis
 
 ### Development Conventions
 
@@ -103,6 +123,15 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 - MultiIndex DataFrame flattening for ratio data with vnstock v3+ parameters
 - Error handling for vnstock API rate limits and data availability
 - Debug logging for field mapping validation and troubleshooting
+
+**Valuation-Specific Best Practices:**
+- **WACC Calculation**: Use `flatten_hierarchical_index` for proper MultiIndex DataFrame handling
+- **Market Cap Field Mapping**: Map "Market Capital (Bn. VND)" field for Vietnamese stocks
+- **Assumptions Validation**: Filter assumptions to include only numeric values for API validation
+- **Cross-Service Integration**: Reuse statements service data to avoid redundant API calls
+- **Error Resilience**: Handle missing market data gracefully with appropriate fallbacks
+- **Calculation Verification**: Test valuation models with multiple stocks across different sectors
+- **Data Consistency**: Ensure valuation data uses the same time periods as statements data
 
 **Backend-First Processing Architecture:**
 - **All data processing, transformation, and formatting must be done in backend services**
@@ -135,6 +164,15 @@ This architecture supports the current static frontend while being designed for 
 - Account for industry-specific ratio availability (e.g., banks vs. manufacturing)
 - Implement null handling for ratios not applicable to certain business models
 - Test edge cases with companies having unusual financial structures
+
+### Valuation Model Validation
+- **DCF Model Testing**: Verify cash flow projections and terminal value calculations
+- **WACC Components**: Validate cost of equity, cost of debt, and market risk premium
+- **Multiples Analysis**: Compare P/E, P/B, EV/EBITDA multiples across industry peers
+- **Sensitivity Analysis**: Test valuation robustness across different assumption ranges
+- **Market Data Integration**: Ensure market cap and ratio data consistency
+- **Cross-Validation**: Compare DCF results with multiples-based valuations
+- **Edge Case Handling**: Test with stocks having unusual financial structures or missing data
 
 ## Testing Framework
 

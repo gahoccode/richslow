@@ -1,15 +1,17 @@
 # RichSlow
 
-A comprehensive Vietnamese stock market financial analysis web application built with FastAPI and vanilla JavaScript. Analyze financial statements, ratios, and metrics for Vietnamese public companies using real-time data from vnstock.
+A comprehensive Vietnamese stock market financial analysis and valuation web application built with FastAPI and vanilla JavaScript. Analyze financial statements, ratios, metrics, and perform stock valuation for Vietnamese public companies using real-time data from vnstock.
 
 ## Features
 
 - **Real-time Financial Data**: Fetches live data from Vietnamese stock exchanges (VCI, TCBS)
 - **Comprehensive Analysis**: Income statements, balance sheets, cash flow statements, and financial ratios
 - **34+ Financial Ratios**: Including P/E, ROE, debt ratios, liquidity ratios, and efficiency metrics
+- **Stock Valuation**: DCF (Discounted Cash Flow), WACC (Weighted Average Cost of Capital), and multiples-based valuation
 - **Multi-period Analysis**: Support for yearly and quarterly data analysis
 - **Clean API Design**: RESTful API with comprehensive OpenAPI documentation
 - **Reusable Backend**: Modular design allows backend services to be used in other applications
+- **Integrated Navigation**: Seamless navigation between statements and valuation analysis
 
 ## Quick Start
 
@@ -49,6 +51,8 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 2. Enter a Vietnamese stock ticker (e.g., `FPT`, `VCB`, `HPG`)
 3. Select date range and analysis period
 4. Click "Analyze" to view comprehensive financial data
+5. Use the navigation to switch between financial statements and valuation analysis
+6. Valuation page automatically downloads required data if not already available
 
 ### API Usage
 
@@ -56,6 +60,19 @@ Get financial statements for a company:
 
 ```bash
 curl -X POST "http://localhost:8000/api/statements/FPT" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "ticker": "FPT",
+       "start_date": "2023-01-01",
+       "end_date": "2023-12-31",
+       "period": "year"
+     }'
+```
+
+Get stock valuation for a company:
+
+```bash
+curl -X POST "http://localhost:8000/api/valuation/FPT" \
      -H "Content-Type: application/json" \
      -d '{
        "ticker": "FPT",
@@ -76,12 +93,23 @@ from app.schemas.schema_statements import (
     FinancialStatementsResponse,
     StatementsRequest
 )
+from app.schemas.schema_valuation import (
+    ValuationData,
+    ValuationResponse,
+    ValuationRequest
+)
 
 # Import utility functions
 from app.services.service_statements import (
     get_financial_statements,
     _safe_get,
     _process_ratios
+)
+from app.services.service_valuation import (
+    get_valuation,
+    calculate_wacc,
+    calculate_dcf,
+    calculate_multiples
 )
 
 # Use in your application
@@ -150,8 +178,10 @@ uv add <package> --dev
 
 - **`static/index.html`** - Landing page with ticker input form
 - **`static/statements.html`** - Financial statements display interface
+- **`static/valuation.html`** - Stock valuation analysis interface
 - **`static/js/common.js`** - Shared utilities and session storage
 - **`static/js/statements.js`** - Data rendering and API integration
+- **`static/js/valuation.js`** - Valuation calculations and visualization
 
 ### Key Integration Points
 
@@ -187,6 +217,13 @@ uv add <package> --dev
 - **Efficiency**: Asset turnover, inventory turnover, collection cycles
 - **Leverage**: Debt-to-equity, interest coverage, financial structure
 
+### Valuation Methods
+- **Discounted Cash Flow (DCF)**: Intrinsic value based on projected cash flows
+- **Weighted Average Cost of Capital (WACC)**: Cost of capital calculation using market data
+- **Multiples Analysis**: P/E, P/B, EV/EBITDA multiples-based valuation
+- **Comparable Analysis**: Industry peer comparison and benchmarking
+- **Sensitivity Analysis**: Valuation ranges under different assumptions
+
 ## API Reference
 
 ### Endpoints
@@ -221,6 +258,37 @@ Get comprehensive financial statements for a Vietnamese stock.
 }
 ```
 
+#### `POST /api/valuation/{ticker}`
+
+Get comprehensive stock valuation for a Vietnamese stock.
+
+**Parameters:**
+- `ticker` (path): Stock ticker symbol (e.g., "FPT", "VCB")
+
+**Request Body:**
+```json
+{
+  "ticker": "FPT",
+  "start_date": "2023-01-01",
+  "end_date": "2023-12-31",
+  "period": "year"
+}
+```
+
+**Response:**
+```json
+{
+  "ticker": "FPT",
+  "period": "year",
+  "dcf_valuation": {...},
+  "wacc_analysis": {...},
+  "multiples_valuation": {...},
+  "assumptions": {...},
+  "current_price": 125000,
+  "valuation_summary": {...}
+}
+```
+
 ### Response Schema
 
 All responses follow strict Pydantic schemas ensuring data consistency:
@@ -230,6 +298,9 @@ All responses follow strict Pydantic schemas ensuring data consistency:
 - **BalanceSheetData**: Balance sheet components  
 - **CashFlowData**: Cash flow statement items
 - **FinancialRatiosData**: 34+ calculated financial ratios
+- **ValuationResponse**: Valuation API response container
+- **ValuationData**: DCF, WACC, and multiples valuation results
+- **AssumptionsData**: Valuation assumptions and parameters
 
 ## Testing
 
@@ -240,6 +311,9 @@ The project includes a comprehensive test suite covering:
 - **Contract Alignment**: Frontend-backend field mapping consistency
 - **Reusability Testing**: Standalone service usage for external applications
 - **Integration Testing**: End-to-end API testing with mocked data sources
+- **Valuation Testing**: DCF, WACC, and multiples calculation accuracy
+- **Data Integration Testing**: Cross-service data consistency validation
+- **Navigation Testing**: User workflow testing between statements and valuation
 
 Run tests with:
 ```bash
@@ -287,11 +361,23 @@ For questions or issues:
 
 ## Roadmap
 
+### Completed Features ✅
+- [x] Stock valuation with DCF, WACC, and multiples analysis
+- [x] Integrated navigation between statements and valuation
+- [x] Automatic data downloading for valuation page
+- [x] Comprehensive financial ratio coverage (34+ metrics)
+- [x] Backend-first processing architecture
+
+### Planned Features 📋
 - [ ] React frontend migration
 - [ ] Real-time data streaming
 - [ ] Portfolio analysis features
 - [ ] Technical analysis indicators
-- [ ] Industry comparison tools
+- [ ] Enhanced industry comparison tools
 - [ ] Export functionality (PDF, Excel)
 - [ ] Historical data visualization
 - [ ] Alert and notification system
+- [ ] Advanced sensitivity analysis tools
+- [ ] Peer comparison and benchmarking
+- [ ] Economic scenario analysis
+- [ ] Risk management features
