@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-09-14
+
+### Added
+- **Stock Valuation Module**: Complete stock valuation functionality with multiple valuation methods
+  - **Discounted Cash Flow (DCF)**: Intrinsic value calculation based on projected cash flows
+  - **Weighted Average Cost of Capital (WACC)**: Cost of capital calculation using market data
+  - **Multiples Analysis**: P/E, P/B, EV/EBITDA multiples-based valuation
+  - **Sensitivity Analysis**: Valuation ranges under different assumption scenarios
+- **Integrated Navigation**: Seamless navigation between statements and valuation analysis pages
+- **Automatic Data Downloading**: Valuation page automatically downloads required statements data when missing
+- **Comprehensive Architecture Documentation**: 40KB architecture overview document with C4 model diagrams
+- **Valuation Architecture Decision Record**: ADR-007 documenting valuation module architecture decisions
+- **Enhanced API Endpoints**: `/api/valuation/{ticker}` endpoint for comprehensive stock valuation
+- **Valuation Schemas**: Complete Pydantic models for valuation data validation and API contracts
+- **Market Data Integration**: Enhanced vnstock integration with proper MultiIndex DataFrame handling
+
+### Changed
+- **Backend Architecture**: Extended backend-first processing to include valuation calculations
+- **Frontend Navigation**: Updated navigation bars to include valuation page links
+- **User Experience**: Automatic data persistence and cross-page data sharing
+- **Application Description**: Updated to reflect valuation capabilities
+- **Development Documentation**: Enhanced CLAUDE.md with valuation-specific best practices
+- **Project Documentation**: Updated README.md with comprehensive valuation feature descriptions
+
+### Fixed
+- Navigation issues in RichSlow application where valuation page would load infinitely when accessed from homepage navbar
+- WACC calculation failing for VNM stock due to missing market capitalization data from vnstock API
+- MultiIndex DataFrame handling in valuation service to properly extract market capitalization from ratio data
+- Field name mapping discrepancies between expected and actual vnstock API column names
+- API response validation errors in WACC and valuation endpoints due to non-numeric values in assumptions dictionary
+- Cross-page data persistence for seamless statements-to-valuation workflow
+
 ## [Unreleased]
 
 ### Added
@@ -16,11 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
-- Navigation issues in RichSlow application where valuation page would load infinitely when accessed from homepage navbar
-- WACC calculation failing for VNM stock due to missing market capitalization data from vnstock API
-- MultiIndex DataFrame handling in valuation service to properly extract market capitalization from ratio data
-- Field name mapping discrepancies between expected and actual vnstock API column names
-- API response validation errors in WACC and valuation endpoints due to non-numeric values in assumptions dictionary
 
 ### Security
 
@@ -84,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Figure scaling to display in original scale
 - Data processing pipeline for Vietnamese financial statements
 
-[Unreleased]: https://github.com/tamle/richslow/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/tamle/richslow/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/tamle/richslow/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/tamle/richslow/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/tamle/richslow/releases/tag/v0.1.0
