@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: richslow
+    runtime: python
+    region: singapore
+    plan: free
+    branch: main
+    buildCommand: uv sync
+    startCommand: uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    buildFilter:
+      paths:
+        - app/**
+        - static/**
+        - pyproject.toml
+        - uv.lock
+      ignoredPaths:
+        - tests/**
+        - docs/**
+        - scripts/**
+        - temp/**
+        - "*.md"
+        - .pytest_cache/**
+        - .ruff_cache/**
+        - .serena/**
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+      - key: UV_SYSTEM_PYTHON
+        value: "1"
+    autoDeploy: true
