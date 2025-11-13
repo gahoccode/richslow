@@ -10,16 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Centralized Field Mappings** (`app/config/field_mappings.py`): Single source of truth for vnstock API column name mappings
   - `INCOME_STATEMENT_MAPPINGS`: 28 field mappings from vnstock API to IncomeStatementData schema
-  - `BALANCE_SHEET_MAPPINGS`: 40 field mappings from vnstock API to BalanceSheetData schema
-  - `CASH_FLOW_MAPPINGS`: 36 field mappings from vnstock API to CashFlowData schema
-  - `FINANCIAL_RATIOS_MAPPINGS`: 34 field mappings from vnstock API to FinancialRatiosData schema
-  - All mappings use deterministic column names from actual API responses (no guessing)
+  - `BALANCE_SHEET_MAPPINGS`: 42 field mappings from vnstock API to BalanceSheetData schema
+  - `CASH_FLOW_MAPPINGS`: 40 field mappings from vnstock API to CashFlowData schema
+  - `FINANCIAL_RATIOS_MAPPINGS`: 37 field mappings from vnstock API to FinancialRatiosData schema
+  - **All mappings validated against actual API responses with dropna=False** - 100% field coverage (147 total mappings)
+  - All mappings use deterministic column names from actual vnstock v3.2.6 API responses
 - **Data Transformation Utilities** (`app/utils/transform.py`): Reusable helper functions extracted from service layer
   - `safe_get_float()`: Safely extract float values from pandas Series with null handling
   - `safe_get_str()`: Safely extract string values from pandas Series
   - `safe_get_int()`: Safely extract integer values from pandas Series
   - `safe_convert_float()`: Convert any value to float with error handling
   - `apply_field_mapping()`: Apply field mappings for consistent data extraction
+- **New Schema Fields**: Added 9 missing fields discovered from comprehensive API validation with dropna=False
+  - Balance Sheet: `budget_sources_and_other_funds`, `goodwill_alt`, `investment_properties`, `convertible_bonds` (42 total fields)
+  - Cash Flow: `finance_lease_principal_payments`, `profit_loss_disposal_assets`, `dividends_received`, `interest_income_dividends` (40 total fields)
+  - Financial Ratios: `ticker`, `length_report`, `financial_leverage` (37 total fields)
+  - **Total: 147 financial data fields** across all schemas
 
 ### Changed
 - **Refactored Service Layer** (`app/services/service_statements.py`): Improved code organization and maintainability

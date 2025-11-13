@@ -71,10 +71,12 @@ BALANCE_SHEET_MAPPINGS: dict[str, str] = {
     "long_term_assets": "LONG-TERM ASSETS (Bn. VND)",
     "fixed_assets": "Fixed assets (Bn. VND)",
     "long_term_investments": "Long-term investments (Bn. VND)",
+    "investment_properties": "Investment in properties",
     "long_term_loans_receivable": "Long-term loans receivables (Bn. VND)",
     "long_term_trade_receivables": "Long-term trade receivables (Bn. VND)",
     "long_term_prepayments": "Long-term prepayments (Bn. VND)",
     "goodwill": "Good will (Bn. VND)",
+    "goodwill_alt": "Goodwill",
     "other_non_current_assets": "Other non-current assets",
     "other_long_term_assets": "Other long-term assets (Bn. VND)",
     "other_long_term_receivables": "Other long-term receivables (Bn. VND)",
@@ -88,6 +90,7 @@ BALANCE_SHEET_MAPPINGS: dict[str, str] = {
     "advances_from_customers": "Advances from customers (Bn. VND)",
     "long_term_liabilities": "Long-term liabilities (Bn. VND)",
     "long_term_borrowings": "Long-term borrowings (Bn. VND)",
+    "convertible_bonds": "Convertible bonds (Bn. VND)",
     # Equity
     "owners_equity": "OWNER'S EQUITY(Bn.VND)",
     "capital_and_reserves": "Capital and reserves (Bn. VND)",
@@ -129,11 +132,14 @@ CASH_FLOW_MAPPINGS: dict[str, str] = {
     # Investing Activities
     "purchase_fixed_assets": "Purchase of fixed assets",
     "proceeds_disposal_assets": "Proceeds from disposal of fixed assets",
+    "profit_loss_disposal_assets": "Profit/Loss from disposal of fixed assets",
     "loans_granted": "Loans granted, purchases of debt instruments (Bn. VND)",
     "collection_loans": "Collection of loans, proceeds from sales of debts instruments (Bn. VND)",
     "investment_other_entities": "Investment in other entities",
     "proceeds_divestment": "Proceeds from divestment in other entities",
     "gain_dividend": "Gain on Dividend",
+    "dividends_received": "Dividends received",
+    "interest_income_dividends": "Interest income and dividends",
     "investing_cash_flow": "Net Cash Flows from Investing Activities",
     # Financing Activities
     "increase_charter_capital": "Increase in charter captial",
@@ -156,7 +162,9 @@ CASH_FLOW_MAPPINGS: dict[str, str] = {
 # After flattening with flatten_hierarchical_index()
 FINANCIAL_RATIOS_MAPPINGS: dict[str, str] = {
     # Meta fields
+    "ticker": "ticker",
     "year_report": "yearReport",
+    "length_report": "lengthReport",
     # Valuation Ratios
     "pe_ratio": "P/E",
     "pb_ratio": "P/B",

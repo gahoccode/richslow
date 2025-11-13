@@ -131,6 +131,7 @@ class BalanceSheetData(BaseModel):
         None, description="Long-term prepayments"
     )
     goodwill: float | None = Field(None, description="Goodwill")
+    goodwill_alt: float | None = Field(None, description="Goodwill (alternative column)")
     other_non_current_assets: float | None = Field(
         None, description="Other non-current assets"
     )
@@ -158,6 +159,7 @@ class BalanceSheetData(BaseModel):
         None, description="Long-term liabilities"
     )
     long_term_borrowings: float | None = Field(None, description="Long-term borrowings")
+    convertible_bonds: float | None = Field(None, description="Convertible bonds")
 
     # Equity
     owners_equity: float | None = Field(None, description="Owner's equity")
@@ -172,6 +174,9 @@ class BalanceSheetData(BaseModel):
         None, description="Undistributed earnings"
     )
     minority_interests: float | None = Field(None, description="Minority interests")
+    budget_sources_and_other_funds: float | None = Field(
+        None, description="Budget sources and other funds"
+    )
 
 
 class CashFlowData(BaseModel):
@@ -236,6 +241,9 @@ class CashFlowData(BaseModel):
     proceeds_disposal_assets: float | None = Field(
         None, description="Proceeds from disposal of fixed assets"
     )
+    profit_loss_disposal_assets: float | None = Field(
+        None, description="Profit/loss from disposal of fixed assets"
+    )
     loans_granted: float | None = Field(
         None, description="Loans granted, debt instrument purchases"
     )
@@ -249,6 +257,10 @@ class CashFlowData(BaseModel):
         None, description="Proceeds from divestment in other entities"
     )
     gain_dividend: float | None = Field(None, description="Gain on dividend")
+    dividends_received: float | None = Field(None, description="Dividends received")
+    interest_income_dividends: float | None = Field(
+        None, description="Interest income and dividends"
+    )
     investing_cash_flow: float | None = Field(
         None, description="Net cash from investing activities"
     )
@@ -267,6 +279,9 @@ class CashFlowData(BaseModel):
         None, description="Repayment of borrowings"
     )
     dividends_paid: float | None = Field(None, description="Dividends paid")
+    finance_lease_principal_payments: float | None = Field(
+        None, description="Finance lease principal payments"
+    )
     financing_cash_flow: float | None = Field(
         None, description="Cash flows from financial activities"
     )
@@ -285,7 +300,9 @@ class CashFlowData(BaseModel):
 
 
 class FinancialRatiosData(BaseModel):
+    ticker: str | None = Field(None, description="Stock ticker symbol")
     year_report: int = Field(..., description="Report year")
+    length_report: int | None = Field(None, description="Report length/period")
 
     # Valuation Ratios
     pe_ratio: float | None = Field(None, description="Price-to-earnings ratio")
@@ -327,6 +344,9 @@ class FinancialRatiosData(BaseModel):
     )
     equity_to_registered_capital: float | None = Field(
         None, description="Equity Capital / Registered Capital"
+    )
+    financial_leverage: float | None = Field(
+        None, description="Financial leverage ratio"
     )
 
     # Efficiency/Activity Ratios

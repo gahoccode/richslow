@@ -240,6 +240,7 @@ def _process_balance_sheets(df: pd.DataFrame) -> list[BalanceSheetData]:
                 long_term_trade_receivables=apply_field_mapping(row, "long_term_trade_receivables", BALANCE_SHEET_MAPPINGS),
                 long_term_prepayments=apply_field_mapping(row, "long_term_prepayments", BALANCE_SHEET_MAPPINGS),
                 goodwill=apply_field_mapping(row, "goodwill", BALANCE_SHEET_MAPPINGS),
+                goodwill_alt=apply_field_mapping(row, "goodwill_alt", BALANCE_SHEET_MAPPINGS),
                 other_non_current_assets=apply_field_mapping(row, "other_non_current_assets", BALANCE_SHEET_MAPPINGS),
                 other_long_term_assets=apply_field_mapping(row, "other_long_term_assets", BALANCE_SHEET_MAPPINGS),
                 other_long_term_receivables=apply_field_mapping(row, "other_long_term_receivables", BALANCE_SHEET_MAPPINGS),
@@ -253,6 +254,7 @@ def _process_balance_sheets(df: pd.DataFrame) -> list[BalanceSheetData]:
                 advances_from_customers=apply_field_mapping(row, "advances_from_customers", BALANCE_SHEET_MAPPINGS),
                 long_term_liabilities=apply_field_mapping(row, "long_term_liabilities", BALANCE_SHEET_MAPPINGS),
                 long_term_borrowings=apply_field_mapping(row, "long_term_borrowings", BALANCE_SHEET_MAPPINGS),
+                convertible_bonds=apply_field_mapping(row, "convertible_bonds", BALANCE_SHEET_MAPPINGS),
                 # Equity
                 owners_equity=apply_field_mapping(row, "owners_equity", BALANCE_SHEET_MAPPINGS),
                 capital_and_reserves=apply_field_mapping(row, "capital_and_reserves", BALANCE_SHEET_MAPPINGS),
@@ -262,6 +264,7 @@ def _process_balance_sheets(df: pd.DataFrame) -> list[BalanceSheetData]:
                 other_reserves=apply_field_mapping(row, "other_reserves", BALANCE_SHEET_MAPPINGS),
                 undistributed_earnings=apply_field_mapping(row, "undistributed_earnings", BALANCE_SHEET_MAPPINGS),
                 minority_interests=apply_field_mapping(row, "minority_interests", BALANCE_SHEET_MAPPINGS),
+                budget_sources_and_other_funds=apply_field_mapping(row, "budget_sources_and_other_funds", BALANCE_SHEET_MAPPINGS),
             )
         )
 
@@ -317,11 +320,14 @@ def _process_cash_flows(df: pd.DataFrame) -> list[CashFlowData]:
                 # Investing Activities
                 purchase_fixed_assets=apply_field_mapping(row, "purchase_fixed_assets", CASH_FLOW_MAPPINGS),
                 proceeds_disposal_assets=apply_field_mapping(row, "proceeds_disposal_assets", CASH_FLOW_MAPPINGS),
+                profit_loss_disposal_assets=apply_field_mapping(row, "profit_loss_disposal_assets", CASH_FLOW_MAPPINGS),
                 loans_granted=apply_field_mapping(row, "loans_granted", CASH_FLOW_MAPPINGS),
                 collection_loans=apply_field_mapping(row, "collection_loans", CASH_FLOW_MAPPINGS),
                 investment_other_entities=apply_field_mapping(row, "investment_other_entities", CASH_FLOW_MAPPINGS),
                 proceeds_divestment=apply_field_mapping(row, "proceeds_divestment", CASH_FLOW_MAPPINGS),
                 gain_dividend=apply_field_mapping(row, "gain_dividend", CASH_FLOW_MAPPINGS),
+                dividends_received=apply_field_mapping(row, "dividends_received", CASH_FLOW_MAPPINGS),
+                interest_income_dividends=apply_field_mapping(row, "interest_income_dividends", CASH_FLOW_MAPPINGS),
                 investing_cash_flow=apply_field_mapping(row, "investing_cash_flow", CASH_FLOW_MAPPINGS),
                 # Financing Activities
                 increase_charter_capital=apply_field_mapping(row, "increase_charter_capital", CASH_FLOW_MAPPINGS),
@@ -329,6 +335,7 @@ def _process_cash_flows(df: pd.DataFrame) -> list[CashFlowData]:
                 proceeds_borrowings=apply_field_mapping(row, "proceeds_borrowings", CASH_FLOW_MAPPINGS),
                 repayment_borrowings=apply_field_mapping(row, "repayment_borrowings", CASH_FLOW_MAPPINGS),
                 dividends_paid=apply_field_mapping(row, "dividends_paid", CASH_FLOW_MAPPINGS),
+                finance_lease_principal_payments=apply_field_mapping(row, "finance_lease_principal_payments", CASH_FLOW_MAPPINGS),
                 financing_cash_flow=apply_field_mapping(row, "financing_cash_flow", CASH_FLOW_MAPPINGS),
                 # Net Cash Flow
                 net_change_in_cash=apply_field_mapping(row, "net_change_in_cash", CASH_FLOW_MAPPINGS),
@@ -370,7 +377,9 @@ def _process_ratios(df: pd.DataFrame) -> list[FinancialRatiosData]:
         ratios.append(
             FinancialRatiosData(
                 # Meta fields
+                ticker=safe_get_str(row, FINANCIAL_RATIOS_MAPPINGS.get("ticker")),
                 year_report=safe_get_int(row, FINANCIAL_RATIOS_MAPPINGS["year_report"]),
+                length_report=safe_get_int(row, FINANCIAL_RATIOS_MAPPINGS.get("length_report")),
                 # Valuation Ratios
                 pe_ratio=apply_field_mapping(row, "pe_ratio", FINANCIAL_RATIOS_MAPPINGS),
                 pb_ratio=apply_field_mapping(row, "pb_ratio", FINANCIAL_RATIOS_MAPPINGS),
@@ -401,6 +410,7 @@ def _process_ratios(df: pd.DataFrame) -> list[FinancialRatiosData]:
                 bank_loans_long_term_debt_to_equity=apply_field_mapping(row, "bank_loans_long_term_debt_to_equity", FINANCIAL_RATIOS_MAPPINGS),
                 fixed_assets_to_equity=apply_field_mapping(row, "fixed_assets_to_equity", FINANCIAL_RATIOS_MAPPINGS),
                 equity_to_registered_capital=apply_field_mapping(row, "equity_to_registered_capital", FINANCIAL_RATIOS_MAPPINGS),
+                financial_leverage=apply_field_mapping(row, "financial_leverage", FINANCIAL_RATIOS_MAPPINGS),
                 # Efficiency/Activity Ratios
                 asset_turnover=apply_field_mapping(row, "asset_turnover", FINANCIAL_RATIOS_MAPPINGS),
                 fixed_asset_turnover=apply_field_mapping(row, "fixed_asset_turnover", FINANCIAL_RATIOS_MAPPINGS),
