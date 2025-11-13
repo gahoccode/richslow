@@ -38,12 +38,11 @@ class TestImports:
         """Test that service modules import successfully."""
         try:
             from app.services import service_statements
-            
+
             # Verify key functions are available
             assert hasattr(service_statements, "get_financial_statements")
             assert hasattr(service_statements, "_process_ratios")
-            assert hasattr(service_statements, "_safe_get")
-            
+
         except ImportError as e:
             pytest.fail(f"Failed to import services: {e}")
 
@@ -85,16 +84,18 @@ class TestImports:
             from app.services.service_statements import (
                 get_financial_statements,
                 _process_ratios,
-                _safe_get,
-                _safe_get_str,
-                _safe_get_int,
             )
-            
+            from app.utils.transform import (
+                safe_get_float,
+                safe_get_str,
+                safe_get_int,
+            )
+
             # Verify functions are callable
             assert callable(get_financial_statements)
             assert callable(_process_ratios)
-            assert callable(_safe_get)
-            
+            assert callable(safe_get_float)
+
         except ImportError as e:
             pytest.fail(f"Failed to import services standalone: {e}")
 
@@ -228,17 +229,17 @@ class TestModularityForReuse:
     def test_service_functions_standalone(self):
         """Test that service utility functions work standalone."""
         try:
-            from app.services.service_statements import _safe_get, _safe_get_str, _safe_get_int
-            
+            from app.utils.transform import safe_get_float, safe_get_str, safe_get_int
+
             # Test with sample data
             import pandas as pd
             test_row = pd.Series({"value": 123.45, "text": "hello", "number": "789"})
-            
+
             # Test utility functions work independently
-            assert _safe_get(test_row, "value") == 123.45
-            assert _safe_get_str(test_row, "text") == "hello"
-            assert _safe_get_int(test_row, "number") == 789
-            assert _safe_get(test_row, "missing") is None
+            assert safe_get_float(test_row, "value") == 123.45
+            assert safe_get_str(test_row, "text") == "hello"
+            assert safe_get_int(test_row, "number") == 789
+            assert safe_get_float(test_row, "missing") is None
             
         except Exception as e:
             pytest.fail(f"Service functions not standalone: {e}")

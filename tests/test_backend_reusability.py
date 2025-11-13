@@ -13,17 +13,15 @@ from app.schemas.schema_statements import (
 )
 from app.services.service_statements import (
     _process_ratios,
-    _safe_get,
-    _safe_get_int,
-    _safe_get_str,
     get_financial_statements,
 )
+from app.utils.transform import safe_get_float, safe_get_int, safe_get_str
 
 
 class TestStandaloneServiceFunctions:
     """Test that service functions work independently of FastAPI context."""
 
-    def test_safe_get_functions_standalone(self):
+    def testsafe_get_float_functions_standalone(self):
         """Test utility functions work with any pandas Series."""
         # Create test data
         test_data = pd.Series({
@@ -34,26 +32,25 @@ class TestStandaloneServiceFunctions:
             "zero_value": 0,
             "empty_string": "",
         })
-        
-        # Test _safe_get
-        assert _safe_get(test_data, "string_value") == "hello world"
-        assert _safe_get(test_data, "numeric_value") == 123.45
-        assert _safe_get(test_data, "null_value") is None
-        assert _safe_get(test_data, "missing_key") is None
-        assert _safe_get(test_data, "zero_value") == 0
-        
-        # Test _safe_get_str
-        assert _safe_get_str(test_data, "string_value") == "hello world"
-        assert _safe_get_str(test_data, "numeric_value") == "123.45"
-        assert _safe_get_str(test_data, "null_value") is None
-        assert _safe_get_str(test_data, "missing_key") is None
-        
-        # Test _safe_get_int
-        assert _safe_get_int(test_data, "integer_value") == 789
-        assert _safe_get_int(test_data, "numeric_value") == 123  # Truncated
-        assert _safe_get_int(test_data, "string_value") is None  # Can't convert
-        assert _safe_get_int(test_data, "null_value") is None
-        assert _safe_get_int(test_data, "zero_value") == 0
+
+        # Test safe_get_str
+        assert safe_get_str(test_data, "string_value") == "hello world"
+        assert safe_get_str(test_data, "numeric_value") == "123.45"
+        assert safe_get_str(test_data, "null_value") is None
+        assert safe_get_str(test_data, "missing_key") is None
+
+        # Test safe_get_float
+        assert safe_get_float(test_data, "numeric_value") == 123.45
+        assert safe_get_float(test_data, "null_value") is None
+        assert safe_get_float(test_data, "missing_key") is None
+        assert safe_get_float(test_data, "zero_value") == 0
+
+        # Test safe_get_int
+        assert safe_get_int(test_data, "integer_value") == 789
+        assert safe_get_int(test_data, "numeric_value") == 123  # Truncated
+        assert safe_get_int(test_data, "string_value") is None  # Can't convert
+        assert safe_get_int(test_data, "null_value") is None
+        assert safe_get_int(test_data, "zero_value") == 0
 
     def test_process_ratios_standalone(self, sample_vnstock_ratios_data):
         """Test _process_ratios works with any DataFrame."""
@@ -118,19 +115,19 @@ class TestStandaloneServiceFunctions:
         })
         
         # Test numeric handling
-        assert _safe_get(edge_data, "negative_number") == -123.45
-        assert _safe_get(edge_data, "large_number") == 1e10
-        assert _safe_get(edge_data, "scientific_notation") == 1.23e-4
+        assert safe_get_float(edge_data, "negative_number") == -123.45
+        assert safe_get_float(edge_data, "large_number") == 1e10
+        assert safe_get_float(edge_data, "scientific_notation") == 1.23e-4
         
         # Test string conversions
-        assert _safe_get_str(edge_data, "negative_number") == "-123.45"
-        assert _safe_get_str(edge_data, "boolean_true") == "True"
-        
+        assert safe_get_str(edge_data, "negative_number") == "-123.45"
+        assert safe_get_str(edge_data, "boolean_true") == "True"
+
         # Test int conversions
-        assert _safe_get_int(edge_data, "string_int") == 999
-        assert _safe_get_int(edge_data, "boolean_true") == 1
-        assert _safe_get_int(edge_data, "boolean_false") == 0
-        assert _safe_get_int(edge_data, "invalid_string") is None
+        assert safe_get_int(edge_data, "string_int") == 999
+        assert safe_get_int(edge_data, "boolean_true") == 1
+        assert safe_get_int(edge_data, "boolean_false") == 0
+        assert safe_get_int(edge_data, "invalid_string") is None
 
 
 class TestServiceLayerIsolation:
@@ -186,15 +183,16 @@ class TestServiceLayerIsolation:
         # without needing FastAPI or web framework
         
         # Import should work without web context
-        from app.services.service_statements import _safe_get, _process_ratios
+        from app.services.service_statements import _process_ratios
+        from app.utils.transform import safe_get_float
         
         # Functions should work with plain Python data
         test_series = pd.Series({"test_value": 42})
-        result = _safe_get(test_series, "test_value")
+        result = safe_get_float(test_series, "test_value")
         assert result == 42
         
         # Should work in any Python environment
-        assert callable(_safe_get)
+        assert callable(safe_get_float)
         assert callable(_process_ratios)
 
 
@@ -278,14 +276,14 @@ class TestModularImportPatterns:
     def test_import_specific_functions(self):
         """Test importing specific functions for external use."""
         # Pattern 1: Import specific utility functions
-        from app.services.service_statements import _safe_get, _safe_get_str
-        
-        assert callable(_safe_get)
-        assert callable(_safe_get_str)
-        
+        from app.utils.transform import safe_get_float, safe_get_str
+
+        assert callable(safe_get_float)
+        assert callable(safe_get_str)
+
         # Pattern 2: Import specific schemas
         from app.schemas.schema_statements import FinancialRatiosData
-        
+
         assert hasattr(FinancialRatiosData, 'model_fields')
 
     def test_import_entire_modules(self):
@@ -294,7 +292,7 @@ class TestModularImportPatterns:
         from app.services import service_statements
         
         assert hasattr(service_statements, 'get_financial_statements')
-        assert hasattr(service_statements, '_safe_get')
+        assert hasattr(service_statements, 'safe_get_float')
         
         # Pattern 4: Import entire schema module
         from app.schemas import schema_statements
@@ -314,7 +312,7 @@ class TestModularImportPatterns:
         
         # Service functions should work
         test_series = pd.Series({"value": 100})
-        result = services._safe_get(test_series, "value") 
+        result = services.safe_get_float(test_series, "value") 
         assert result == 100
 
     def test_dynamic_imports(self):
@@ -327,11 +325,11 @@ class TestModularImportPatterns:
         
         # Should have expected attributes
         assert hasattr(schema_module, "FinancialRatiosData")
-        assert hasattr(service_module, "_safe_get")
+        assert hasattr(service_module, "safe_get_float")
         
         # Should be functional
         RatiosClass = getattr(schema_module, "FinancialRatiosData")
-        safe_get_func = getattr(service_module, "_safe_get")
+        safe_get_func = getattr(service_module, "safe_get_float")
         
         ratio_instance = RatiosClass(year_report=2023)
         assert ratio_instance.year_report == 2023
@@ -352,10 +350,11 @@ class TestExternalApplicationIntegration:
             """Example wrapper for external application."""
             
             def __init__(self):
-                from app.services.service_statements import _safe_get, _process_ratios
+                from app.services.service_statements import _process_ratios
+                from app.utils.transform import safe_get_float
                 from app.schemas.schema_statements import FinancialRatiosData
-                
-                self._safe_get = _safe_get
+
+                self.safe_get_float = safe_get_float
                 self._process_ratios = _process_ratios
                 self._ratios_schema = FinancialRatiosData
             
@@ -365,7 +364,7 @@ class TestExternalApplicationIntegration:
             
             def extract_safe_value(self, data_series, key):
                 """Extract value safely using our utility."""
-                return self._safe_get(data_series, key)
+                return self.safe_get_float(data_series, key)
             
             def create_ratio_object(self, **kwargs):
                 """Create ratio object using our schema."""

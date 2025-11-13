@@ -8,12 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Centralized Field Mappings** (`app/config/field_mappings.py`): Single source of truth for vnstock API column name mappings
+  - `INCOME_STATEMENT_MAPPINGS`: 28 field mappings from vnstock API to IncomeStatementData schema
+  - `BALANCE_SHEET_MAPPINGS`: 40 field mappings from vnstock API to BalanceSheetData schema
+  - `CASH_FLOW_MAPPINGS`: 36 field mappings from vnstock API to CashFlowData schema
+  - `FINANCIAL_RATIOS_MAPPINGS`: 34 field mappings from vnstock API to FinancialRatiosData schema
+  - All mappings use deterministic column names from actual API responses (no guessing)
+- **Data Transformation Utilities** (`app/utils/transform.py`): Reusable helper functions extracted from service layer
+  - `safe_get_float()`: Safely extract float values from pandas Series with null handling
+  - `safe_get_str()`: Safely extract string values from pandas Series
+  - `safe_get_int()`: Safely extract integer values from pandas Series
+  - `safe_convert_float()`: Convert any value to float with error handling
+  - `apply_field_mapping()`: Apply field mappings for consistent data extraction
 
 ### Changed
+- **Refactored Service Layer** (`app/services/service_statements.py`): Improved code organization and maintainability
+  - Removed inline helper functions (`_safe_get`, `_safe_get_str`, `_safe_get_int`, `_safe_float`)
+  - All processing functions now use centralized field mappings via `apply_field_mapping()`
+  - Imports now reference `app.config.field_mappings` and `app.utils.transform`
+  - Improved code readability by separating concerns
+- **Updated Test Suite**: Fixed imports and function references in test files
+  - Updated `test_backend_reusability.py` to import utilities from `app.utils.transform`
+  - Updated `test_imports.py` to verify correct module structure after refactoring
+  - All 60 non-integration tests passing after refactoring
 
 ### Deprecated
 
 ### Removed
+- Inline helper functions from `app/services/service_statements.py` (moved to `app/utils/transform.py`)
 
 ### Fixed
 

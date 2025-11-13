@@ -4,6 +4,12 @@ import pandas as pd
 from vnstock import Vnstock
 from vnstock.core.utils.transform import flatten_hierarchical_index
 
+from app.config.field_mappings import (
+    BALANCE_SHEET_MAPPINGS,
+    CASH_FLOW_MAPPINGS,
+    FINANCIAL_RATIOS_MAPPINGS,
+    INCOME_STATEMENT_MAPPINGS,
+)
 from app.schemas.schema_statements import (
     BalanceSheetData,
     CashFlowData,
@@ -11,6 +17,12 @@ from app.schemas.schema_statements import (
     FinancialStatementsResponse,
     IncomeStatementData,
     StatementsRequest,
+)
+from app.utils.transform import (
+    apply_field_mapping,
+    safe_get_float,
+    safe_get_int,
+    safe_get_str,
 )
 
 
@@ -115,58 +127,66 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
 
 
 def _process_income_statements(df: pd.DataFrame) -> list[IncomeStatementData]:
-    """Process raw income statement data into structured format."""
+    """
+    Process raw income statement data into structured format.
+
+    Args:
+        df: Raw DataFrame from vnstock income statement API
+
+    Returns:
+        List of validated IncomeStatementData instances
+
+    Side Effects:
+        None
+
+    Business Rules:
+        - Uses centralized field mappings from INCOME_STATEMENT_MAPPINGS
+        - Safely extracts all fields with null handling
+        - Validates data through Pydantic schema
+    """
     statements = []
 
     for _, row in df.iterrows():
-        # Manual mapping from DataFrame columns to Pydantic fields
+        # Use centralized field mappings for data extraction
         statements.append(
             IncomeStatementData(
                 # Meta fields
-                ticker=_safe_get_str(row, "ticker"),
-                year_report=_safe_get_int(row, "yearReport"),
+                ticker=safe_get_str(row, INCOME_STATEMENT_MAPPINGS["ticker"]),
+                year_report=safe_get_int(row, INCOME_STATEMENT_MAPPINGS["year_report"]),
                 # Revenue and Sales
-                revenue=_safe_get(row, "Revenue (Bn. VND)"),
-                revenue_yoy=_safe_get(row, "Revenue YoY (%)"),
-                sales=_safe_get(row, "Sales"),
-                sales_deductions=_safe_get(row, "Sales deductions"),
-                net_sales=_safe_get(row, "Net Sales"),
+                revenue=apply_field_mapping(row, "revenue", INCOME_STATEMENT_MAPPINGS),
+                revenue_yoy=apply_field_mapping(row, "revenue_yoy", INCOME_STATEMENT_MAPPINGS),
+                sales=apply_field_mapping(row, "sales", INCOME_STATEMENT_MAPPINGS),
+                sales_deductions=apply_field_mapping(row, "sales_deductions", INCOME_STATEMENT_MAPPINGS),
+                net_sales=apply_field_mapping(row, "net_sales", INCOME_STATEMENT_MAPPINGS),
                 # Costs and Expenses
-                cost_of_sales=_safe_get(row, "Cost of Sales"),
-                selling_expenses=_safe_get(row, "Selling Expenses"),
-                general_admin_expenses=_safe_get(row, "General & Admin Expenses"),
+                cost_of_sales=apply_field_mapping(row, "cost_of_sales", INCOME_STATEMENT_MAPPINGS),
+                selling_expenses=apply_field_mapping(row, "selling_expenses", INCOME_STATEMENT_MAPPINGS),
+                general_admin_expenses=apply_field_mapping(row, "general_admin_expenses", INCOME_STATEMENT_MAPPINGS),
                 # Profit Metrics
-                gross_profit=_safe_get(row, "Gross Profit"),
-                operating_profit=_safe_get(row, "Operating Profit/Loss"),
-                profit_before_tax=_safe_get(row, "Profit before tax"),
-                net_profit=_safe_get(row, "Net Profit For the Year"),
+                gross_profit=apply_field_mapping(row, "gross_profit", INCOME_STATEMENT_MAPPINGS),
+                operating_profit=apply_field_mapping(row, "operating_profit", INCOME_STATEMENT_MAPPINGS),
+                profit_before_tax=apply_field_mapping(row, "profit_before_tax", INCOME_STATEMENT_MAPPINGS),
+                net_profit=apply_field_mapping(row, "net_profit", INCOME_STATEMENT_MAPPINGS),
                 # Attributable Profits
-                attributable_to_parent=_safe_get(row, "Attributable to parent company"),
-                attributable_to_parent_vnd=_safe_get(
-                    row, "Attribute to parent company (Bn. VND)"
-                ),
-                attributable_to_parent_yoy=_safe_get(
-                    row, "Attribute to parent company YoY (%)"
-                ),
-                minority_interest=_safe_get(row, "Minority Interest"),
+                attributable_to_parent=apply_field_mapping(row, "attributable_to_parent", INCOME_STATEMENT_MAPPINGS),
+                attributable_to_parent_vnd=apply_field_mapping(row, "attributable_to_parent_vnd", INCOME_STATEMENT_MAPPINGS),
+                attributable_to_parent_yoy=apply_field_mapping(row, "attributable_to_parent_yoy", INCOME_STATEMENT_MAPPINGS),
+                minority_interest=apply_field_mapping(row, "minority_interest", INCOME_STATEMENT_MAPPINGS),
                 # Financial Income/Expenses
-                financial_income=_safe_get(row, "Financial Income"),
-                financial_expenses=_safe_get(row, "Financial Expenses"),
-                interest_expenses=_safe_get(row, "Interest Expenses"),
+                financial_income=apply_field_mapping(row, "financial_income", INCOME_STATEMENT_MAPPINGS),
+                financial_expenses=apply_field_mapping(row, "financial_expenses", INCOME_STATEMENT_MAPPINGS),
+                interest_expenses=apply_field_mapping(row, "interest_expenses", INCOME_STATEMENT_MAPPINGS),
                 # Tax
-                business_tax_current=_safe_get(row, "Business income tax - current"),
-                business_tax_deferred=_safe_get(row, "Business income tax - deferred"),
+                business_tax_current=apply_field_mapping(row, "business_tax_current", INCOME_STATEMENT_MAPPINGS),
+                business_tax_deferred=apply_field_mapping(row, "business_tax_deferred", INCOME_STATEMENT_MAPPINGS),
                 # Other Income
-                other_income=_safe_get(row, "Other income"),
-                other_income_expenses=_safe_get(row, "Other Income/Expenses"),
-                net_other_income=_safe_get(row, "Net other income/expenses"),
+                other_income=apply_field_mapping(row, "other_income", INCOME_STATEMENT_MAPPINGS),
+                other_income_expenses=apply_field_mapping(row, "other_income_expenses", INCOME_STATEMENT_MAPPINGS),
+                net_other_income=apply_field_mapping(row, "net_other_income", INCOME_STATEMENT_MAPPINGS),
                 # Investment Related
-                gain_loss_joint_ventures=_safe_get(
-                    row, "Gain/(loss) from joint ventures"
-                ),
-                net_income_associated_companies=_safe_get(
-                    row, "Net income from associated companies"
-                ),
+                gain_loss_joint_ventures=apply_field_mapping(row, "gain_loss_joint_ventures", INCOME_STATEMENT_MAPPINGS),
+                net_income_associated_companies=apply_field_mapping(row, "net_income_associated_companies", INCOME_STATEMENT_MAPPINGS),
             )
         )
 
@@ -174,82 +194,74 @@ def _process_income_statements(df: pd.DataFrame) -> list[IncomeStatementData]:
 
 
 def _process_balance_sheets(df: pd.DataFrame) -> list[BalanceSheetData]:
-    """Process raw balance sheet data into structured format."""
+    """
+    Process raw balance sheet data into structured format.
+
+    Args:
+        df: Raw DataFrame from vnstock balance sheet API
+
+    Returns:
+        List of validated BalanceSheetData instances
+
+    Side Effects:
+        None
+
+    Business Rules:
+        - Uses centralized field mappings from BALANCE_SHEET_MAPPINGS
+        - Safely extracts all fields with null handling
+        - Validates data through Pydantic schema
+    """
     sheets = []
 
     for _, row in df.iterrows():
-        # Manual mapping from DataFrame columns to Pydantic fields
+        # Use centralized field mappings for data extraction
         sheets.append(
             BalanceSheetData(
                 # Meta fields
-                ticker=_safe_get_str(row, "ticker"),
-                year_report=_safe_get_int(row, "yearReport"),
+                ticker=safe_get_str(row, BALANCE_SHEET_MAPPINGS["ticker"]),
+                year_report=safe_get_int(row, BALANCE_SHEET_MAPPINGS["year_report"]),
                 # Assets - Current
-                current_assets=_safe_get(row, "CURRENT ASSETS (Bn. VND)"),
-                cash_and_equivalents=_safe_get(
-                    row, "Cash and cash equivalents (Bn. VND)"
-                ),
-                short_term_investments=_safe_get(
-                    row, "Short-term investments (Bn. VND)"
-                ),
-                accounts_receivable=_safe_get(row, "Accounts receivable (Bn. VND)"),
-                short_term_loans_receivable=_safe_get(
-                    row, "Short-term loans receivables (Bn. VND)"
-                ),
-                inventories_net=_safe_get(row, "Inventories, Net (Bn. VND)"),
-                net_inventories=_safe_get(row, "Net Inventories"),
-                prepayments_to_suppliers=_safe_get(
-                    row, "Prepayments to suppliers (Bn. VND)"
-                ),
-                other_current_assets=_safe_get(row, "Other current assets"),
-                other_current_assets_vnd=_safe_get(
-                    row, "Other current assets (Bn. VND)"
-                ),
+                current_assets=apply_field_mapping(row, "current_assets", BALANCE_SHEET_MAPPINGS),
+                cash_and_equivalents=apply_field_mapping(row, "cash_and_equivalents", BALANCE_SHEET_MAPPINGS),
+                short_term_investments=apply_field_mapping(row, "short_term_investments", BALANCE_SHEET_MAPPINGS),
+                accounts_receivable=apply_field_mapping(row, "accounts_receivable", BALANCE_SHEET_MAPPINGS),
+                short_term_loans_receivable=apply_field_mapping(row, "short_term_loans_receivable", BALANCE_SHEET_MAPPINGS),
+                inventories_net=apply_field_mapping(row, "inventories_net", BALANCE_SHEET_MAPPINGS),
+                net_inventories=apply_field_mapping(row, "net_inventories", BALANCE_SHEET_MAPPINGS),
+                prepayments_to_suppliers=apply_field_mapping(row, "prepayments_to_suppliers", BALANCE_SHEET_MAPPINGS),
+                other_current_assets=apply_field_mapping(row, "other_current_assets", BALANCE_SHEET_MAPPINGS),
+                other_current_assets_vnd=apply_field_mapping(row, "other_current_assets_vnd", BALANCE_SHEET_MAPPINGS),
                 # Assets - Long-term
-                long_term_assets=_safe_get(row, "LONG-TERM ASSETS (Bn. VND)"),
-                fixed_assets=_safe_get(row, "Fixed assets (Bn. VND)"),
-                long_term_investments=_safe_get(row, "Long-term investments (Bn. VND)"),
-                investment_properties=_safe_get(row, "Investment in properties"),
-                long_term_loans_receivable=_safe_get(
-                    row, "Long-term loans receivables (Bn. VND)"
-                ),
-                long_term_trade_receivables=_safe_get(
-                    row, "Long-term trade receivables (Bn. VND)"
-                ),
-                long_term_prepayments=_safe_get(row, "Long-term prepayments (Bn. VND)"),
-                goodwill=_safe_get(row, "Good will (Bn. VND)"),
-                other_non_current_assets=_safe_get(row, "Other non-current assets"),
-                other_long_term_assets=_safe_get(
-                    row, "Other long-term assets (Bn. VND)"
-                ),
-                other_long_term_receivables=_safe_get(
-                    row, "Other long-term receivables (Bn. VND)"
-                ),
+                long_term_assets=apply_field_mapping(row, "long_term_assets", BALANCE_SHEET_MAPPINGS),
+                fixed_assets=apply_field_mapping(row, "fixed_assets", BALANCE_SHEET_MAPPINGS),
+                long_term_investments=apply_field_mapping(row, "long_term_investments", BALANCE_SHEET_MAPPINGS),
+                investment_properties=apply_field_mapping(row, "investment_properties", BALANCE_SHEET_MAPPINGS),
+                long_term_loans_receivable=apply_field_mapping(row, "long_term_loans_receivable", BALANCE_SHEET_MAPPINGS),
+                long_term_trade_receivables=apply_field_mapping(row, "long_term_trade_receivables", BALANCE_SHEET_MAPPINGS),
+                long_term_prepayments=apply_field_mapping(row, "long_term_prepayments", BALANCE_SHEET_MAPPINGS),
+                goodwill=apply_field_mapping(row, "goodwill", BALANCE_SHEET_MAPPINGS),
+                other_non_current_assets=apply_field_mapping(row, "other_non_current_assets", BALANCE_SHEET_MAPPINGS),
+                other_long_term_assets=apply_field_mapping(row, "other_long_term_assets", BALANCE_SHEET_MAPPINGS),
+                other_long_term_receivables=apply_field_mapping(row, "other_long_term_receivables", BALANCE_SHEET_MAPPINGS),
                 # Total Assets
-                total_assets=_safe_get(row, "TOTAL ASSETS (Bn. VND)"),
-                total_resources=_safe_get(row, "TOTAL RESOURCES (Bn. VND)"),
+                total_assets=apply_field_mapping(row, "total_assets", BALANCE_SHEET_MAPPINGS),
+                total_resources=apply_field_mapping(row, "total_resources", BALANCE_SHEET_MAPPINGS),
                 # Liabilities
-                total_liabilities=_safe_get(row, "LIABILITIES (Bn. VND)"),
-                current_liabilities=_safe_get(row, "Current liabilities (Bn. VND)"),
-                short_term_borrowings=_safe_get(row, "Short-term borrowings (Bn. VND)"),
-                advances_from_customers=_safe_get(
-                    row, "Advances from customers (Bn. VND)"
-                ),
-                long_term_liabilities=_safe_get(row, "Long-term liabilities (Bn. VND)"),
-                long_term_borrowings=_safe_get(row, "Long-term borrowings (Bn. VND)"),
+                total_liabilities=apply_field_mapping(row, "total_liabilities", BALANCE_SHEET_MAPPINGS),
+                current_liabilities=apply_field_mapping(row, "current_liabilities", BALANCE_SHEET_MAPPINGS),
+                short_term_borrowings=apply_field_mapping(row, "short_term_borrowings", BALANCE_SHEET_MAPPINGS),
+                advances_from_customers=apply_field_mapping(row, "advances_from_customers", BALANCE_SHEET_MAPPINGS),
+                long_term_liabilities=apply_field_mapping(row, "long_term_liabilities", BALANCE_SHEET_MAPPINGS),
+                long_term_borrowings=apply_field_mapping(row, "long_term_borrowings", BALANCE_SHEET_MAPPINGS),
                 # Equity
-                owners_equity=_safe_get(row, "OWNER'S EQUITY(Bn.VND)"),
-                capital_and_reserves=_safe_get(row, "Capital and reserves (Bn. VND)"),
-                paid_in_capital=_safe_get(row, "Paid-in capital (Bn. VND)"),
-                common_shares=_safe_get(row, "Common shares (Bn. VND)"),
-                investment_development_funds=_safe_get(
-                    row, "Investment and development funds (Bn. VND)"
-                ),
-                other_reserves=_safe_get(row, "Other Reserves"),
-                undistributed_earnings=_safe_get(
-                    row, "Undistributed earnings (Bn. VND)"
-                ),
-                minority_interests=_safe_get(row, "MINORITY INTERESTS"),
+                owners_equity=apply_field_mapping(row, "owners_equity", BALANCE_SHEET_MAPPINGS),
+                capital_and_reserves=apply_field_mapping(row, "capital_and_reserves", BALANCE_SHEET_MAPPINGS),
+                paid_in_capital=apply_field_mapping(row, "paid_in_capital", BALANCE_SHEET_MAPPINGS),
+                common_shares=apply_field_mapping(row, "common_shares", BALANCE_SHEET_MAPPINGS),
+                investment_development_funds=apply_field_mapping(row, "investment_development_funds", BALANCE_SHEET_MAPPINGS),
+                other_reserves=apply_field_mapping(row, "other_reserves", BALANCE_SHEET_MAPPINGS),
+                undistributed_earnings=apply_field_mapping(row, "undistributed_earnings", BALANCE_SHEET_MAPPINGS),
+                minority_interests=apply_field_mapping(row, "minority_interests", BALANCE_SHEET_MAPPINGS),
             )
         )
 
@@ -257,268 +269,146 @@ def _process_balance_sheets(df: pd.DataFrame) -> list[BalanceSheetData]:
 
 
 def _process_cash_flows(df: pd.DataFrame) -> list[CashFlowData]:
-    """Process raw cash flow data into structured format."""
+    """
+    Process raw cash flow data into structured format.
+
+    Args:
+        df: Raw DataFrame from vnstock cash flow API
+
+    Returns:
+        List of validated CashFlowData instances
+
+    Side Effects:
+        None
+
+    Business Rules:
+        - Uses centralized field mappings from CASH_FLOW_MAPPINGS
+        - Safely extracts all fields with null handling
+        - Validates data through Pydantic schema
+    """
     flows = []
 
     for _, row in df.iterrows():
-        # Manual mapping from DataFrame columns to Pydantic fields
+        # Use centralized field mappings for data extraction
         flows.append(
             CashFlowData(
                 # Meta fields
-                ticker=_safe_get_str(row, "ticker"),
-                year_report=_safe_get_int(row, "yearReport"),
+                ticker=safe_get_str(row, CASH_FLOW_MAPPINGS["ticker"]),
+                year_report=safe_get_int(row, CASH_FLOW_MAPPINGS["year_report"]),
                 # Starting Cash Flow Items
-                profit_before_tax=_safe_get(row, "Net Profit/Loss before tax"),
-                depreciation_amortisation=_safe_get(
-                    row, "Depreciation and Amortisation"
-                ),
-                provision_credit_losses=_safe_get(row, "Provision for credit losses"),
-                unrealized_fx_gain_loss=_safe_get(
-                    row, "Unrealized foreign exchange gain/loss"
-                ),
-                profit_loss_investing=_safe_get(
-                    row, "Profit/Loss from investing activities"
-                ),
-                interest_expense=_safe_get(row, "Interest Expense"),
-                operating_profit_before_wc_changes=_safe_get(
-                    row, "Operating profit before changes in working capital"
-                ),
+                profit_before_tax=apply_field_mapping(row, "profit_before_tax", CASH_FLOW_MAPPINGS),
+                depreciation_amortisation=apply_field_mapping(row, "depreciation_amortisation", CASH_FLOW_MAPPINGS),
+                provision_credit_losses=apply_field_mapping(row, "provision_credit_losses", CASH_FLOW_MAPPINGS),
+                unrealized_fx_gain_loss=apply_field_mapping(row, "unrealized_fx_gain_loss", CASH_FLOW_MAPPINGS),
+                profit_loss_investing=apply_field_mapping(row, "profit_loss_investing", CASH_FLOW_MAPPINGS),
+                interest_expense=apply_field_mapping(row, "interest_expense", CASH_FLOW_MAPPINGS),
+                operating_profit_before_wc_changes=apply_field_mapping(row, "operating_profit_before_wc_changes", CASH_FLOW_MAPPINGS),
                 # Working Capital Changes
-                increase_decrease_receivables=_safe_get(
-                    row, "Increase/Decrease in receivables"
-                ),
-                increase_decrease_inventories=_safe_get(
-                    row, "Increase/Decrease in inventories"
-                ),
-                increase_decrease_payables=_safe_get(
-                    row, "Increase/Decrease in payables"
-                ),
-                increase_decrease_prepaid=_safe_get(
-                    row, "Increase/Decrease in prepaid expenses"
-                ),
+                increase_decrease_receivables=apply_field_mapping(row, "increase_decrease_receivables", CASH_FLOW_MAPPINGS),
+                increase_decrease_inventories=apply_field_mapping(row, "increase_decrease_inventories", CASH_FLOW_MAPPINGS),
+                increase_decrease_payables=apply_field_mapping(row, "increase_decrease_payables", CASH_FLOW_MAPPINGS),
+                increase_decrease_prepaid=apply_field_mapping(row, "increase_decrease_prepaid", CASH_FLOW_MAPPINGS),
                 # Operating Cash Flow
-                interest_paid=_safe_get(row, "Interest paid"),
-                business_tax_paid=_safe_get(row, "Business Income Tax paid"),
-                other_receipts_operating=_safe_get(
-                    row, "Other receipts from operating activities"
-                ),
-                other_payments_operating=_safe_get(
-                    row, "Other payments on operating activities"
-                ),
-                operating_cash_flow=_safe_get(
-                    row, "Net cash inflows/outflows from operating activities"
-                ),
+                interest_paid=apply_field_mapping(row, "interest_paid", CASH_FLOW_MAPPINGS),
+                business_tax_paid=apply_field_mapping(row, "business_tax_paid", CASH_FLOW_MAPPINGS),
+                other_receipts_operating=apply_field_mapping(row, "other_receipts_operating", CASH_FLOW_MAPPINGS),
+                other_payments_operating=apply_field_mapping(row, "other_payments_operating", CASH_FLOW_MAPPINGS),
+                operating_cash_flow=apply_field_mapping(row, "operating_cash_flow", CASH_FLOW_MAPPINGS),
                 # Investing Activities
-                purchase_fixed_assets=_safe_get(row, "Purchase of fixed assets"),
-                proceeds_disposal_assets=_safe_get(
-                    row, "Proceeds from disposal of fixed assets"
-                ),
-                loans_granted=_safe_get(
-                    row, "Loans granted, purchases of debt instruments (Bn. VND)"
-                ),
-                collection_loans=_safe_get(
-                    row,
-                    "Collection of loans, proceeds from sales of debts instruments (Bn. VND)",
-                ),
-                investment_other_entities=_safe_get(
-                    row, "Investment in other entities"
-                ),
-                proceeds_divestment=_safe_get(
-                    row, "Proceeds from divestment in other entities"
-                ),
-                gain_dividend=_safe_get(row, "Gain on Dividend"),
-                investing_cash_flow=_safe_get(
-                    row, "Net Cash Flows from Investing Activities"
-                ),
+                purchase_fixed_assets=apply_field_mapping(row, "purchase_fixed_assets", CASH_FLOW_MAPPINGS),
+                proceeds_disposal_assets=apply_field_mapping(row, "proceeds_disposal_assets", CASH_FLOW_MAPPINGS),
+                loans_granted=apply_field_mapping(row, "loans_granted", CASH_FLOW_MAPPINGS),
+                collection_loans=apply_field_mapping(row, "collection_loans", CASH_FLOW_MAPPINGS),
+                investment_other_entities=apply_field_mapping(row, "investment_other_entities", CASH_FLOW_MAPPINGS),
+                proceeds_divestment=apply_field_mapping(row, "proceeds_divestment", CASH_FLOW_MAPPINGS),
+                gain_dividend=apply_field_mapping(row, "gain_dividend", CASH_FLOW_MAPPINGS),
+                investing_cash_flow=apply_field_mapping(row, "investing_cash_flow", CASH_FLOW_MAPPINGS),
                 # Financing Activities
-                increase_charter_capital=_safe_get(row, "Increase in charter captial"),
-                share_repurchases=_safe_get(row, "Payments for share repurchases"),
-                proceeds_borrowings=_safe_get(row, "Proceeds from borrowings"),
-                repayment_borrowings=_safe_get(row, "Repayment of borrowings"),
-                dividends_paid=_safe_get(row, "Dividends paid"),
-                financing_cash_flow=_safe_get(
-                    row, "Cash flows from financial activities"
-                ),
+                increase_charter_capital=apply_field_mapping(row, "increase_charter_capital", CASH_FLOW_MAPPINGS),
+                share_repurchases=apply_field_mapping(row, "share_repurchases", CASH_FLOW_MAPPINGS),
+                proceeds_borrowings=apply_field_mapping(row, "proceeds_borrowings", CASH_FLOW_MAPPINGS),
+                repayment_borrowings=apply_field_mapping(row, "repayment_borrowings", CASH_FLOW_MAPPINGS),
+                dividends_paid=apply_field_mapping(row, "dividends_paid", CASH_FLOW_MAPPINGS),
+                financing_cash_flow=apply_field_mapping(row, "financing_cash_flow", CASH_FLOW_MAPPINGS),
                 # Net Cash Flow
-                net_change_in_cash=_safe_get(
-                    row, "Net increase/decrease in cash and cash equivalents"
-                ),
-                cash_beginning=_safe_get(row, "Cash and cash equivalents"),
-                fx_adjustment=_safe_get(row, "Foreign exchange differences Adjustment"),
-                cash_end_period=_safe_get(
-                    row, "Cash and Cash Equivalents at the end of period"
-                ),
+                net_change_in_cash=apply_field_mapping(row, "net_change_in_cash", CASH_FLOW_MAPPINGS),
+                cash_beginning=apply_field_mapping(row, "cash_beginning", CASH_FLOW_MAPPINGS),
+                fx_adjustment=apply_field_mapping(row, "fx_adjustment", CASH_FLOW_MAPPINGS),
+                cash_end_period=apply_field_mapping(row, "cash_end_period", CASH_FLOW_MAPPINGS),
             )
         )
 
     return flows
 
 
-def _safe_get(row: pd.Series, column_name: str) -> float | None:
-    """Safely get a float value from pandas Series, handling NaN and missing columns."""
-    try:
-        value = row.get(column_name)
-        if value is None or pd.isna(value):
-            return None
-        return float(value)
-    except (ValueError, TypeError, KeyError):
-        return None
-
-
-def _safe_get_str(row: pd.Series, column_name: str) -> str | None:
-    """Safely get a string value from pandas Series."""
-    try:
-        value = row.get(column_name)
-        if value is None or pd.isna(value):
-            return None
-        return str(value)
-    except (ValueError, TypeError, KeyError):
-        return None
-
-
-def _safe_get_int(row: pd.Series, column_name: str) -> int | None:
-    """Safely get an int value from pandas Series."""
-    try:
-        value = row.get(column_name)
-        if value is None or pd.isna(value):
-            return None
-        return int(value)
-    except (ValueError, TypeError, KeyError):
-        return None
-
-
-def _safe_float(value: Any) -> float | None:
-    """Safely convert value to float, return None if conversion fails."""
-    if value is None or pd.isna(value):
-        return None
-    try:
-        return float(value)
-    except (ValueError, TypeError):
-        return None
+# Utility functions moved to app.utils.transform module
 
 
 def _process_ratios(df: pd.DataFrame) -> list[FinancialRatiosData]:
-    """Process raw financial ratios data into structured format."""
+    """
+    Process raw financial ratios data into structured format.
+
+    Args:
+        df: Raw DataFrame from vnstock ratio API (after flattening MultiIndex)
+
+    Returns:
+        List of validated FinancialRatiosData instances
+
+    Side Effects:
+        None
+
+    Business Rules:
+        - Uses centralized field mappings from FINANCIAL_RATIOS_MAPPINGS
+        - Expects DataFrame to be flattened (no MultiIndex columns)
+        - Safely extracts all fields with null handling
+        - Validates data through Pydantic schema
+    """
     ratios = []
 
     for _, row in df.iterrows():
-        # Helper function to try multiple column names
-        def _safe_get_multi(row, *column_names):
-            """Try multiple column names and return the first non-null value."""
-            for col_name in column_names:
-                value = _safe_get(row, col_name)
-                if value is not None:
-                    return value
-            return None
-
-        # Map vnstock ratio fields to Pydantic model fields
+        # Use centralized field mappings for data extraction
         ratios.append(
             FinancialRatiosData(
                 # Meta fields
-                year_report=_safe_get_int(row, "yearReport"),
+                year_report=safe_get_int(row, FINANCIAL_RATIOS_MAPPINGS["year_report"]),
                 # Valuation Ratios
-                pe_ratio=_safe_get(row, "P/E"),
-                pb_ratio=_safe_get(row, "P/B"),
-                ps_ratio=_safe_get(row, "P/S"),
-                p_cash_flow=_safe_get(row, "P/CF"),
-                ev_ebitda=_safe_get(row, "EV/EBITDA"),
-                market_cap=_safe_get(row, "Market Cap (Bn. VND)"),
-                outstanding_shares=_safe_get(row, "Shares Outstanding (M)"),
-                earnings_per_share=_safe_get(row, "EPS (VND)"),
-                book_value_per_share=_safe_get(row, "BVPS (VND)"),
-                # Fixed: Use correct vnstock column name
-                dividend_yield=_safe_get_multi(
-                    row,
-                    "Dividend yield (%)",  # Actual vnstock column name
-                    "Dividend Yield (%)",  # Fallback
-                ),
-                # Profitability Ratios - Fixed with correct vnstock column names
-                roe=_safe_get_multi(
-                    row,
-                    "ROE (%)",  # Actual vnstock column name
-                    "Return on Equity (%)",
-                ),
-                roa=_safe_get_multi(
-                    row,
-                    "ROA (%)",  # Actual vnstock column name
-                    "Return on Assets (%)",
-                ),
-                roic=_safe_get(row, "ROIC (%)"),
-                # Fixed: Use correct vnstock column names
-                gross_profit_margin=_safe_get_multi(
-                    row,
-                    "Gross Profit Margin (%)",  # Actual vnstock column name
-                    "Gross Margin (%)",
-                ),
-                net_profit_margin=_safe_get_multi(
-                    row,
-                    "Net Profit Margin (%)",  # Actual vnstock column name
-                    "Net Margin (%)",
-                ),
-                ebit_margin=_safe_get(row, "EBIT Margin (%)"),
-                ebitda=_safe_get(row, "EBITDA (Bn. VND)"),
-                ebit=_safe_get(row, "EBIT (Bn. VND)"),
+                pe_ratio=apply_field_mapping(row, "pe_ratio", FINANCIAL_RATIOS_MAPPINGS),
+                pb_ratio=apply_field_mapping(row, "pb_ratio", FINANCIAL_RATIOS_MAPPINGS),
+                ps_ratio=apply_field_mapping(row, "ps_ratio", FINANCIAL_RATIOS_MAPPINGS),
+                p_cash_flow=apply_field_mapping(row, "p_cash_flow", FINANCIAL_RATIOS_MAPPINGS),
+                ev_ebitda=apply_field_mapping(row, "ev_ebitda", FINANCIAL_RATIOS_MAPPINGS),
+                market_cap=apply_field_mapping(row, "market_cap", FINANCIAL_RATIOS_MAPPINGS),
+                outstanding_shares=apply_field_mapping(row, "outstanding_shares", FINANCIAL_RATIOS_MAPPINGS),
+                earnings_per_share=apply_field_mapping(row, "earnings_per_share", FINANCIAL_RATIOS_MAPPINGS),
+                book_value_per_share=apply_field_mapping(row, "book_value_per_share", FINANCIAL_RATIOS_MAPPINGS),
+                dividend_yield=apply_field_mapping(row, "dividend_yield", FINANCIAL_RATIOS_MAPPINGS),
+                # Profitability Ratios
+                roe=apply_field_mapping(row, "roe", FINANCIAL_RATIOS_MAPPINGS),
+                roa=apply_field_mapping(row, "roa", FINANCIAL_RATIOS_MAPPINGS),
+                roic=apply_field_mapping(row, "roic", FINANCIAL_RATIOS_MAPPINGS),
+                gross_profit_margin=apply_field_mapping(row, "gross_profit_margin", FINANCIAL_RATIOS_MAPPINGS),
+                net_profit_margin=apply_field_mapping(row, "net_profit_margin", FINANCIAL_RATIOS_MAPPINGS),
+                ebit_margin=apply_field_mapping(row, "ebit_margin", FINANCIAL_RATIOS_MAPPINGS),
+                ebitda=apply_field_mapping(row, "ebitda", FINANCIAL_RATIOS_MAPPINGS),
+                ebit=apply_field_mapping(row, "ebit", FINANCIAL_RATIOS_MAPPINGS),
                 # Liquidity Ratios
-                current_ratio=_safe_get(row, "Current Ratio"),
-                quick_ratio=_safe_get(row, "Quick Ratio"),
-                cash_ratio=_safe_get(row, "Cash Ratio"),
-                interest_coverage_ratio=_safe_get(row, "Interest Coverage"),
-                # Leverage/Capital Structure Ratios - Fixed with correct vnstock column names
-                debt_to_equity=_safe_get_multi(
-                    row,
-                    "Debt/Equity",  # Actual vnstock column name
-                    "D/E",
-                    "Debt-to-Equity",
-                    "Debt to Equity",
-                ),
-                # Fixed: Use actual vnstock column name
-                bank_loans_long_term_debt_to_equity=_safe_get_multi(
-                    row,
-                    "(ST+LT borrowings)/Equity",  # Actual vnstock column name
-                    "(Bank Loans + Long-term Debt) / Equity",
-                    "Total Borrowings to Equity",
-                    "Bank Loans + Long-term Debt / Equity",
-                    "Total Debt to Equity",
-                ),
-                fixed_assets_to_equity=_safe_get(row, "Fixed Assets / Equity Capital"),
-                equity_to_registered_capital=_safe_get(
-                    row, "Equity Capital / Registered Capital"
-                ),
-                # Efficiency/Activity Ratios - Fixed with correct vnstock column names
-                asset_turnover=_safe_get(row, "Asset Turnover"),
-                fixed_asset_turnover=_safe_get(row, "Fixed Asset Turnover"),
-                inventory_turnover=_safe_get(row, "Inventory Turnover"),
-                # Fixed: Use actual vnstock column names
-                average_collection_days=_safe_get_multi(
-                    row,
-                    "Days Sales Outstanding",  # Actual vnstock column name
-                    "Average Collection Days",
-                    "DSO",
-                    "Collection Period",
-                    "Receivables Days",
-                ),
-                average_inventory_days=_safe_get_multi(
-                    row,
-                    "Days Inventory Outstanding",  # Actual vnstock column name
-                    "Average Inventory Days",
-                    "DIO",
-                    "Inventory Days",
-                    "Inventory Period",
-                ),
-                average_payment_days=_safe_get_multi(
-                    row,
-                    "Days Payable Outstanding",  # Actual vnstock column name
-                    "Average Payment Days",
-                    "DPO",
-                    "Payment Period",
-                    "Payables Days",
-                ),
-                cash_conversion_cycle=_safe_get_multi(
-                    row,
-                    "Cash Cycle",  # Actual vnstock column name
-                    "Cash Conversion Cycle",
-                    "CCC",
-                ),
+                current_ratio=apply_field_mapping(row, "current_ratio", FINANCIAL_RATIOS_MAPPINGS),
+                quick_ratio=apply_field_mapping(row, "quick_ratio", FINANCIAL_RATIOS_MAPPINGS),
+                cash_ratio=apply_field_mapping(row, "cash_ratio", FINANCIAL_RATIOS_MAPPINGS),
+                interest_coverage_ratio=apply_field_mapping(row, "interest_coverage_ratio", FINANCIAL_RATIOS_MAPPINGS),
+                # Leverage/Capital Structure Ratios
+                debt_to_equity=apply_field_mapping(row, "debt_to_equity", FINANCIAL_RATIOS_MAPPINGS),
+                bank_loans_long_term_debt_to_equity=apply_field_mapping(row, "bank_loans_long_term_debt_to_equity", FINANCIAL_RATIOS_MAPPINGS),
+                fixed_assets_to_equity=apply_field_mapping(row, "fixed_assets_to_equity", FINANCIAL_RATIOS_MAPPINGS),
+                equity_to_registered_capital=apply_field_mapping(row, "equity_to_registered_capital", FINANCIAL_RATIOS_MAPPINGS),
+                # Efficiency/Activity Ratios
+                asset_turnover=apply_field_mapping(row, "asset_turnover", FINANCIAL_RATIOS_MAPPINGS),
+                fixed_asset_turnover=apply_field_mapping(row, "fixed_asset_turnover", FINANCIAL_RATIOS_MAPPINGS),
+                inventory_turnover=apply_field_mapping(row, "inventory_turnover", FINANCIAL_RATIOS_MAPPINGS),
+                average_collection_days=apply_field_mapping(row, "average_collection_days", FINANCIAL_RATIOS_MAPPINGS),
+                average_inventory_days=apply_field_mapping(row, "average_inventory_days", FINANCIAL_RATIOS_MAPPINGS),
+                average_payment_days=apply_field_mapping(row, "average_payment_days", FINANCIAL_RATIOS_MAPPINGS),
+                cash_conversion_cycle=apply_field_mapping(row, "cash_conversion_cycle", FINANCIAL_RATIOS_MAPPINGS),
             )
         )
 
