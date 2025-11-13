@@ -25,7 +25,7 @@ services:
         - .serena/**
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10
+        value: 3.10.11
       - key: UV_SYSTEM_PYTHON
         value: "1"
     autoDeploy: true
