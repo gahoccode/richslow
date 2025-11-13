@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Running the Application
 - `uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload` - Start development server with hot reload
 - Access frontend at `http://localhost:8000`
-- API documentation at `http://localhost:8000/docs`
+- API documentation at `http://localhost:8000/api/docs`
 
 ### Testing
 - `uv run pytest` - Run all tests

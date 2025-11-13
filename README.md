@@ -38,8 +38,8 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 4. Access the application:
 - **Frontend**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **Alternative API Docs**: http://localhost:8000/redoc
+- **API Documentation**: http://localhost:8000/api/docs
+- **Alternative API Docs**: http://localhost:8000/api/redoc
 
 ## Usage
 
@@ -280,7 +280,7 @@ uv run pytest -v --cov=app
 
 For questions or issues:
 
-1. Check the API documentation at `/docs`
+1. Check the API documentation at `/api/docs`
 2. Review the troubleshooting section in `CLAUDE.md`
 3. Run tests to validate your environment: `uv run pytest`
 4. Open an issue with detailed error information

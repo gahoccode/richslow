@@ -44,6 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Inline helper functions from `app/services/service_statements.py` (moved to `app/utils/transform.py`)
 
 ### Fixed
+- **Documentation**: Corrected API documentation URLs in README.md and CLAUDE.md
+  - Changed from `/docs` and `/redoc` to `/api/docs` and `/api/redoc`
+  - Updated all references to API documentation URLs throughout project documentation
 
 ### Security
 
