@@ -2,7 +2,7 @@
 
 A comprehensive Vietnamese stock market financial analysis web application built with FastAPI and vanilla JavaScript. Analyze financial statements, ratios, and metrics for Vietnamese public companies using real-time data from vnstock.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/gahoccode/richslow)
+**[Live Demo](https://richslow.onrender.com)** | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/gahoccode/richslow)
 
 ## Features
 
