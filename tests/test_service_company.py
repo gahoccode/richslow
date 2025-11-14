@@ -149,7 +149,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_overview_success(self, mock_overview_df):
         """Test successful company overview retrieval."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.overview.return_value = mock_overview_df
             mock_company_class.return_value = mock_company
@@ -169,7 +169,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_overview_empty_data(self):
         """Test company overview with empty DataFrame."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.overview.return_value = DataFrame()
             mock_company_class.return_value = mock_company
@@ -179,7 +179,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_overview_api_exception(self):
         """Test company overview with vnstock API exception."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company_class.side_effect = Exception("Network error")
 
             with pytest.raises(Exception, match="Failed to retrieve company overview for VCB"):
@@ -187,7 +187,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_profile_success(self, mock_profile_df):
         """Test successful company profile retrieval."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.profile.return_value = mock_profile_df
             mock_company_class.return_value = mock_company
@@ -202,7 +202,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_shareholders_success(self, mock_shareholders_df):
         """Test successful company shareholders retrieval."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.shareholders.return_value = mock_shareholders_df
             mock_company_class.return_value = mock_company
@@ -219,7 +219,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_shareholders_empty_data(self):
         """Test company shareholders with empty DataFrame."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.shareholders.return_value = DataFrame()
             mock_company_class.return_value = mock_company
@@ -230,7 +230,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_officers_success(self, mock_officers_df):
         """Test successful company officers retrieval."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.officers.return_value = mock_officers_df
             mock_company_class.return_value = mock_company
@@ -247,7 +247,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_dividends_success(self, mock_dividends_df):
         """Test successful company dividends retrieval."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.dividends.return_value = mock_dividends_df
             mock_company_class.return_value = mock_company
@@ -265,7 +265,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_events_success(self, mock_events_df):
         """Test successful company events retrieval."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.events.return_value = mock_events_df
             mock_company_class.return_value = mock_company
@@ -283,7 +283,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_news_success(self, mock_news_df):
         """Test successful company news retrieval."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.news.return_value = mock_news_df
             mock_company_class.return_value = mock_company
@@ -309,7 +309,7 @@ class TestCompanyServiceFunctions:
             'sub_own_percent': [1.000, 1.000],
         })
 
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.subsidiaries.return_value = mock_data
             mock_company_class.return_value = mock_company
@@ -333,7 +333,7 @@ class TestCompanyServiceFunctions:
             'deal_ratio': [0.115, 0.406],
         })
 
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.insider_deals.return_value = mock_data
             mock_company_class.return_value = mock_company
@@ -398,9 +398,9 @@ class TestCompanyServiceFunctions:
             'rtq17': [82000, 79000],
         })
 
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.VCICompany') as mock_company_class:
             mock_company = Mock()
-            mock_company.financial_ratio.return_value = mock_data
+            mock_company.ratio_summary.return_value = mock_data
             mock_company_class.return_value = mock_company
 
             result = get_company_ratio_vci('VCB')
@@ -422,7 +422,7 @@ class TestCompanyServiceFunctions:
             'name': ['Q1_2024_Financial_Report.pdf', 'Annual_2023_Financial_Report.pdf'],
         })
 
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.VCICompany') as mock_company_class:
             mock_company = Mock()
             mock_company.reports.return_value = mock_data
             mock_company_class.return_value = mock_company
@@ -450,7 +450,7 @@ class TestCompanyServiceFunctions:
             'max_holding_ratio': [0.49],
         })
 
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.VCICompany') as mock_company_class:
             mock_company = Mock()
             mock_company.trading_stats.return_value = mock_data
             mock_company_class.return_value = mock_company
@@ -467,7 +467,7 @@ class TestCompanyServiceFunctions:
 
     def test_get_company_trading_stats_vci_empty_data(self):
         """Test company trading statistics with empty DataFrame."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.VCICompany') as mock_company_class:
             mock_company = Mock()
             mock_company.trading_stats.return_value = DataFrame()
             mock_company_class.return_value = mock_company
@@ -478,7 +478,7 @@ class TestCompanyServiceFunctions:
     @pytest.mark.parametrize("ticker", ["FPT", "HPG", "ACB", "MWG"])
     def test_multiple_tickers_overview(self, ticker, mock_overview_df):
         """Test company overview with different tickers."""
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.overview.return_value = mock_overview_df
             mock_company_class.return_value = mock_company
@@ -511,7 +511,7 @@ class TestCompanyServiceFunctions:
             'industry_id_v2': [None],  # None value
         })
 
-        with patch('app.services.service_company.Company') as mock_company_class:
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
             mock_company = Mock()
             mock_company.overview.return_value = mock_df_with_missing
             mock_company_class.return_value = mock_company

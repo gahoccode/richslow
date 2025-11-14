@@ -448,14 +448,14 @@ class TestCompanyEndpoints:
 
     def test_api_docs_includes_company_endpoints(self):
         """Test that API documentation includes company endpoints."""
-        response = client.get("/api/docs")
+        response = client.get("/docs")
 
         assert response.status_code == 200
         assert "company" in response.text
 
     def test_openapi_schema_includes_company_models(self):
         """Test that OpenAPI schema includes company response models."""
-        response = client.get("/api/openapi.json")
+        response = client.get("/openapi.json")
 
         assert response.status_code == 200
         schema = response.json()
