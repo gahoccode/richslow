@@ -328,35 +328,7 @@ Run tests with:
 uv run pytest -v --cov=app
 ```
 
-## Data Sources
 
-- **vnstock**: Vietnamese stock market data provider
-- **VCI**: Primary data source for financial statements
-- **TCBS**: Alternative data source for validation
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make changes and add tests
-4. Run the test suite: `uv run pytest`
-5. Check code quality: `uv run ruff check app/`
-6. Commit changes: `git commit -m "Description"`
-7. Push to branch: `git push origin feature-name`
-8. Create a Pull Request
-
-### Development Guidelines
-
-- All functions must include type hints
-- Business logic functions require comprehensive docstrings
-- Use exception chaining for error handling
-- Follow the existing field mapping patterns for new financial data
-- Update tests when adding new features or fields
-- Ensure backend services remain reusable for external applications
-
-## License
-
-[Add your license here]
 
 ## Support
 
@@ -370,10 +342,5 @@ For questions or issues:
 ## Roadmap
 
 - [ ] React frontend migration
-- [ ] Real-time data streaming
 - [ ] Portfolio analysis features
-- [ ] Technical analysis indicators
-- [ ] Industry comparison tools
-- [ ] Export functionality (PDF, Excel)
 - [ ] Historical data visualization
-- [ ] Alert and notification system

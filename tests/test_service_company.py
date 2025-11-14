@@ -49,22 +49,22 @@ class TestCompanyServiceFunctions:
         """Create mock overview DataFrame similar to vnstock response."""
         return DataFrame({
             'exchange': ['HOSE'],
-            'industry': ['Ngân hàng'],
-            'company_type': ['NH'],
-            'no_shareholders': [25183],
-            'foreign_percent': [0.235],
-            'outstanding_share': [5589.1],
-            'issue_share': [0.0],
-            'established_year': ['2008'],
-            'no_employees': [40000],
-            'stock_rating': [8.5],
-            'delta_in_week': [-0.071],
-            'delta_in_month': [-0.036],
-            'delta_in_year': [0.15],
-            'short_name': ['Vietcombank'],
-            'website': ['https://vietcombank.com.vn'],
-            'industry_id': [289],
-            'industry_id_v2': ['8355'],
+            'industry': ['Utilities'],
+            'company_type': ['CT'],
+            'no_shareholders': [20147],
+            'foreign_percent': [0.49],
+            'outstanding_share': [541.7],
+            'issue_share': [541.7],
+            'established_year': ['2005'],
+            'no_employees': [1939],
+            'stock_rating': [3.3],
+            'delta_in_week': [0.005],
+            'delta_in_month': [0.098],
+            'delta_in_year': [-0.129],
+            'short_name': ['Refrigeration Electrical Engineering'],
+            'website': ['https://www.reecorp.com'],
+            'industry_id': [274],
+            'industry_id_v2': ['7535'],
         })
 
     @pytest.fixture
@@ -84,67 +84,67 @@ class TestCompanyServiceFunctions:
     def mock_shareholders_df(self):
         """Create mock shareholders DataFrame similar to vnstock response."""
         return DataFrame({
-            'share_holder': ['Ngân Hàng Nhà Nước Việt Nam', 'Mizuho Bank Limited', 'Khác'],
-            'share_own_percent': [0.7480, 0.1500, 0.0295],
+            'share_holder': ['Truong Gia Binh', 'FPT Series Fund LP', 'Nam A Commercial Joint Stock Bank'],
+            'share_own_percent': [0.0689, 0.0523, 0.0487],
         })
 
     @pytest.fixture
     def mock_officers_df(self):
         """Create mock officers DataFrame similar to vnstock response."""
         return DataFrame({
-            'officer_name': ['Nguyễn Thanh Tùng', 'Đàm Lam Thanh', 'Phạm Văn Thiết'],
-            'officer_position': ['Tổng Giám đốc', None, 'Thành viên HĐQT'],
-            'officer_own_percent': [0.0, 0.0, 0.001],
+            'officer_name': ['Truong Gia Binh', 'Bui Quang Ngoc', 'Nguyen Van Khoa'],
+            'officer_position': ['Chairman of Management Board', 'Vice Chairman', 'Chief Executive Officer'],
+            'officer_own_percent': [0.0689, 0.0234, 0.0156],
         })
 
     @pytest.fixture
     def mock_dividends_df(self):
         """Create mock dividends DataFrame similar to vnstock response."""
         return DataFrame({
-            'exercise_date': ['25/07/23', '22/12/21', '22/12/21'],
-            'cash_year': [2023, 2022, 2020],
-            'cash_dividend_percentage': [0.181, 0.276, 0.120],
-            'issue_method': ['share', 'share', 'cash'],
+            'exercise_date': ['2025-10-03', '2024-06-14', '2023-06-16'],
+            'cash_year': [2024, 2023, 2022],
+            'cash_dividend_percentage': [0.045, 0.040, 0.035],
+            'issue_method': ['cash', 'cash', 'cash'],
         })
 
     @pytest.fixture
     def mock_events_df(self):
         """Create mock events DataFrame similar to vnstock response."""
         return DataFrame({
-            'rsi': [56.4, 52.0, 45.5],
-            'rs': [54.0, 61.0, 70.0],
-            'id': [2566332, 2564026, 2563891],
-            'price': [94400, 89100, 86300],
-            'price_change': [300, 0, -2100],
-            'price_change_ratio': [0.003, 0.000, -0.024],
-            'price_change_ratio_1m': [-0.028, 0.000, 0.076],
-            'event_name': ['Đại hội đồng cổ đông', 'Đại hội đồng cổ đông', 'Đại hội đồng cổ đông thường niên'],
-            'event_code': ['DHCĐ', 'DHCĐ', 'DHCĐ'],
-            'notify_date': ['2024-03-12 00:00:00', '2023-08-31 00:00:00', '2023-08-23 00:00:00'],
-            'exer_date': ['2024-04-27 00:00:00', '2023-08-30 00:00:00', '2023-10-06 00:00:00'],
-            'reg_final_date': ['2024-03-27 00:00:00', '1753-01-01 00:00:00', '2023-09-05 00:00:00'],
-            'exer_right_date': ['2024-03-26 00:00:00', '1753-01-01 00:00:00', '2023-08-31 00:00:00'],
-            'event_desc': ['Ngân hàng TMCP Ngoại thương Việt Nam tổ chức ĐHĐCĐ thường niên năm 2024.',
-                          'Ngân hàng TMCP Ngoại thương Việt Nam tổ chức ĐHĐCĐ bất thường năm 2023.',
-                          'Ngân hàng TMCP Ngoại thương Việt Nam tổ chức ĐHĐCĐ thường niên năm 2023.'],
+            'rsi': [44.5, 52.1, 48.3],
+            'rs': [50.0, 45.0, 60.0],
+            'id': [2603368, 2603125, 2602890],
+            'price': [63900, 63500, 64200],
+            'price_change': [400, -100, 300],
+            'price_change_ratio': [0.006, -0.002, 0.005],
+            'price_change_ratio_1m': [-0.014, 0.022, -0.008],
+            'event_name': ['REE - Report Insider Transaction', 'REE - Public Release Q3 Financial Statement', 'REE - Dividend Payment'],
+            'event_code': ['DDINS', 'BCTC', 'CKTT'],
+            'notify_date': ['2025-11-11', '2025-11-08', '2025-10-28'],
+            'exer_date': ['2025-11-11', '2025-11-08', '2025-10-03'],
+            'reg_final_date': ['1753-01-01', '2025-10-25', '2025-09-20'],
+            'exer_right_date': ['1753-01-01', '2025-10-15', '2025-09-10'],
+            'event_desc': ['Insider transaction details for Platinum Victory Pte. Ltd.',
+                          'Q3 2025 financial statement public release with revenue and profit figures.',
+                          'Cash dividend payment for 2024 fiscal year.'],
         })
 
     @pytest.fixture
     def mock_news_df(self):
         """Create mock news DataFrame similar to vnstock response."""
         return DataFrame({
-            'rsi': [41.4, 40.1, 35.4],
-            'rs': [50.0, 49.0, 57.0],
-            'price': [91900.0, 91200.0, 90600.0],
-            'price_change': [700.0, 200.0, 0.0],
-            'price_change_ratio': [0.008, 0.002, 0.000],
-            'price_change_ratio_1m': [-0.028, -0.053, -0.022],
-            'id': [11170634, 11168477, 11158655],
-            'title': ['VCB: Công bố đường dẫn BCTC riêng và HN Q1/2024',
-                     'VCB: Cập nhật, bổ sung tài liệu họp ĐHĐCĐ',
-                     'VCB: Báo cáo tài chính Năm (Kỳ báo cáo từ 01/01/2023 đến 31/12/2023)'],
+            'rsi': [28.1, 32.4, 41.2],
+            'rs': [17.0, 25.0, 35.0],
+            'price': [93000.0, 87000.0, 91200.0],
+            'price_change': [6000.0, -2000.0, 1200.0],
+            'price_change_ratio': [0.069, -0.022, 0.013],
+            'price_change_ratio_1m': [-0.067, 0.045, -0.018],
+            'id': [11592139, 11591824, 11591567],
+            'title': ['FPT: Public release on 9M2025 financial highlights',
+                     'FPT: Report on acquisition of new technology company',
+                     'FPT: Announcement of strategic partnership with global cloud provider'],
             'source': ['TCBS', 'TCBS', 'TCBS'],
-            'publish_date': ['2024-05-02 15:53:00', '2024-04-26 16:56:00', '2024-04-19 09:58:00'],
+            'publish_date': ['2025-10-21 15:59:55', '2025-10-20 10:15:30', '2025-10-19 14:32:10'],
         })
 
     def test_get_company_overview_success(self, mock_overview_df):
@@ -154,18 +154,18 @@ class TestCompanyServiceFunctions:
             mock_company.overview.return_value = mock_overview_df
             mock_company_class.return_value = mock_company
 
-            result = get_company_overview('VCB')
+            result = get_company_overview('REE')
 
             assert isinstance(result, CompanyOverviewTCBS)
             assert result.exchange == 'HOSE'
-            assert result.industry == 'Ngân hàng'
-            assert result.company_type == 'NH'
-            assert result.no_shareholders == 25183
-            assert result.foreign_percent == 0.235
-            assert result.outstanding_share == 5589.1
-            assert result.established_year == '2008'
-            assert result.short_name == 'Vietcombank'
-            assert result.website == 'https://vietcombank.com.vn'
+            assert result.industry == 'Utilities'
+            assert result.company_type == 'CT'
+            assert result.no_shareholders == 20147
+            assert result.foreign_percent == 0.49
+            assert result.outstanding_share == 541.7
+            assert result.established_year == '2005'
+            assert result.short_name == 'Refrigeration Electrical Engineering'
+            assert result.website == 'https://www.reecorp.com'
 
     def test_get_company_overview_empty_data(self):
         """Test company overview with empty DataFrame."""
@@ -207,15 +207,15 @@ class TestCompanyServiceFunctions:
             mock_company.shareholders.return_value = mock_shareholders_df
             mock_company_class.return_value = mock_company
 
-            result = get_company_shareholders('VCB')
+            result = get_company_shareholders('FPT')
 
             assert isinstance(result, list)
             assert len(result) == 3
             assert all(isinstance(item, CompanyShareholders) for item in result)
-            assert result[0].share_holder == 'Ngân Hàng Nhà Nước Việt Nam'
-            assert result[0].share_own_percent == 0.7480
-            assert result[2].share_holder == 'Khác'
-            assert result[2].share_own_percent == 0.0295
+            assert result[0].share_holder == 'Truong Gia Binh'
+            assert result[0].share_own_percent == 0.0689
+            assert result[2].share_holder == 'Nam A Commercial Joint Stock Bank'
+            assert result[2].share_own_percent == 0.0487
 
     def test_get_company_shareholders_empty_data(self):
         """Test company shareholders with empty DataFrame."""
@@ -235,15 +235,15 @@ class TestCompanyServiceFunctions:
             mock_company.officers.return_value = mock_officers_df
             mock_company_class.return_value = mock_company
 
-            result = get_company_officers('VCB')
+            result = get_company_officers('FPT')
 
             assert isinstance(result, list)
             assert len(result) == 3
             assert all(isinstance(item, CompanyOfficer) for item in result)
-            assert result[0].officer_name == 'Nguyễn Thanh Tùng'
-            assert result[0].officer_position == 'Tổng Giám đốc'
-            assert result[0].officer_own_percent == 0.0
-            assert result[1].officer_position is None  # None handling
+            assert result[0].officer_name == 'Truong Gia Binh'
+            assert result[0].officer_position == 'Chairman of Management Board'
+            assert result[0].officer_own_percent == 0.0689
+            assert result[1].officer_position == 'Vice Chairman'  # All positions filled
 
     def test_get_company_dividends_success(self, mock_dividends_df):
         """Test successful company dividends retrieval."""
@@ -257,10 +257,10 @@ class TestCompanyServiceFunctions:
             assert isinstance(result, list)
             assert len(result) == 3
             assert all(isinstance(item, DividendHistory) for item in result)
-            assert result[0].exercise_date == '25/07/23'
-            assert result[0].cash_year == 2023
-            assert result[0].cash_dividend_percentage == 0.181
-            assert result[0].issue_method == 'share'
+            assert result[0].exercise_date == '2025-10-03'
+            assert result[0].cash_year == 2024
+            assert result[0].cash_dividend_percentage == 0.045
+            assert result[0].issue_method == 'cash'
             assert result[2].issue_method == 'cash'
 
     def test_get_company_events_success(self, mock_events_df):
@@ -270,16 +270,16 @@ class TestCompanyServiceFunctions:
             mock_company.events.return_value = mock_events_df
             mock_company_class.return_value = mock_company
 
-            result = get_company_events('VCB')
+            result = get_company_events('REE')
 
             assert isinstance(result, list)
             assert len(result) == 3
             assert all(isinstance(item, CompanyEventsTCBS) for item in result)
-            assert result[0].rsi == 56.4
-            assert result[0].id == 2566332
-            assert result[0].price == 94400
-            assert result[0].event_name == 'Đại hội đồng cổ đông'
-            assert result[0].notify_date == '2024-03-12 00:00:00'
+            assert result[0].rsi == 44.5
+            assert result[0].id == 2603368
+            assert result[0].price == 63900
+            assert result[0].event_name == 'REE - Report Insider Transaction'
+            assert result[0].notify_date == '2025-11-11'
 
     def test_get_company_news_success(self, mock_news_df):
         """Test successful company news retrieval."""
@@ -288,16 +288,16 @@ class TestCompanyServiceFunctions:
             mock_company.news.return_value = mock_news_df
             mock_company_class.return_value = mock_company
 
-            result = get_company_news('VCB')
+            result = get_company_news('FPT')
 
             assert isinstance(result, list)
             assert len(result) == 3
             assert all(isinstance(item, CompanyNews) for item in result)
-            assert result[0].rsi == 41.4
-            assert result[0].price == 91900.0
-            assert 'VCB:' in result[0].title
+            assert result[0].rsi == 28.1
+            assert result[0].price == 93000.0
+            assert 'FPT:' in result[0].title
             assert result[0].source == 'TCBS'
-            assert result[0].publish_date == '2024-05-02 15:53:00'
+            assert result[0].publish_date == '2025-10-21 15:59:55'
 
     def test_get_company_subsidiaries_success(self):
         """Test successful company subsidiaries retrieval."""
@@ -350,33 +350,33 @@ class TestCompanyServiceFunctions:
     def test_get_company_ratio_vci_success(self):
         """Test successful company financial ratios retrieval."""
         mock_data = DataFrame({
-            'symbol': ['VCB', 'VCB'],
-            'year_report': [2023, 2022],
-            'length_report': [12, 12],
-            'update_date': [20240315, 20230315],
-            'revenue': [150000000, 130000000],
-            'revenue_growth': [0.15, 0.12],
-            'net_profit': [50000000, 45000000],
-            'net_profit_growth': [0.11, 0.10],
-            'ebit_margin': [33, 35],
-            'roe': [0.18, 0.20],
-            'roic': [25, 22],
-            'roa': [0.12, 0.15],
-            'pe': [15.5, 14.2],
-            'pb': [1.8, 1.6],
-            'eps': [3500.0, 3200.0],
-            'current_ratio': [1.5, 1.6],
-            'cash_ratio': [0.8, 0.9],
-            'quick_ratio': [1.2, 1.3],
-            'interest_coverage': [None, None],
-            'ae': [20000000, 18000000],
-            'fae': [18000000, 16000000],
-            'net_profit_margin': [0.33, 0.35],
-            'gross_margin': [45, 47],
-            'ev': [5000000000, 4500000000],
-            'issue_share': [1000000, 950000],
-            'ps': [2.5, 2.3],
-            'pcf': [12.0, 11.5],
+            'symbol': ['REE', 'REE'],
+            'year_report': [2025, 2024],
+            'length_report': [3, 4],
+            'update_date': [1761844502673, 1714834502673],
+            'revenue': [2555163684559, 2032156789123],
+            'revenue_growth': [0.2578564391219565, 0.1823456789012345],
+            'net_profit': [674227109814, 479516789456],
+            'net_profit_growth': [0.4050917229112621, 0.3451234567890123],
+            'ebit_margin': [0, 0],
+            'roe': [0.1320102898, 0.1182345678901234],
+            'roic': [0, 0],
+            'roa': [0.0696638967, 0.0623456789012345],
+            'pe': [13.7777569513, 15.2345678901234],
+            'pb': [1.7534369022, 1.9234567890123],
+            'eps': [1244.746568488284, 885.1234567890123],
+            'current_ratio': [2, 2],
+            'cash_ratio': [1, 1],
+            'quick_ratio': [2, 2],
+            'interest_coverage': ['-4.338824653274593', '-3.1234567890123456'],
+            'ae': [1.5835287711515749, 1.4234567890123456],
+            'fae': [0.5953429887060038, 0.5234567890123456],
+            'net_profit_margin': [0.2641787715072509, 0.23612345678901234],
+            'gross_margin': [0, 0],
+            'ev': [35641105546200, 28912345678901],
+            'issue_share': [541658139, 541658139],
+            'ps': [3.7637373037, 3.4234567890123456],
+            'pcf': [13.5397647824, 14.623456789012345],
             'bvps': [20000.0, 18500.0],
             'ev_per_ebitda': [8, 9],
             'at': [400000000, 380000000],
@@ -403,15 +403,15 @@ class TestCompanyServiceFunctions:
             mock_company.ratio_summary.return_value = mock_data
             mock_company_class.return_value = mock_company
 
-            result = get_company_ratio_vci('VCB')
+            result = get_company_ratio_vci('REE')
 
             assert isinstance(result, list)
             assert len(result) == 2
             assert all(isinstance(item, CompanyRatioVCI) for item in result)
-            assert result[0].symbol == 'VCB'
-            assert result[0].year_report == 2023
-            assert result[0].roe == 0.18
-            assert result[0].interest_coverage is None
+            assert result[0].symbol == 'REE'
+            assert result[0].year_report == 2025
+            assert result[0].roe == 0.1320102898
+            assert result[0].interest_coverage == '-4.338824653274593'
 
     def test_get_company_reports_vci_success(self):
         """Test successful company reports retrieval."""
