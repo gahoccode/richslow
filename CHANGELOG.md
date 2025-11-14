@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Company Information API**: 12 new comprehensive endpoints for Vietnamese stock market company analysis
+  - **TCBS Data Source (9 endpoints)**: Complete company information from TCBS
+    - `GET /api/company/{ticker}/overview` - Company basic information (exchange, industry, employees, trading stats)
+    - `GET /api/company/{ticker}/profile` - Company profile and history (business description, strategies)
+    - `GET /api/company/{ticker}/shareholders` - Major shareholders with ownership percentages
+    - `GET /api/company/{ticker}/officers` - Management team and board members
+    - `GET /api/company/{ticker}/subsidiaries` - Subsidiary companies and ownership structure
+    - `GET /api/company/{ticker}/dividends` - Historical dividend payments and corporate actions
+    - `GET /api/company/{ticker}/insider-deals` - Insider trading activities and transactions
+    - `GET /api/company/{ticker}/events` - Corporate events (shareholder meetings, dividends)
+    - `GET /api/company/{ticker}/news` - Company news and announcements from TCBS
+  - **VCI Data Source (3 endpoints)**: Financial ratios and trading statistics from VCI
+    - `GET /api/company/{ticker}/ratio` - Comprehensive financial ratios (45+ fields across multiple periods)
+    - `GET /api/company/{ticker}/reports` - Financial reports with download links
+    - `GET /api/company/{ticker}/trading-stats` - Trading statistics and foreign ownership limits
+
+### New Architecture Components
+- **Service Layer**: `app/services/service_company.py` - Business logic for company data processing
+- **API Routes**: `app/routes/route_company.py` - REST API endpoints with comprehensive error handling
+- **Data Validation**: Full Pydantic model validation using existing `schema_company.py` models
+- **Error Handling**: HTTP 404/422/500 responses with proper error messages for invalid tickers
+- **Type Safety**: Complete type hints and null-safe data extraction
+
+### Testing & Quality
+- **Comprehensive Test Suite**: 30+ new unit and integration tests for company endpoints
+  - Service layer unit tests with mocked vnstock responses
+  - API endpoint integration tests with error scenarios
+  - Data validation and serialization testing
+  - Edge case handling for missing/invalid data
+- **Code Quality**: Following existing project patterns and linting standards
+- **Documentation**: Full OpenAPI documentation with field descriptions and examples
+
+### Enhanced API Capabilities
+- **Multi-Source Integration**: Combined TCBS and VCI data sources for comprehensive coverage
+- **Vietnamese Data Handling**: Proper processing of Vietnamese company names and financial formats
+- **Performance**: Optimized data transformation with pandas DataFrame processing
+- **Consistency**: Following existing route/service/schema architecture patterns
+- **Extensibility**: Modular design allows easy addition of new company data endpoints
+
+### Integration Notes
+- All endpoints use ticker parameter following Vietnamese stock exchange conventions (e.g., 'VCB', 'FPT', 'HPG')
+- Comprehensive error handling for invalid tickers and vnstock API failures
+- Full backward compatibility maintained with existing API structure
+- Ready for frontend integration and third-party application usage
+
 ### Fixed
 - **Company Schema Critical Issues**: Fixed blocking syntax error in `CompanyOfficer.officer_position` field that prevented schema import
 - **Data Type Corrections**: Corrected field types to match vnstock API documentation:

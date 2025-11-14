@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.routes.route_company import router as company_router
 from app.routes.route_historical_prices import router as historical_router
 from app.routes.route_statements import router as statements_router
 
@@ -26,6 +27,7 @@ app.add_middleware(
 # Include API routes
 app.include_router(statements_router)
 app.include_router(historical_router)
+app.include_router(company_router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
