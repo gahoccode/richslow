@@ -58,6 +58,11 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 - `IncomeStatementData` - 28 fields covering revenue, expenses, profits, taxes
 - `BalanceSheetData` - 39 fields covering assets, liabilities, equity
 - `CashFlowData` - 36 fields covering operating, investing, financing activities
+- `FinancialRatiosData` - 34+ fields covering valuation, profitability, liquidity, efficiency metrics
+- `StockOHLCV` - Stock historical prices (open, high, low, close, volume)
+- `ExchangeRate` - VCB exchange rates for 20+ currencies
+- `GoldSJC` - SJC gold prices (buy/sell for various products)
+- `GoldBTMC` - BTMC gold prices with karat and purity details
 - Manual field mapping from Vietnamese financial statement column names to standardized Pydantic fields
 
 ### Frontend Architecture (Static HTML/JS)
@@ -104,6 +109,13 @@ This is a full-stack web application for analyzing Vietnamese stock market data 
 - Error handling for vnstock API rate limits and data availability
 - Debug logging for field mapping validation and troubleshooting
 
+**Data Cleaning Utilities (`app/utils/data_cleaning.py`):**
+- `clean_price_string()` - Convert Vietnamese price format (comma separators, dashes) to float
+- `clean_price_int()` - Convert Vietnamese price format to integer
+- `parse_exchange_date()` - Parse YYYY-MM-DD date format from vnstock
+- `parse_btmc_datetime()` - Parse DD/MM/YYYY HH:MM datetime format from BTMC gold prices
+- All utilities handle edge cases (None, dashes, empty strings, whitespace)
+
 **Backend-First Processing Architecture:**
 - **All data processing, transformation, and formatting must be done in backend services**
 - **Frontend should only display pre-processed data from API responses** 
@@ -142,10 +154,11 @@ This architecture supports the current static frontend while being designed for 
 The test suite is organized into comprehensive categories to ensure reliability and maintainability:
 
 - **`tests/test_imports.py`** - Module import validation and circular dependency detection
-- **`tests/test_schemas.py`** - Pydantic model validation and schema contract testing  
+- **`tests/test_schemas.py`** - Pydantic model validation and schema contract testing
 - **`tests/test_contract_alignment.py`** - Frontend-backend field mapping consistency
 - **`tests/test_backend_reusability.py`** - Standalone service function testing for external app integration
 - **`tests/test_integration.py`** - End-to-end API testing and system integration
+- **`tests/test_route_historical_prices.py`** - Historical prices API endpoint testing with mocked vnstock responses
 - **`tests/conftest.py`** - Shared test fixtures and sample data
 
 ### Test Categories
@@ -173,6 +186,13 @@ The test suite is organized into comprehensive categories to ensure reliability 
 - Error handling and resilience under various failure conditions
 - CORS configuration and static file serving
 - Performance and memory usage validation
+
+**Historical Prices API Tests:**
+- Stock OHLCV endpoint with date range validation
+- Exchange rates endpoint with default/custom dates
+- Gold prices endpoints (SJC and BTMC)
+- Missing data and API error handling
+- OpenAPI schema validation for all endpoints
 
 ### Best Practices for Testing
 

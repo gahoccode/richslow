@@ -381,14 +381,218 @@ class TestSchemaCompatibility:
         """Test that schema can be exported as JSON schema for documentation."""
         # This is important for API documentation and frontend contract validation
         schema = FinancialRatiosData.model_json_schema()
-        
+
         assert "properties" in schema
         assert "year_report" in schema["properties"]
         assert "pe_ratio" in schema["properties"]
-        
+
         # Test that critical fields are documented
         critical_fields = ["roe", "debt_to_equity", "cash_conversion_cycle"]
         for field in critical_fields:
             assert field in schema["properties"]
             # Should have type information
             assert "type" in schema["properties"][field] or "anyOf" in schema["properties"][field]
+
+
+class TestHistoricalPricesSchemas:
+    """Test Pydantic model validation for historical price schemas."""
+
+    def test_exchange_rate_with_proper_aliases(self):
+        """Test ExchangeRate schema with correct vnstock field aliases (buy _cash, buy _transfer)."""
+        from app.schemas.historical_prices import ExchangeRate
+
+        # Data matching vnstock API structure with spaces in column names
+        valid_data = {
+            "currency_code": "USD",
+            "currency_name": "US DOLLAR",
+            "buy _cash": 25154.00,  # Note: space before underscore
+            "buy _transfer": 25184.00,  # Note: space before underscore
+            "sell": 25484.00,
+            "date": datetime(2024, 5, 10)
+        }
+
+        rate = ExchangeRate(**valid_data)
+        assert rate.currency_code == "USD"
+        assert rate.buy_cash == 25154.00
+        assert rate.buy_transfer == 25184.00
+        assert rate.sell == 25484.00
+
+    def test_exchange_rate_missing_values(self):
+        """Test ExchangeRate handling of missing values (dashes converted to None)."""
+        from app.schemas.historical_prices import ExchangeRate
+        from app.utils.data_cleaning import clean_price_string
+
+        # Test dash handling
+        assert clean_price_string("-") is None
+        assert clean_price_string(None) is None
+        assert clean_price_string("") is None
+
+        # ExchangeRate with None values should succeed (fields are optional)
+        rate = ExchangeRate(
+            currency_code="DKK",
+            currency_name="DANISH KRONE",
+            **{"buy _cash": None, "buy _transfer": 3611.55},
+            sell=3749.84,
+            date=datetime(2024, 5, 10)
+        )
+        assert rate.currency_code == "DKK"
+        assert rate.buy_cash is None  # None is valid for optional field
+        assert rate.buy_transfer == 3611.55
+
+    def test_gold_sjc_comma_separated_prices(self):
+        """Test GoldSJC with comma-separated price strings."""
+        from app.schemas.historical_prices import GoldSJC
+        from app.utils.data_cleaning import clean_price_string
+
+        # Test cleaning function
+        assert clean_price_string("88,500,000") == 88500000.0
+        assert clean_price_string("90,500,000") == 90500000.0
+
+        # Test schema validation
+        gold = GoldSJC(
+            name="SJC 1L, 10L, 1KG",
+            buy_price=88500000.0,
+            sell_price=90500000.0
+        )
+        assert gold.name == "SJC 1L, 10L, 1KG"
+        assert gold.buy_price == 88500000.0
+
+    def test_gold_btmc_datetime_parsing(self):
+        """Test GoldBTMC datetime parsing from DD/MM/YYYY HH:MM format."""
+        from app.schemas.historical_prices import GoldBTMC
+        from app.utils.data_cleaning import parse_btmc_datetime
+
+        # Test parsing function
+        parsed = parse_btmc_datetime("28/05/2024 08:52")
+        assert parsed.year == 2024
+        assert parsed.month == 5
+        assert parsed.day == 28
+        assert parsed.hour == 8
+        assert parsed.minute == 52
+
+        # Test schema validation
+        gold = GoldBTMC(
+            name="VÀNG MIẾNG SJC",
+            karat="24k",
+            gold_content="999.9",
+            buy_price=8845000,
+            sell_price=9000000,
+            world_price=7338000,
+            time=datetime(2024, 5, 28, 8, 52)
+        )
+        assert gold.karat == "24k"
+        assert gold.time.hour == 8
+
+    def test_gold_btmc_int_conversion(self):
+        """Test GoldBTMC integer price conversion."""
+        from app.utils.data_cleaning import clean_price_int
+
+        # Test cleaning function with various formats
+        assert clean_price_int("7,542,000") == 7542000
+        assert clean_price_int("7542000") == 7542000
+        assert clean_price_int("-") is None
+        assert clean_price_int(None) is None
+
+    def test_exchange_rate_date_parsing(self):
+        """Test ExchangeRate date parsing from YYYY-MM-DD format."""
+        from app.utils.data_cleaning import parse_exchange_date
+
+        # Test parsing function
+        parsed = parse_exchange_date("2024-05-10")
+        assert parsed.year == 2024
+        assert parsed.month == 5
+        assert parsed.day == 10
+
+    def test_stock_ohlcv_validation(self):
+        """Test StockOHLCV schema validation."""
+        from app.schemas.historical_prices import StockOHLCV
+
+        ohlcv = StockOHLCV(
+            time=datetime(2024, 1, 15),
+            open=89500.0,
+            high=90200.0,
+            low=88800.0,
+            close=90000.0,
+            volume=1500000.0
+        )
+        assert ohlcv.open == 89500.0
+        assert ohlcv.high == 90200.0
+        assert ohlcv.close == 90000.0
+
+    def test_data_cleaning_edge_cases(self):
+        """Test data cleaning utilities with edge cases."""
+        from app.utils.data_cleaning import clean_price_string, clean_price_int
+
+        # Empty strings
+        assert clean_price_string("") is None
+        assert clean_price_string("   ") is None
+        assert clean_price_int("") is None
+
+        # Numbers without commas
+        assert clean_price_string("12345.67") == 12345.67
+        assert clean_price_int("12345") == 12345
+
+        # Multiple commas
+        assert clean_price_string("1,234,567.89") == 1234567.89
+        assert clean_price_int("1,234,567") == 1234567
+
+    def test_datetime_parsing_edge_cases(self):
+        """Test datetime parsing with invalid formats."""
+        from app.utils.data_cleaning import parse_btmc_datetime, parse_exchange_date
+
+        # Invalid formats should raise ValueError
+        with pytest.raises(ValueError):
+            parse_btmc_datetime("2024-05-28 08:52")  # Wrong format
+
+        with pytest.raises(ValueError):
+            parse_exchange_date("28/05/2024")  # Wrong format
+
+    def test_historical_prices_serialization(self):
+        """Test that all historical price models can be serialized to JSON."""
+        from app.schemas.historical_prices import (
+            ExchangeRate,
+            GoldBTMC,
+            GoldSJC,
+            StockOHLCV,
+        )
+
+        # ExchangeRate
+        rate = ExchangeRate(
+            currency_code="USD",
+            currency_name="US DOLLAR",
+            **{"buy _cash": 25154.00, "buy _transfer": 25184.00},
+            sell=25484.00,
+            date=datetime(2024, 5, 10)
+        )
+        rate_json = rate.model_dump_json()
+        assert "USD" in rate_json
+
+        # GoldSJC
+        sjc = GoldSJC(name="SJC 1L", buy_price=88500000.0, sell_price=90500000.0)
+        sjc_json = sjc.model_dump_json()
+        assert "SJC 1L" in sjc_json
+
+        # GoldBTMC
+        btmc = GoldBTMC(
+            name="VÀNG MIẾNG",
+            karat="24k",
+            gold_content="999.9",
+            buy_price=8845000,
+            sell_price=9000000,
+            world_price=7338000,
+            time=datetime(2024, 5, 28, 8, 52)
+        )
+        btmc_json = btmc.model_dump_json()
+        assert "24k" in btmc_json
+
+        # StockOHLCV
+        ohlcv = StockOHLCV(
+            time=datetime(2024, 1, 15),
+            open=89500.0,
+            high=90200.0,
+            low=88800.0,
+            close=90000.0,
+            volume=1500000.0
+        )
+        ohlcv_json = ohlcv.model_dump_json()
+        assert "89500" in ohlcv_json

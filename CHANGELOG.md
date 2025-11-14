@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-11-14
+
+### Added
+- **Historical Stock Prices API** (`GET /api/stock-prices/{ticker}`): Fetch OHLCV time series data for Vietnamese stocks
+  - Query parameters: `start_date`, `end_date`, `interval` (1D/1W/1M)
+  - Returns validated list of StockOHLCV models with open, high, low, close, volume data
+  - Full error handling for invalid tickers and date ranges
+- **Exchange Rates API** (`GET /api/exchange-rates`): VCB exchange rates for 20+ major currencies
+  - Optional `date` query parameter (YYYY-MM-DD format, defaults to today)
+  - Returns validated list of ExchangeRate models (USD, EUR, GBP, JPY, CNY, etc.)
+  - Graceful handling of missing values (dashes converted to None)
+- **Gold Prices APIs**: Two endpoints for Vietnamese gold market data
+  - `GET /api/gold/sjc`: SJC gold prices with buy/sell rates for various products (bars, coins, jewelry)
+  - `GET /api/gold/btmc`: BTMC gold prices with detailed karat and purity information
+- **Data Cleaning Utilities Module** (`app/utils/data_cleaning.py`): Reusable Vietnamese data formatting functions
+  - `clean_price_string()`: Convert comma-separated price strings to float, handle dashes (→ None)
+  - `clean_price_int()`: Convert comma-separated price strings to int
+  - `parse_exchange_date()`: Parse YYYY-MM-DD date format from vnstock
+  - `parse_btmc_datetime()`: Parse DD/MM/YYYY HH:MM datetime format
+  - All functions handle edge cases (None, empty strings, whitespace)
+- **Service Layer Processing Functions** (`app/services/service_historical_prices.py`): Data transformation pipeline
+  - `process_exchange_rate_data()`: Transform vnstock DataFrame to ExchangeRate models
+  - `process_gold_sjc_data()`: Transform vnstock DataFrame to GoldSJC models
+  - `process_gold_btmc_data()`: Transform vnstock DataFrame to GoldBTMC models
+  - `process_stock_ohlcv_data()`: Transform vnstock DataFrame to StockOHLCV models
+- **Response Wrapper Models** (`app/schemas/historical_prices.py`): Enhanced API documentation
+  - `StockPricesResponse`: Wrapper for stock price history with metadata
+  - `ExchangeRatesResponse`: Wrapper for exchange rates with count
+  - `GoldPricesResponse`: Wrapper for gold prices with source and timestamp
+- **Comprehensive Integration Tests** (`tests/test_route_historical_prices.py`): 27 new tests (all passing)
+  - Stock prices endpoint testing with mocked vnstock responses
+  - Exchange rates testing with default/custom dates and missing values
+  - Gold prices testing (SJC and BTMC providers)
+  - Error handling tests (404, 500, 422 validation errors)
+  - OpenAPI schema validation for all new endpoints
+- **API Documentation Updates**:
+  - README.md: Added 4 new endpoint examples with curl commands
+  - CLAUDE.md: Added historical prices API testing guidelines
+  - All endpoints include comprehensive docstrings with parameter descriptions
+
+### Fixed
+- **ExchangeRate Schema Validation**: Corrected field aliases to match vnstock API structure
+  - Fixed `buy_cash` alias from `"buy_cash"` to `"buy _cash"` (space before underscore)
+  - Fixed `buy_transfer` alias from `"buy_transfer"` to `"buy _transfer"` (space before underscore)
+- **ExchangeRate Optional Fields**: Changed `buy_cash` and `buy_transfer` from required to optional
+  - Updated type from `float` to `float | None` with default `None`
+  - Prevents validation errors when vnstock API returns dashes for missing values
+  - Gracefully handles currencies without cash buying rates (e.g., DKK, INR, KWD)
+
+### Changed
+- **Test Suite Expansion**: Increased from 75 to 102 total tests
+  - 27 new integration tests for historical prices endpoints
+  - 13 new schema validation tests for historical price models
+  - All historical price tests pass in isolation
+- **Documentation Updates**:
+  - Updated README.md with Historical Prices & Market Data section
+  - Updated CLAUDE.md with historical price schemas and utilities
+  - Added backend reusability examples for new utility functions
+
 ## [1.2.0] - 2025-11-14
 
 ### Added
@@ -128,7 +187,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Figure scaling to display in original scale
 - Data processing pipeline for Vietnamese financial statements
 
-[Unreleased]: https://github.com/gahoccode/richslow/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/gahoccode/richslow/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/gahoccode/richslow/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/gahoccode/richslow/compare/v1.0.0...v1.2.0
 [1.0.0]: https://github.com/gahoccode/richslow/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/gahoccode/richslow/releases/tag/v0.1.0

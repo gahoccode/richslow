@@ -78,12 +78,30 @@ from app.schemas.schema_statements import (
     FinancialStatementsResponse,
     StatementsRequest
 )
+from app.schemas.historical_prices import (
+    ExchangeRate,
+    GoldSJC,
+    GoldBTMC,
+    StockOHLCV
+)
 
 # Import utility functions
 from app.services.service_statements import (
     get_financial_statements,
     _safe_get,
     _process_ratios
+)
+from app.services.service_historical_prices import (
+    process_exchange_rate_data,
+    process_gold_sjc_data,
+    process_gold_btmc_data,
+    process_stock_ohlcv_data
+)
+from app.utils.data_cleaning import (
+    clean_price_string,
+    clean_price_int,
+    parse_exchange_date,
+    parse_btmc_datetime
 )
 
 # Use in your application
@@ -95,8 +113,12 @@ custom_data = pd.DataFrame({
     "P/E": [15.5],
     "ROE (%)": [0.225]
 })
-
 ratios = _process_ratios(custom_data)
+
+# Process exchange rate data
+from vnstock.explorer.misc.exchange_rate import vcb_exchange_rate
+df = vcb_exchange_rate(date='2024-05-10')
+rates = process_exchange_rate_data(df)
 ```
 
 ## Development
@@ -189,6 +211,12 @@ uv add <package> --dev
 - **Efficiency**: Asset turnover, inventory turnover, collection cycles
 - **Leverage**: Debt-to-equity, interest coverage, financial structure
 
+### Historical Prices & Market Data
+- **Stock OHLCV**: Time series data for Vietnamese stocks (open, high, low, close, volume)
+- **Exchange Rates**: VCB exchange rates for 20+ currencies (USD, EUR, GBP, JPY, CNY, etc.)
+- **Gold Prices**: SJC and BTMC gold prices with buy/sell rates and karat details
+- **Data Processing**: Automatic handling of Vietnamese number formatting (comma separators, dashes for missing values)
+
 ## API Reference
 
 ### Endpoints
@@ -223,15 +251,67 @@ Get comprehensive financial statements for a Vietnamese stock.
 }
 ```
 
-### Response Schema
+#### `GET /api/stock-prices/{ticker}`
+
+Get historical stock OHLCV data.
+
+**Parameters:**
+- `ticker` (path): Stock ticker symbol
+- `start_date` (query): Start date (YYYY-MM-DD)
+- `end_date` (query): End date (YYYY-MM-DD)
+- `interval` (query, optional): Time interval - 1D (daily), 1W (weekly), 1M (monthly)
+
+**Example:**
+```bash
+curl "http://localhost:8000/api/stock-prices/FPT?start_date=2024-01-01&end_date=2024-12-31&interval=1D"
+```
+
+#### `GET /api/exchange-rates`
+
+Get VCB exchange rates for major currencies.
+
+**Parameters:**
+- `date` (query, optional): Date in YYYY-MM-DD format (defaults to today)
+
+**Example:**
+```bash
+curl "http://localhost:8000/api/exchange-rates?date=2024-05-10"
+```
+
+#### `GET /api/gold/sjc`
+
+Get current SJC gold prices.
+
+**Example:**
+```bash
+curl "http://localhost:8000/api/gold/sjc"
+```
+
+#### `GET /api/gold/btmc`
+
+Get current BTMC gold prices with detailed karat and purity information.
+
+**Example:**
+```bash
+curl "http://localhost:8000/api/gold/btmc"
+```
+
+### Response Schemas
 
 All responses follow strict Pydantic schemas ensuring data consistency:
 
+**Financial Statements:**
 - **FinancialStatementsResponse**: Main API response container
 - **IncomeStatementData**: Income statement line items
-- **BalanceSheetData**: Balance sheet components  
+- **BalanceSheetData**: Balance sheet components
 - **CashFlowData**: Cash flow statement items
 - **FinancialRatiosData**: 34+ calculated financial ratios
+
+**Historical Prices:**
+- **StockOHLCV**: Stock price data (open, high, low, close, volume)
+- **ExchangeRate**: Currency exchange rates
+- **GoldSJC**: SJC gold prices
+- **GoldBTMC**: BTMC gold prices with karat details
 
 ## Testing
 

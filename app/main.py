@@ -3,12 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.routes.route_historical_prices import router as historical_router
 from app.routes.route_statements import router as statements_router
 
 app = FastAPI(
     title="RichSlow Financial Analysis API",
     description="Vietnamese stock market financial analysis platform",
-    version="1.0.0",
+    version="1.3.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )
@@ -24,6 +25,7 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(statements_router)
+app.include_router(historical_router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
