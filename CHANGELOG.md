@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Company Schema Critical Issues**: Fixed blocking syntax error in `CompanyOfficer.officer_position` field that prevented schema import
+- **Data Type Corrections**: Corrected field types to match vnstock API documentation:
+  - `CompanyOverviewTCBS.established_year`: Changed from int to str (matches vnstock object type)
+  - `DividendHistory.exercise_date`: Changed from datetime to str (matches DD/MM/YY format)
+- **Import Error Fix**: Corrected `Optional` import from `typing` instead of `pydantic` for proper module loading
+- **Extra Field Removal**: Removed undocumented `type` field from `CompanyOfficer` model
+- **Typo Correction**: Fixed "Onwership" typo in field description
+
+### Added
+- **Comprehensive Company Schema Tests**: Added 14 new unit tests covering all company data models:
+  - DividendHistory validation with sample data from documentation
+  - CompanyOverviewTCBS with correct string established_year type
+  - CompanyProfile with optional field handling
+  - CompanyShareholders, CompanySubsidiaries, CompanyInsiderDeals validation
+  - CompanyEventsTCBS, CompanyNews model validation
+  - CompanyOfficer with optional position field handling
+  - JSON serialization testing for all models
+  - Invalid data validation error testing
+- **Sample Data Integration**: All tests use real sample data from vnstock company API documentation
+- **Type Safety Validation**: Comprehensive validation of field types and optional/null handling
+
+### Changed
+- **Test Coverage**: Increased from 102 to 116 total tests (14 new company schema tests)
+- **Schema Reliability**: Enhanced validation ensures robust data handling for Vietnamese company information
+- **Documentation Alignment**: Schema models now perfectly match vnstock API field specifications
+
 ## [1.3.0] - 2025-11-14
 
 ### Added

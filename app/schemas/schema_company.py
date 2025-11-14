@@ -1,9 +1,10 @@
 from datetime import datetime
-from pydantic import BaseModel, Field, Optional
+
+from pydantic import BaseModel, Field
 
 
 class DividendHistory(BaseModel):
-    exercise_date: datetime
+    exercise_date: str
     cash_year: int = Field(..., description="Cash year")
     cash_dividend_percentage: float = Field(..., description="Dividend Percentage")
     issue_method: str = Field(..., description="Dividend type")
@@ -17,7 +18,7 @@ class CompanyOverviewTCBS(BaseModel):
     foreign_percent: float
     outstanding_share: float
     issue_share: float
-    established_year: int
+    established_year: str
     no_employees: int
     stock_rating: float
     delta_in_week: float
@@ -33,7 +34,7 @@ class CompanyProfile(BaseModel):
     company_name: str
     company_profile: str
     history_dev: str
-    company_promise: Optional[str] = None
+    company_promise: str | None = None
     business_risk: str
     key_developments: str
     business_strategies: str
@@ -46,9 +47,8 @@ class CompanyShareholders(BaseModel):
 
 class CompanyOfficer(BaseModel):
     officer_name: str = Field(..., description="Full name")
-    officer_position: Optional[str] = None = Field(..., description="Job Position")
-    officer_own_percent: float = Field(..., description="Onwership Percentage")
-    type: str = Field(..., description="Working status")
+    officer_position: str | None = Field(None, description="Job Position")
+    officer_own_percent: float = Field(..., description="Ownership Percentage")
 
 
 class CompanySubsidiaries(BaseModel):
@@ -58,15 +58,15 @@ class CompanySubsidiaries(BaseModel):
 
 class CompanyInsiderDeals(BaseModel):
     deal_announce_date: datetime
-    deal_method: Optional[str] = None
+    deal_method: str | None = None
     deal_action: str
     deal_quantity: float
-    deal_price: Optional[float] = None
-    deal_ratio: Optional[float] = None
+    deal_price: float | None = None
+    deal_ratio: float | None = None
 
 
 class CompanyEventsTCBS(BaseModel):
-    rsi: Optional[float] = None
+    rsi: float | None = None
     rs: float
     id: int
     price: int
@@ -85,10 +85,10 @@ class CompanyEventsTCBS(BaseModel):
 class CompanyNews(BaseModel):
     rsi: float
     rs: float
-    price: Optional[float] = None
-    price_change: Optional[float] = None
-    price_change_ratio: Optional[float] = None
-    price_change_ratio_1m: Optional[float] = None
+    price: float | None = None
+    price_change: float | None = None
+    price_change_ratio: float | None = None
+    price_change_ratio_1m: float | None = None
     id: int
     title: str
     source: str
@@ -114,7 +114,7 @@ class CompanyRatioVCI(BaseModel):
     current_ratio: int
     cash_ratio: int
     quick_ratio: int
-    interest_coverage: Optional[str] = None
+    interest_coverage: str | None = None
     ae: float
     fae: float
     net_profit_margin: float
@@ -127,7 +127,7 @@ class CompanyRatioVCI(BaseModel):
     ev_per_ebitda: int
     at: int
     fat: int
-    acp: Optional[str] = None
+    acp: str | None = None
     dso: int
     dpo: int
     eps_ttm: float
@@ -140,7 +140,7 @@ class CompanyRatioVCI(BaseModel):
     ebit: int
     le: int
     de: int
-    ccc: Optional[str] = None
+    ccc: str | None = None
     rtq17: int
 
 

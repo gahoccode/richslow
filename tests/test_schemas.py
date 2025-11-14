@@ -17,6 +17,17 @@ from app.schemas.schema_statements import (
     StatementsRequest,
 )
 from app.schemas.schema_common import PeriodType
+from app.schemas.schema_company import (
+    DividendHistory,
+    CompanyOverviewTCBS,
+    CompanyProfile,
+    CompanyShareholders,
+    CompanyOfficer,
+    CompanySubsidiaries,
+    CompanyInsiderDeals,
+    CompanyEventsTCBS,
+    CompanyNews,
+)
 
 
 class TestSchemaValidation:
@@ -596,3 +607,264 @@ class TestHistoricalPricesSchemas:
         )
         ohlcv_json = ohlcv.model_dump_json()
         assert "89500" in ohlcv_json
+
+
+class TestCompanySchemaValidation:
+    """Test Pydantic model validation for company information schemas."""
+
+    def test_dividend_history_validation(self):
+        """Test DividendHistory model validation using sample data from documentation."""
+        # Valid dividend data from docs
+        dividend_data = {
+            "exercise_date": "25/07/23",
+            "cash_year": 2023,
+            "cash_dividend_percentage": 0.181,
+            "issue_method": "share"
+        }
+
+        dividend = DividendHistory(**dividend_data)
+        assert dividend.exercise_date == "25/07/23"
+        assert dividend.cash_year == 2023
+        assert dividend.cash_dividend_percentage == 0.181
+        assert dividend.issue_method == "share"
+
+    def test_company_overview_tcbs_validation(self):
+        """Test CompanyOverviewTCBS model validation using sample data from documentation."""
+        overview_data = {
+            "exchange": "HOSE",
+            "industry": "Ngân hàng",
+            "company_type": "NH",
+            "no_shareholders": 25183,
+            "foreign_percent": 0.235,
+            "outstanding_share": 5589.1,
+            "issue_share": 0.0,
+            "established_year": "2008",  # Fixed: string instead of int
+            "no_employees": 40000,
+            "stock_rating": 8.5,
+            "delta_in_week": -0.071,
+            "delta_in_month": -0.036,
+            "delta_in_year": 0.15,
+            "short_name": "Vietcombank",
+            "website": "https://vietcombank.com.vn",
+            "industry_id": 289,
+            "industry_id_v2": "8355"
+        }
+
+        overview = CompanyOverviewTCBS(**overview_data)
+        assert overview.exchange == "HOSE"
+        assert overview.industry == "Ngân hàng"
+        assert overview.established_year == "2008"  # String type
+        assert overview.short_name == "Vietcombank"
+
+    def test_company_profile_validation(self):
+        """Test CompanyProfile model validation."""
+        profile_data = {
+            "company_name": "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam",
+            "company_profile": "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam là một trong những ngân hàng lớn nhất Việt Nam.",
+            "history_dev": "Lịch sử phát triển của ngân hàng...",
+            "company_promise": None,
+            "business_risk": "Rủi ro kinh doanh...",
+            "key_developments": "Các phát triển chính...",
+            "business_strategies": "Chiến lược kinh doanh..."
+        }
+
+        profile = CompanyProfile(**profile_data)
+        assert profile.company_name == "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam"
+        assert profile.company_promise is None  # Optional field
+
+    def test_company_shareholders_validation(self):
+        """Test CompanyShareholders model validation using sample data from documentation."""
+        shareholders_data = [
+            {
+                "share_holder": "Ngân Hàng Nhà Nước Việt Nam",
+                "share_own_percent": 0.7480
+            },
+            {
+                "share_holder": "Mizuho Bank Limited",
+                "share_own_percent": 0.1500
+            }
+        ]
+
+        shareholders = [CompanyShareholders(**data) for data in shareholders_data]
+        assert len(shareholders) == 2
+        assert shareholders[0].share_holder == "Ngân Hàng Nhà Nước Việt Nam"
+        assert shareholders[0].share_own_percent == 0.7480
+
+    def test_company_officer_validation(self):
+        """Test CompanyOfficer model validation using sample data from documentation."""
+        officer_data = {
+            "officer_name": "Nguyễn Thanh Tùng",
+            "officer_position": "Tổng Giám đốc",
+            "officer_own_percent": 0.0
+        }
+
+        officer = CompanyOfficer(**officer_data)
+        assert officer.officer_name == "Nguyễn Thanh Tùng"
+        assert officer.officer_position == "Tổng Giám đốc"
+        assert officer.officer_own_percent == 0.0
+
+        # Test with None position (some officers have None in documentation)
+        officer_none_pos = CompanyOfficer(
+            officer_name="Test Officer",
+            officer_position=None,
+            officer_own_percent=0.0
+        )
+        assert officer_none_pos.officer_position is None
+
+    def test_company_subsidiaries_validation(self):
+        """Test CompanySubsidiaries model validation using sample data from documentation."""
+        subsidiary_data = {
+            "sub_company_name": "Công ty TNHH Chứng khoán Ngân hàng Thương mại Ngoại thương Việt Nam",
+            "sub_own_percent": 1.000
+        }
+
+        subsidiary = CompanySubsidiaries(**subsidiary_data)
+        assert "Công ty TNHH Chứng khoán" in subsidiary.sub_company_name
+        assert subsidiary.sub_own_percent == 1.000
+
+    def test_company_insider_deals_validation(self):
+        """Test CompanyInsiderDeals model validation using sample data from documentation."""
+        insider_deal_data = {
+            "deal_announce_date": datetime(2023, 12, 21),
+            "deal_method": None,
+            "deal_action": "Mua",
+            "deal_quantity": 5000.0,
+            "deal_price": 80900.0,
+            "deal_ratio": 0.115
+        }
+
+        deal = CompanyInsiderDeals(**insider_deal_data)
+        assert deal.deal_action == "Mua"
+        assert deal.deal_quantity == 5000.0
+        assert deal.deal_method is None  # Optional field
+
+    def test_company_events_tcbs_validation(self):
+        """Test CompanyEventsTCBS model validation using sample data from documentation."""
+        event_data = {
+            "rsi": 56.4,
+            "rs": 54.0,
+            "id": 2566332,
+            "price": 94400,
+            "price_change": 300,
+            "price_change_ratio": 0.003,
+            "price_change_ratio_1m": -0.028,
+            "event_name": "Đại hội đồng cổ đông",
+            "event_code": "DHCĐ",
+            "notify_date": "2024-03-12 00:00:00",
+            "exer_date": "2024-04-27 00:00:00",
+            "reg_final_date": "2024-03-27 00:00:00",
+            "exer_right_date": "2024-03-26 00:00:00",
+            "event_desc": "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam..."
+        }
+
+        event = CompanyEventsTCBS(**event_data)
+        assert event.rsi == 56.4
+        assert event.id == 2566332
+        assert event.price == 94400
+        assert event.event_name == "Đại hội đồng cổ đông"
+
+    def test_company_news_validation(self):
+        """Test CompanyNews model validation using sample data from documentation."""
+        news_data = {
+            "rsi": 41.4,
+            "rs": 50.0,
+            "price": 91900.0,
+            "price_change": 700.0,
+            "price_change_ratio": 0.008,
+            "price_change_ratio_1m": -0.028,
+            "id": 11170634,
+            "title": "VCB: Công bố đường dẫn BCTC riêng và HN Q1/2024",
+            "source": "TCBS",
+            "publish_date": "2024-05-02 15:53:00"
+        }
+
+        news = CompanyNews(**news_data)
+        assert "VCB:" in news.title
+        assert news.source == "TCBS"
+        assert news.price == 91900.0
+
+    def test_company_officer_optional_position(self):
+        """Test CompanyOfficer with None position (matches documentation data)."""
+        officer_data = {
+            "officer_name": "Đàm Lam Thanh",
+            "officer_position": None,  # Some officers in docs have None position
+            "officer_own_percent": 0.0
+        }
+
+        officer = CompanyOfficer(**officer_data)
+        assert officer.officer_position is None
+        assert officer.officer_name == "Đàm Lam Thanh"
+
+    def test_dividend_history_serialization(self):
+        """Test DividendHistory serialization."""
+        dividend_data = {
+            "exercise_date": "22/12/21",
+            "cash_year": 2022,
+            "cash_dividend_percentage": 0.276,
+            "issue_method": "share"
+        }
+
+        dividend = DividendHistory(**dividend_data)
+        json_data = dividend.model_dump_json()
+
+        # Verify JSON serialization works
+        assert "0.276" in json_data
+        assert "share" in json_data
+
+    def test_company_overview_serialization(self):
+        """Test CompanyOverviewTCBS serialization."""
+        overview_data = {
+            "exchange": "HOSE",
+            "industry": "Ngân hàng",
+            "company_type": "NH",
+            "no_shareholders": 25183,
+            "foreign_percent": 0.235,
+            "outstanding_share": 5589.1,
+            "issue_share": 0.0,
+            "established_year": "2008",
+            "no_employees": 40000,
+            "stock_rating": 8.5,
+            "delta_in_week": -0.071,
+            "delta_in_month": -0.036,
+            "delta_in_year": 0.15,
+            "short_name": "Vietcombank",
+            "website": "https://vietcombank.com.vn",
+            "industry_id": 289,
+            "industry_id_v2": "8355"
+        }
+
+        overview = CompanyOverviewTCBS(**overview_data)
+        json_data = overview.model_dump_json()
+
+        # Verify JSON serialization works with string established_year
+        assert "HOSE" in json_data
+        assert "2008" in json_data
+
+    def test_invalid_dividend_data(self):
+        """Test DividendHistory validation with invalid data."""
+        # Missing required fields
+        with pytest.raises(ValidationError):
+            DividendHistory(exercise_date="25/07/23")
+
+        # Invalid data types
+        with pytest.raises(ValidationError):
+            DividendHistory(
+                exercise_date=25,  # Should be string, not int
+                cash_year="2023",   # Should be int, not string
+                cash_dividend_percentage=0.181,
+                issue_method="share"
+            )
+
+    def test_invalid_company_officer_data(self):
+        """Test CompanyOfficer validation with invalid data."""
+        # Missing required fields
+        with pytest.raises(ValidationError):
+            CompanyOfficer(officer_name="Test")  # Missing officer_own_percent
+
+        # Invalid data types
+        with pytest.raises(ValidationError):
+            CompanyOfficer(
+                officer_name="Test Officer",
+                officer_position="Manager",
+                officer_own_percent="high"  # Should be float, not string
+            )
