@@ -10,7 +10,7 @@ from app.routes.route_statements import router as statements_router
 app = FastAPI(
     title="RichSlow Financial Analysis API",
     description="Vietnamese stock market financial analysis platform",
-    version="1.3.0",
+    version="1.4.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )

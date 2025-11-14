@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2025-11-14
+
 ### Added
 - **Company Information API**: 12 new comprehensive endpoints for Vietnamese stock market company analysis
   - **TCBS Data Source (9 endpoints)**: Complete company information from TCBS
@@ -54,6 +56,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ready for frontend integration and third-party application usage
 
 ### Fixed
+- **Company Test Infrastructure Critical Issues**: Resolved 3 failing route tests that were blocking proper validation of company API endpoints
+- **Mock Class Alignment**: Updated 16+ test mock patches from generic `Company` class to specific vnstock classes:
+  - `TCBSCompany` for all TCBS data source endpoints (overview, profile, shareholders, officers, etc.)
+  - `VCICompany` for all VCI data source endpoints (ratio, reports, trading-stats)
+- **API Documentation Endpoint Corrections**: Fixed test paths to match FastAPI configuration:
+  - `test_api_docs_includes_company_endpoints`: `/docs` → `/api/docs`
+  - Updated assertions to validate Swagger UI elements instead of dynamic content
+- **VCI Method Name Correction**: Fixed mock method from `financial_ratio` → `ratio_summary` to match actual vnstock library API
+- **Error Handling Test Fix**: Updated server error test to properly mock `TCBSCompany.overview()` method for 500 status code validation
+- **Test Suite Reliability**: Company route tests now 26/26 passing (was 23/26 with 3 failures), service tests 21/21 passing
 - **Company Schema Critical Issues**: Fixed blocking syntax error in `CompanyOfficer.officer_position` field that prevented schema import
 - **Data Type Corrections**: Corrected field types to match vnstock API documentation:
   - `CompanyOverviewTCBS.established_year`: Changed from int to str (matches vnstock object type)
@@ -260,7 +272,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Figure scaling to display in original scale
 - Data processing pipeline for Vietnamese financial statements
 
-[Unreleased]: https://github.com/gahoccode/richslow/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/gahoccode/richslow/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/gahoccode/richslow/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/gahoccode/richslow/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/gahoccode/richslow/compare/v1.0.0...v1.2.0
 [1.0.0]: https://github.com/gahoccode/richslow/compare/v0.1.0...v1.0.0
