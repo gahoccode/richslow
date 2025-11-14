@@ -45,9 +45,10 @@ class CompanyShareholders(BaseModel):
 
 
 class CompanyOfficer(BaseModel):
-    officer_name: str
-    officer_position: Optional[str] = None
-    officer_own_percent: float
+    officer_name: str = Field(..., description="Full name")
+    officer_position: Optional[str] = None = Field(..., description="Job Position")
+    officer_own_percent: float = Field(..., description="Onwership Percentage")
+    type: str = Field(..., description="Working status")
 
 
 class CompanySubsidiaries(BaseModel):
@@ -92,3 +93,72 @@ class CompanyNews(BaseModel):
     title: str
     source: str
     publish_date: str
+
+
+class CompanyRatioVCI(BaseModel):
+    symbol: str
+    year_report: int
+    length_report: int
+    update_date: int
+    revenue: int
+    revenue_growth: float
+    net_profit: int
+    net_profit_growth: float
+    ebit_margin: int
+    roe: float
+    roic: int
+    roa: float
+    pe: float
+    pb: float
+    eps: float
+    current_ratio: int
+    cash_ratio: int
+    quick_ratio: int
+    interest_coverage: Optional[str] = None
+    ae: float
+    fae: float
+    net_profit_margin: float
+    gross_margin: int
+    ev: int
+    issue_share: int
+    ps: float
+    pcf: float
+    bvps: float
+    ev_per_ebitda: int
+    at: int
+    fat: int
+    acp: Optional[str] = None
+    dso: int
+    dpo: int
+    eps_ttm: float
+    charter_capital: int
+    rtq4: int
+    charter_capital_ratio: float
+    rtq10: int
+    dividend: int
+    ebitda: int
+    ebit: int
+    le: int
+    de: int
+    ccc: Optional[str] = None
+    rtq17: int
+
+
+class CompanyReportsVCI(BaseModel):
+    date: str
+    description: str
+    link: str
+    name: str
+
+
+class TradingStatsVCI(BaseModel):
+    symbol: str
+    exchange: str
+    ev: int
+    ceiling: int
+    floor: int
+    foreign_room: int
+    avg_match_volume_2w: int
+    foreign_holding_room: int
+    current_holding_ratio: float
+    max_holding_ratio: float
