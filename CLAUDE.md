@@ -216,3 +216,4 @@ The test suite is organized into comprehensive categories to ensure reliability 
 - Validate plugin-style integration patterns
 - Document as you build - not after
 - Test documentation accuracy
+- when version bump: update both @pyproject.toml and @main.py
