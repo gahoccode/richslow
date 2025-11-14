@@ -143,8 +143,10 @@ class TestCompanyEndpoints:
 
     def test_company_overview_endpoint_server_error(self):
         """Test company overview endpoint with server error."""
-        with patch('app.services.service_company.get_company_overview') as mock_get:
-            mock_get.side_effect = Exception("API connection failed")
+        with patch('app.services.service_company.TCBSCompany') as mock_company_class:
+            mock_company = Mock()
+            mock_company.overview.side_effect = Exception("API connection failed")
+            mock_company_class.return_value = mock_company
 
             response = client.get("/api/company/VCB/overview")
 
@@ -448,10 +450,13 @@ class TestCompanyEndpoints:
 
     def test_api_docs_includes_company_endpoints(self):
         """Test that API documentation includes company endpoints."""
-        response = client.get("/docs")
+        response = client.get("/api/docs")
 
         assert response.status_code == 200
-        assert "company" in response.text
+        # Check that this is the Swagger UI page for our API
+        assert "RichSlow Financial Analysis API" in response.text
+        # Check that Swagger UI is properly loaded
+        assert "swagger-ui" in response.text
 
     def test_openapi_schema_includes_company_models(self):
         """Test that OpenAPI schema includes company response models."""
