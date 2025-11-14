@@ -7,7 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-11-14
+
 ### Added
+- **Render Deployment Configuration** (`render.yaml`): Production deployment configuration for Render.com
+  - Singapore region deployment on free plan
+  - Python 3.10.11 runtime environment
+  - UV package manager integration with `uv sync` build command
+  - Health check endpoint configuration at `/health`
+  - Smart build filtering to optimize deployments (triggers only on app/, static/, pyproject.toml, uv.lock changes)
+  - Ignores test files, docs, cache directories, and markdown files for efficiency
+  - Environment variables for Python version control
+- **One-Click Deployment**: Deploy to Render button in README for easy production deployments
+- **Live Demo**: Production deployment at https://richslow.onrender.com with public access
+- **Streamlit Prototype** (`tests/streamlit/streamlit.py`): Experimental Streamlit-based UI (302 lines)
+  - Alternative frontend implementation for testing and evaluation
+  - Located in tests directory as experimental feature
 - **Centralized Field Mappings** (`app/config/field_mappings.py`): Single source of truth for vnstock API column name mappings
   - `INCOME_STATEMENT_MAPPINGS`: 28 field mappings from vnstock API to IncomeStatementData schema
   - `BALANCE_SHEET_MAPPINGS`: 42 field mappings from vnstock API to BalanceSheetData schema
@@ -28,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Total: 147 financial data fields** across all schemas
 
 ### Changed
+- **Python Version Pinning**: Pinned to exact version 3.10.11 in `.python-version` for environment consistency across development and production
 - **Refactored Service Layer** (`app/services/service_statements.py`): Improved code organization and maintainability
   - Removed inline helper functions (`_safe_get`, `_safe_get_str`, `_safe_get_int`, `_safe_float`)
   - All processing functions now use centralized field mappings via `apply_field_mapping()`
@@ -38,17 +54,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated `test_imports.py` to verify correct module structure after refactoring
   - All 60 non-integration tests passing after refactoring
 
-### Deprecated
+### Fixed
+- **Documentation**: Corrected API documentation URLs throughout project
+  - Changed from `/docs` and `/redoc` to `/api/docs` and `/api/redoc`
+  - Updated README.md, CLAUDE.md, and all API references
+- **Environment Consistency**: Exact Python version pinning prevents runtime discrepancies between development and production
 
 ### Removed
-- Inline helper functions from `app/services/service_statements.py` (moved to `app/utils/transform.py`)
+- Inline helper functions from `app/services/service_statements.py` (migrated to `app/utils/transform.py`)
 
-### Fixed
-- **Documentation**: Corrected API documentation URLs in README.md and CLAUDE.md
-  - Changed from `/docs` and `/redoc` to `/api/docs` and `/api/redoc`
-  - Updated all references to API documentation URLs throughout project documentation
-
-### Security
+### Infrastructure
+- Added `.claude/` to `.gitignore` to exclude AI assistant cache from version control
+- Configured production deployment on Render.com with optimized build settings
+- Build filter configured to skip unnecessary rebuilds on documentation and test changes
 
 ## [1.0.0] - 2025-09-13
 
@@ -110,6 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Figure scaling to display in original scale
 - Data processing pipeline for Vietnamese financial statements
 
-[Unreleased]: https://github.com/tamle/richslow/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/tamle/richslow/compare/v0.1.0...v1.0.0
-[0.1.0]: https://github.com/tamle/richslow/releases/tag/v0.1.0
+[Unreleased]: https://github.com/gahoccode/richslow/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/gahoccode/richslow/compare/v1.0.0...v1.2.0
+[1.0.0]: https://github.com/gahoccode/richslow/compare/v0.1.0...v1.0.0
+[0.1.0]: https://github.com/gahoccode/richslow/releases/tag/v0.1.0
