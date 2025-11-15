@@ -52,27 +52,53 @@
 
         <!-- Market Content -->
         <div id="marketContent" class="hidden space-y-6">
-            <!-- Exchange Rates -->
+            <!-- Exchange Rates - Tabs -->
             <section class="bg-white rounded-lg shadow">
                 <div class="border-b border-gray-200 px-6 py-4">
                     <h2 class="text-lg font-semibold text-gray-900">VCB Exchange Rates</h2>
                     <p class="text-sm text-gray-500 mt-1" id="exchangeRateDate">Loading...</p>
                 </div>
+
+                <!-- Exchange Rate View Tabs -->
+                <div class="border-b border-gray-200 px-6">
+                    <nav class="-mb-px flex space-x-8">
+                        <button class="exchange-tab active border-blue-500 text-blue-600 py-3 px-1 border-b-2 font-medium text-sm" data-tab="table">
+                            Table View
+                        </button>
+                        <button class="exchange-tab border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 border-b-2 font-medium text-sm" data-tab="heatmap">
+                            Heatmap
+                        </button>
+                    </nav>
+                </div>
+
                 <div class="p-6">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Buy Cash</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Buy Transfer</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Sell</th>
-                                </tr>
-                            </thead>
-                            <tbody id="exchangeRatesBody" class="bg-white divide-y divide-gray-200">
-                                <!-- Populated by JavaScript -->
-                            </tbody>
-                        </table>
+                    <!-- Table View -->
+                    <div id="tableView" class="exchange-content">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Buy Cash</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Buy Transfer</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Sell</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exchangeRatesBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Heatmap View -->
+                    <div id="heatmapView" class="exchange-content hidden">
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-600">Color intensity shows exchange rate strength. Darker = higher rate.</p>
+                        </div>
+                        <div id="exchangeRateHeatmap" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                            <!-- Populated by JavaScript -->
+                        </div>
                     </div>
                 </div>
             </section>

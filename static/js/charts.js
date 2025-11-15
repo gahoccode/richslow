@@ -668,6 +668,124 @@ function destroyAllCharts() {
 }
 
 /**
+ * Create insider trading scatter plot
+ * @param {string} canvasId - Canvas element ID
+ * @param {Array} insiderDeals - Insider trading data
+ */
+function createInsiderTradingChart(canvasId, insiderDeals) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+    }
+
+    if (!insiderDeals || insiderDeals.length === 0) {
+        return null;
+    }
+
+    // Separate buy and sell transactions
+    const buyData = [];
+    const sellData = [];
+
+    insiderDeals.forEach(deal => {
+        if (!deal.deal_announce_date || !deal.deal_quantity) return;
+
+        const dataPoint = {
+            x: new Date(deal.deal_announce_date).getTime(),
+            y: deal.deal_quantity,
+            label: deal.deal_action || 'Unknown',
+            price: deal.deal_price
+        };
+
+        // Check if it's a buy or sell transaction
+        const action = (deal.deal_action || '').toLowerCase();
+        if (action.includes('mua') || action.includes('buy')) {
+            buyData.push(dataPoint);
+        } else if (action.includes('bán') || action.includes('sell')) {
+            sellData.push(dataPoint);
+        }
+    });
+
+    chartInstances[canvasId] = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: 'Buy Transactions',
+                    data: buyData,
+                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                    borderColor: 'rgb(16, 185, 129)',
+                    borderWidth: 1,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'Sell Transactions',
+                    data: sellData,
+                    backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                    borderColor: 'rgb(239, 68, 68)',
+                    borderWidth: 1,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }
+            ]
+        },
+        options: {
+            ...defaultChartConfig,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'month',
+                        displayFormats: {
+                            month: 'MMM yyyy'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Transaction Date'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Quantity (shares)'
+                    },
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                ...defaultChartConfig.plugins,
+                tooltip: {
+                    ...defaultChartConfig.plugins.tooltip,
+                    callbacks: {
+                        label: function(context) {
+                            const point = context.raw;
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += point.y.toLocaleString() + ' shares';
+                            if (point.price) {
+                                label += ' @ ' + point.price.toLocaleString() + ' VND';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            const date = new Date(context[0].parsed.x);
+                            return date.toLocaleDateString('vi-VN');
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return chartInstances[canvasId];
+}
+
+/**
  * Get chart instance by canvas ID
  * @param {string} canvasId - Canvas element ID
  * @returns {Chart|null} Chart instance or null

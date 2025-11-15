@@ -8,8 +8,43 @@ let marketData = {
 
 // Initialize market data page
 document.addEventListener('DOMContentLoaded', function() {
+    setupExchangeTabs();
     loadMarketData();
 });
+
+function setupExchangeTabs() {
+    const tabs = document.querySelectorAll('.exchange-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.dataset.tab;
+            switchExchangeTab(tabName);
+        });
+    });
+}
+
+function switchExchangeTab(tabName) {
+    // Update button states
+    document.querySelectorAll('.exchange-tab').forEach(btn => {
+        btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+
+    const activeButton = document.querySelector(`.exchange-tab[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active', 'border-blue-500', 'text-blue-600');
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+    }
+
+    // Update content visibility
+    document.querySelectorAll('.exchange-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+
+    const activeContent = document.getElementById(`${tabName}View`);
+    if (activeContent) {
+        activeContent.classList.remove('hidden');
+    }
+}
 
 async function loadMarketData() {
     try {
@@ -83,6 +118,7 @@ function populateExchangeRates() {
         document.getElementById('exchangeRateDate').textContent = `As of ${date.toLocaleDateString('vi-VN')}`;
     }
 
+    // Populate table
     tbody.innerHTML = rates.map(rate => `
         <tr class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap">
@@ -102,6 +138,48 @@ function populateExchangeRates() {
             </td>
         </tr>
     `).join('');
+
+    // Populate heatmap
+    populateExchangeHeatmap(rates);
+}
+
+function populateExchangeHeatmap(rates) {
+    const heatmapContainer = document.getElementById('exchangeRateHeatmap');
+
+    if (rates.length === 0) {
+        heatmapContainer.innerHTML = '<p class="col-span-full text-sm text-gray-500 text-center">No exchange rates available</p>';
+        return;
+    }
+
+    // Find min and max sell rates for color scaling
+    const sellRates = rates.map(r => r.sell).filter(v => v !== null);
+    const minRate = Math.min(...sellRates);
+    const maxRate = Math.max(...sellRates);
+
+    heatmapContainer.innerHTML = rates.map(rate => {
+        // Calculate color intensity (0-1 scale)
+        const intensity = (rate.sell - minRate) / (maxRate - minRate);
+
+        // Color from light blue to dark blue
+        const lightness = 90 - (intensity * 40); // 90% to 50%
+        const bgColor = `hsl(211, 70%, ${lightness}%)`;
+        const textColor = intensity > 0.5 ? '#ffffff' : '#1f2937';
+
+        return `
+            <div class="relative p-4 rounded-lg border border-gray-200 transition-all hover:scale-105 hover:shadow-lg cursor-pointer"
+                 style="background-color: ${bgColor}; color: ${textColor};"
+                 title="${rate.currency_name}: ${formatVNDRate(rate.sell)} VND">
+                <div class="text-center">
+                    <div class="text-2xl font-bold mb-1">${rate.currency_code}</div>
+                    <div class="text-xs opacity-90">${rate.currency_name}</div>
+                    <div class="text-sm font-semibold mt-2">${formatVNDShort(rate.sell)}</div>
+                    ${rate.buy_transfer !== null ? `
+                        <div class="text-xs mt-1 opacity-75">Buy: ${formatVNDShort(rate.buy_transfer)}</div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 function populateGoldPrices() {

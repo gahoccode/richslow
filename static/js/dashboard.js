@@ -11,7 +11,58 @@ let dashboardData = {
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
+    setupKeyboardShortcuts();
 });
+
+// Keyboard shortcuts
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Alt + H: Go to home
+        if (e.altKey && e.key === 'h') {
+            e.preventDefault();
+            window.location.href = '/';
+        }
+
+        // Alt + S: Go to statements
+        if (e.altKey && e.key === 's') {
+            e.preventDefault();
+            window.location.href = '/statements';
+        }
+
+        // Alt + M: Go to market data
+        if (e.altKey && e.key === 'm') {
+            e.preventDefault();
+            window.location.href = '/market';
+        }
+
+        // Alt + C: Change ticker (focus on change button)
+        if (e.altKey && e.key === 'c') {
+            e.preventDefault();
+            document.getElementById('changeTicker')?.click();
+        }
+
+        // Alt + 1-5: Switch ratio tabs
+        if (e.altKey && ['1', '2', '3', '4', '5'].includes(e.key)) {
+            e.preventDefault();
+            const tabs = ['valuation', 'profitability-ratios', 'liquidity', 'efficiency', 'leverage'];
+            const index = parseInt(e.key) - 1;
+            if (tabs[index]) {
+                switchRatioTab(tabs[index]);
+            }
+        }
+
+        // Alt + ?: Show keyboard shortcuts help
+        if (e.altKey && (e.key === '?' || e.key === '/')) {
+            e.preventDefault();
+            document.getElementById('keyboardHelpModal')?.classList.remove('hidden');
+        }
+
+        // Escape: Close modals
+        if (e.key === 'Escape') {
+            document.getElementById('keyboardHelpModal')?.classList.add('hidden');
+        }
+    });
+}
 
 async function initializeDashboard() {
     // Check if we have valid parameters
@@ -30,6 +81,11 @@ async function initializeDashboard() {
     // Setup change ticker button
     document.getElementById('changeTicker').addEventListener('click', function() {
         window.location.href = '/';
+    });
+
+    // Setup keyboard help button
+    document.getElementById('showKeyboardHelp')?.addEventListener('click', function() {
+        document.getElementById('keyboardHelpModal').classList.remove('hidden');
     });
 
     // Load all data
