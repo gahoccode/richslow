@@ -5,7 +5,8 @@ let dashboardData = {
     stockPrices: null,
     companyOverview: null,
     companyNews: null,
-    companyEvents: null
+    companyEvents: null,
+    insiderDeals: null
 };
 
 // Initialize dashboard
@@ -185,7 +186,8 @@ async function loadAllData() {
             loadStockPrices(params),
             loadCompanyOverview(params.ticker),
             loadCompanyNews(params.ticker),
-            loadCompanyEvents(params.ticker)
+            loadCompanyEvents(params.ticker),
+            loadInsiderDeals(params.ticker)
         ]);
 
         // Hide loading, show content
@@ -251,6 +253,16 @@ async function loadCompanyEvents(ticker) {
     }
 }
 
+async function loadInsiderDeals(ticker) {
+    try {
+        const url = `/api/company/${ticker}/insider-deals`;
+        dashboardData.insiderDeals = await apiCall(url);
+    } catch (error) {
+        console.warn('Insider deals not available:', error);
+        dashboardData.insiderDeals = [];
+    }
+}
+
 function populateDashboard() {
     // Populate company overview
     populateCompanyOverview();
@@ -298,6 +310,9 @@ function populateDashboard() {
         // Efficiency chart
         createEfficiencyChart('efficiencyChart', ratios, years);
 
+        // Cash conversion cycle chart
+        createCashConversionCycleChart('cashConversionCycleChart', ratios, years);
+
         // Leverage gauge
         createLeverageGauge('leverageGauge', latestRatios.debt_to_equity);
     }
@@ -305,6 +320,21 @@ function populateDashboard() {
     // Populate news and events
     populateNewsFeed();
     populateEventsTimeline();
+
+    // Create insider trading chart
+    console.log('Insider deals data:', dashboardData.insiderDeals?.length || 0, 'deals');
+    if (dashboardData.insiderDeals && dashboardData.insiderDeals.length > 0) {
+        console.log('Calling createInsiderTradingChart...');
+        createInsiderTradingChart('insiderTradingChart', dashboardData.insiderDeals);
+        // Hide the "no data" message and show the canvas
+        document.getElementById('insiderTradingChart').classList.remove('hidden');
+        document.getElementById('noInsiderDataMessage').classList.add('hidden');
+    } else {
+        console.log('No insider deals data available to create chart');
+        // Show the "no data" message and hide the canvas
+        document.getElementById('insiderTradingChart').classList.add('hidden');
+        document.getElementById('noInsiderDataMessage').classList.remove('hidden');
+    }
 }
 
 function populateCompanyOverview() {

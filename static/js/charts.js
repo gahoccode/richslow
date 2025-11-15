@@ -668,11 +668,196 @@ function destroyAllCharts() {
 }
 
 /**
- * Create insider trading scatter plot
+ * Create insider trading bar chart showing buy vs sell volumes by month
  * @param {string} canvasId - Canvas element ID
  * @param {Array} insiderDeals - Insider trading data
  */
 function createInsiderTradingChart(canvasId, insiderDeals) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) {
+        console.warn(`Canvas element with id '${canvasId}' not found`);
+        return null;
+    }
+
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+    }
+
+    if (!insiderDeals || insiderDeals.length === 0) {
+        console.warn('No insider deals data available for chart');
+        return null;
+    }
+
+    console.log('Creating insider trading chart with', insiderDeals.length, 'deals');
+
+    // Aggregate data by month
+    const monthlyData = {};
+
+    insiderDeals.forEach(deal => {
+        if (!deal.deal_announce_date || !deal.deal_quantity) return;
+
+        const date = new Date(deal.deal_announce_date);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+        if (!monthlyData[monthKey]) {
+            monthlyData[monthKey] = {
+                month: monthKey,
+                buyVolume: 0,
+                sellVolume: 0,
+                buyCount: 0,
+                sellCount: 0,
+                transactions: []
+            };
+        }
+
+        const quantity = Math.abs(deal.deal_quantity);
+        const action = (deal.deal_action || '').toLowerCase();
+
+        if (action.includes('mua') || action.includes('buy')) {
+            monthlyData[monthKey].buyVolume += quantity;
+            monthlyData[monthKey].buyCount++;
+        } else if (action.includes('bán') || action.includes('sell')) {
+            monthlyData[monthKey].sellVolume += quantity;
+            monthlyData[monthKey].sellCount++;
+        }
+
+        monthlyData[monthKey].transactions.push({
+            action: deal.deal_action,
+            quantity: deal.deal_quantity,
+            price: deal.deal_price,
+            date: deal.deal_announce_date
+        });
+    });
+
+    // Convert to arrays and sort by month
+    const sortedMonths = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
+
+    if (sortedMonths.length === 0) {
+        console.warn('No valid monthly data for chart');
+        return null;
+    }
+
+    console.log('Monthly aggregated data:', sortedMonths.length, 'months');
+
+    // Format labels for display
+    const labels = sortedMonths.map(item => {
+        const [year, month] = item.month.split('-');
+        const date = new Date(year, month - 1);
+        return date.toLocaleDateString('vi-VN', { month: 'short', year: 'numeric' });
+    });
+
+    chartInstances[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Buy Volume',
+                    data: sortedMonths.map(item => item.buyVolume),
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                    borderColor: 'rgb(16, 185, 129)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                },
+                {
+                    label: 'Sell Volume',
+                    data: sortedMonths.map(item => item.sellVolume),
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    borderColor: 'rgb(239, 68, 68)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            ...defaultChartConfig,
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month',
+                        font: { size: 14 }
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Volume (shares)',
+                        font: { size: 14 }
+                    },
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(0) + 'K';
+                            }
+                            return value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                ...defaultChartConfig.plugins,
+                tooltip: {
+                    ...defaultChartConfig.plugins.tooltip,
+                    callbacks: {
+                        label: function(context) {
+                            const datasetLabel = context.dataset.label;
+                            const value = context.parsed.y;
+                            const monthIndex = context.dataIndex;
+                            const monthData = sortedMonths[monthIndex];
+
+                            let label = datasetLabel + ': ' + value.toLocaleString() + ' shares';
+
+                            if (monthData) {
+                                const count = datasetLabel === 'Buy Volume' ? monthData.buyCount : monthData.sellCount;
+                                label += ` (${count} transaction${count !== 1 ? 's' : ''})`;
+                            }
+
+                            return label;
+                        },
+                        afterLabel: function(context) {
+                            const monthIndex = context.dataIndex;
+                            const monthData = sortedMonths[monthIndex];
+
+                            if (monthData && monthData.transactions.length > 0) {
+                                const sampleTransaction = monthData.transactions[0];
+                                const avgPrice = monthData.transactions
+                                    .filter(t => t.price)
+                                    .reduce((sum, t, _, arr) => sum + t.price / arr.length, 0);
+
+                                if (avgPrice > 0) {
+                                    return `Avg Price: ${avgPrice.toLocaleString('vi-VN')} VND`;
+                                }
+                            }
+                            return '';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return chartInstances[canvasId];
+}
+
+/**
+ * Create cash conversion cycle timeline chart
+ * @param {string} canvasId - Canvas element ID
+ * @param {Array} ratios - Financial ratios data with cash conversion cycle values
+ * @param {Array} years - Years array
+ */
+function createCashConversionCycleChart(canvasId, ratios, years) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
 
@@ -680,59 +865,164 @@ function createInsiderTradingChart(canvasId, insiderDeals) {
         chartInstances[canvasId].destroy();
     }
 
-    if (!insiderDeals || insiderDeals.length === 0) {
+    if (!ratios || ratios.length === 0 || !years || years.length === 0) {
         return null;
     }
 
-    // Separate buy and sell transactions
-    const buyData = [];
-    const sellData = [];
-
-    insiderDeals.forEach(deal => {
-        if (!deal.deal_announce_date || !deal.deal_quantity) return;
-
-        const dataPoint = {
-            x: new Date(deal.deal_announce_date).getTime(),
-            y: deal.deal_quantity,
-            label: deal.deal_action || 'Unknown',
-            price: deal.deal_price
+    // Extract cash conversion cycle data
+    const cccData = years.map(year => {
+        const ratioData = ratios.find(r => r.year_report === year);
+        return {
+            year: year,
+            ccc: ratioData?.cash_conversion_cycle || null
         };
+    }).filter(item => item.ccc !== null);
 
-        // Check if it's a buy or sell transaction
-        const action = (deal.deal_action || '').toLowerCase();
-        if (action.includes('mua') || action.includes('buy')) {
-            buyData.push(dataPoint);
-        } else if (action.includes('bán') || action.includes('sell')) {
-            sellData.push(dataPoint);
+    if (cccData.length === 0) {
+        return null;
+    }
+
+    chartInstances[canvasId] = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: cccData.map(item => item.year),
+            datasets: [{
+                label: 'Cash Conversion Cycle (Days)',
+                data: cccData.map(item => item.ccc),
+                borderColor: 'rgb(99, 102, 241)',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: 'rgb(99, 102, 241)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            ...defaultChartConfig,
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Year',
+                        font: { size: 14 }
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Days',
+                        font: { size: 14 }
+                    },
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            },
+            plugins: {
+                ...defaultChartConfig.plugins,
+                tooltip: {
+                    ...defaultChartConfig.plugins.tooltip,
+                    callbacks: {
+                        label: function(context) {
+                            return `CCC: ${context.parsed.y.toFixed(1)} days`;
+                        }
+                    }
+                }
+            }
         }
     });
 
+    return chartInstances[canvasId];
+}
+
+/**
+ * Create dividend timeline chart with event markers
+ * @param {string} canvasId - Canvas element ID
+ * @param {Array} priceData - Stock OHLCV data
+ * @param {Array} ratios - Financial ratios data with dividend yield
+ * @param {Array} years - Years array
+ */
+function createDividendTimelineChart(canvasId, priceData, ratios, years) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+    }
+
+    if (!priceData || priceData.length === 0) {
+        return null;
+    }
+
+    // Prepare price data
+    const prices = priceData.map(item => ({
+        x: new Date(item.time).getTime(),
+        y: item.close
+    }));
+
+    // Prepare dividend events (using dividend yield from ratios)
+    const dividendEvents = [];
+    if (ratios && ratios.length > 0) {
+        ratios.forEach(ratio => {
+            if (ratio.dividend_yield && ratio.dividend_yield > 0) {
+                // Find approximate price data point for this year
+                const yearPrice = priceData.find(p =>
+                    new Date(p.time).getFullYear() === ratio.year_report
+                );
+                if (yearPrice) {
+                    dividendEvents.push({
+                        x: new Date(yearPrice.time).getTime(),
+                        y: yearPrice.close,
+                        dividendYield: ratio.dividend_yield,
+                        year: ratio.year_report
+                    });
+                }
+            }
+        });
+    }
+
     chartInstances[canvasId] = new Chart(ctx, {
-        type: 'scatter',
+        type: 'line',
         data: {
             datasets: [
                 {
-                    label: 'Buy Transactions',
-                    data: buyData,
-                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
-                    borderColor: 'rgb(16, 185, 129)',
-                    borderWidth: 1,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    label: 'Stock Price',
+                    data: prices,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    pointHoverRadius: 5
                 },
                 {
-                    label: 'Sell Transactions',
-                    data: sellData,
-                    backgroundColor: 'rgba(239, 68, 68, 0.6)',
-                    borderColor: 'rgb(239, 68, 68)',
-                    borderWidth: 1,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    label: 'Dividend Events',
+                    data: dividendEvents,
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgb(34, 197, 94)',
+                    borderWidth: 0,
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                    showLine: false,
+                    pointStyle: 'star'
                 }
             ]
         },
         options: {
             ...defaultChartConfig,
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     type: 'time',
@@ -744,15 +1034,19 @@ function createInsiderTradingChart(canvasId, insiderDeals) {
                     },
                     title: {
                         display: true,
-                        text: 'Transaction Date'
+                        text: 'Date'
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: 'Quantity (shares)'
+                        text: 'Price (VND)'
                     },
-                    beginAtZero: true
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN');
+                        }
+                    }
                 }
             },
             plugins: {
@@ -761,20 +1055,13 @@ function createInsiderTradingChart(canvasId, insiderDeals) {
                     ...defaultChartConfig.plugins.tooltip,
                     callbacks: {
                         label: function(context) {
-                            const point = context.raw;
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
+                            if (context.dataset.label === 'Stock Price') {
+                                return `Price: ${context.parsed.y.toLocaleString('vi-VN')} VND`;
+                            } else if (context.dataset.label === 'Dividend Events') {
+                                const point = context.raw;
+                                return `Dividend: ${point.dividendYield}% (${point.year})`;
                             }
-                            label += point.y.toLocaleString() + ' shares';
-                            if (point.price) {
-                                label += ' @ ' + point.price.toLocaleString() + ' VND';
-                            }
-                            return label;
-                        },
-                        title: function(context) {
-                            const date = new Date(context[0].parsed.x);
-                            return date.toLocaleDateString('vi-VN');
+                            return '';
                         }
                     }
                 }
