@@ -2,6 +2,7 @@
 
 let dashboardData = {
     financialStatements: null,
+    quarterlyStatements: null,
     stockPrices: null,
     companyOverview: null,
     companyNews: null,
@@ -12,6 +13,7 @@ let dashboardData = {
 };
 
 let cashConversionCycleChartCreated = false;
+let cccCurrentView = 'yearly'; // 'yearly' or 'quarterly'
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
@@ -174,16 +176,11 @@ function switchRatioTab(tabName) {
     }
 
     // Create cash conversion cycle chart when efficiency tab is activated
-    if (tabName === 'efficiency' && !cashConversionCycleChartCreated) {
-        const statements = dashboardData.financialStatements;
-        if (statements) {
-            const years = statements.years || [];
-            const ratios = statements.ratios || [];
-
-            if (years.length > 0 && ratios.length > 0) {
-                createCashConversionCycleChart('cashConversionCycleChart', ratios, years);
-                cashConversionCycleChartCreated = true;
-            }
+    if (tabName === 'efficiency') {
+        if (!cashConversionCycleChartCreated) {
+            setupCCCToggleButtons();
+            createCCCChart();
+            cashConversionCycleChartCreated = true;
         }
     }
 }
@@ -312,6 +309,92 @@ async function loadIndustryBenchmark(ticker) {
     } catch (error) {
         console.warn('Industry benchmark not available:', error);
         dashboardData.industryBenchmark = null;
+    }
+}
+
+async function loadQuarterlyStatements(ticker) {
+    try {
+        const url = `/api/quarterly/ratios/${ticker}`;
+        dashboardData.quarterlyStatements = await apiCall(url);
+        console.log('Quarterly statements loaded');
+    } catch (error) {
+        console.warn('Quarterly statements not available:', error);
+        dashboardData.quarterlyStatements = null;
+    }
+}
+
+function setupCCCToggleButtons() {
+    const yearlyBtn = document.getElementById('cccYearlyBtn');
+    const quarterlyBtn = document.getElementById('cccQuarterlyBtn');
+
+    if (yearlyBtn && quarterlyBtn) {
+        yearlyBtn.addEventListener('click', () => {
+            if (cccCurrentView !== 'yearly') {
+                cccCurrentView = 'yearly';
+                updateCCCButtonStyles();
+                createCCCChart();
+            }
+        });
+
+        quarterlyBtn.addEventListener('click', async () => {
+            if (cccCurrentView !== 'quarterly') {
+                // Load quarterly data if not already loaded
+                if (!dashboardData.quarterlyStatements) {
+                    const params = getParams();
+                    if (params) {
+                        quarterlyBtn.disabled = true;
+                        quarterlyBtn.textContent = 'Loading...';
+                        await loadQuarterlyStatements(params.ticker);
+                        quarterlyBtn.disabled = false;
+                        quarterlyBtn.textContent = 'Quarterly';
+                    }
+                }
+
+                if (dashboardData.quarterlyStatements) {
+                    cccCurrentView = 'quarterly';
+                    updateCCCButtonStyles();
+                    createCCCChart();
+                } else {
+                    alert('Quarterly data not available for this company');
+                }
+            }
+        });
+
+        updateCCCButtonStyles();
+    }
+}
+
+function updateCCCButtonStyles() {
+    const yearlyBtn = document.getElementById('cccYearlyBtn');
+    const quarterlyBtn = document.getElementById('cccQuarterlyBtn');
+
+    if (yearlyBtn && quarterlyBtn) {
+        if (cccCurrentView === 'yearly') {
+            yearlyBtn.className = 'px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors';
+            quarterlyBtn.className = 'px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors';
+        } else {
+            yearlyBtn.className = 'px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors';
+            quarterlyBtn.className = 'px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors';
+        }
+    }
+}
+
+function createCCCChart() {
+    let statements, ratios, years;
+
+    if (cccCurrentView === 'quarterly') {
+        statements = dashboardData.quarterlyStatements;
+    } else {
+        statements = dashboardData.financialStatements;
+    }
+
+    if (statements) {
+        years = statements.years || [];
+        ratios = statements.ratios || [];
+
+        if (years.length > 0 && ratios.length > 0) {
+            createCashConversionCycleChart('cashConversionCycleChart', ratios, years, cccCurrentView === 'quarterly');
+        }
     }
 }
 

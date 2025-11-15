@@ -312,7 +312,17 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Cash Conversion Cycle</h3>
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="text-lg font-semibold text-gray-900">Cash Conversion Cycle</h3>
+                                        <div class="flex space-x-2">
+                                            <button id="cccYearlyBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                                Yearly
+                                            </button>
+                                            <button id="cccQuarterlyBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                                                Quarterly
+                                            </button>
+                                        </div>
+                                    </div>
                                     <div class="h-80">
                                         <canvas id="cashConversionCycleChart"></canvas>
                                     </div>

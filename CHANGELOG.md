@@ -37,6 +37,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Center company label**: Displays parent company ticker in sunburst center
   - **Proper percentage scaling**: Ownership values converted from 0-1 range to accurate visual representation
 
+- **Cash Conversion Cycle Quarterly Drill-Down**: Interactive time period switching for detailed operational analysis
+  - **Toggle Controls**: Yearly/Quarterly buttons with visual feedback for active state
+  - **Quarterly Data API**: New `/api/quarterly/ratios/{ticker}` endpoint for quarterly financial ratios
+  - **Dynamic Chart Updates**: Seamless switching between yearly and quarterly CCC views
+  - **Adaptive Chart Styling**: Smaller data points and different labels for quarterly visualization
+  - **Lazy Loading**: Quarterly data fetched only when requested to optimize performance
+  - **Operational Insights**: Users can analyze seasonal trends and operational efficiency patterns
+  - **Enhanced UX**: Loading states and error handling for unavailable quarterly data
+
 ### Fixed
 - **Industry Benchmark 500 Error**: Resolved critical API compatibility issues with vnstock v3.2.6
   - **vnstock API Update**: Fixed `Vnstock().listing` to `Listing()` for correct vnstock v3.2.6 usage
@@ -46,6 +55,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Hierarchical Column Flattening**: Properly implemented `flatten_hierarchical_index()` for MultiIndex DataFrames
   - **Field Mapping Integration**: Created Vietnamese-to-English mapping for 17 key financial ratios
   - **Endpoint Compatibility**: All industry benchmark endpoints now return 200 status with proper data
+
+- **Radar Chart Scale Optimization**: Improved valuation metrics visualization with 50-point scale
+  - **Scale Adjustment**: Changed from 0-100 to 0-50 scale for better ratio differentiation
+  - **Tick Interval Update**: Adjusted from 20-point to 10-point intervals for enhanced granularity
+  - **Visual Clarity**: Better distinction between different valuation levels and company performance
 
 - **Chart.js Date Adapter Error**: Resolved "This method is not implemented" error by adding Chart.js date adapter
 - **Invalid Point Style Configuration**: Fixed Chart.js `pointStyle: 'star'` (not supported) to valid `'triangle'` markers

@@ -978,8 +978,9 @@ function createInsiderTradingChart(canvasId, insiderDeals) {
  * @param {string} canvasId - Canvas element ID
  * @param {Array} ratios - Financial ratios data with cash conversion cycle values
  * @param {Array} years - Years array
+ * @param {boolean} isQuarterly - Whether to display quarterly data
  */
-function createCashConversionCycleChart(canvasId, ratios, years) {
+function createCashConversionCycleChart(canvasId, ratios, years, isQuarterly = false) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
 
@@ -1004,12 +1005,18 @@ function createCashConversionCycleChart(canvasId, ratios, years) {
         return null;
     }
 
+    const chartLabel = isQuarterly ?
+        'Cash Conversion Cycle (Days) - Quarterly' :
+        'Cash Conversion Cycle (Days)';
+
+    const xAxisLabel = isQuarterly ? 'Quarter' : 'Year';
+
     chartInstances[canvasId] = new Chart(ctx, {
         type: 'line',
         data: {
             labels: cccData.map(item => item.year),
             datasets: [{
-                label: 'Cash Conversion Cycle (Days)',
+                label: chartLabel,
                 data: cccData.map(item => item.ccc),
                 borderColor: 'rgb(99, 102, 241)',
                 backgroundColor: 'rgba(99, 102, 241, 0.1)',
@@ -1020,7 +1027,8 @@ function createCashConversionCycleChart(canvasId, ratios, years) {
                 pointHoverRadius: 7,
                 pointBackgroundColor: 'rgb(99, 102, 241)',
                 pointBorderColor: '#fff',
-                pointBorderWidth: 2
+                pointBorderWidth: 2,
+                pointRadius: isQuarterly ? 4 : 6  // Smaller points for quarterly data
             }]
         },
         options: {
@@ -1031,7 +1039,7 @@ function createCashConversionCycleChart(canvasId, ratios, years) {
                 x: {
                     title: {
                         display: true,
-                        text: 'Year',
+                        text: xAxisLabel,
                         font: { size: 14 }
                     },
                     grid: {
