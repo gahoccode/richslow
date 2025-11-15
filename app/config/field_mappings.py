@@ -206,3 +206,13 @@ FINANCIAL_RATIOS_MAPPINGS: dict[str, str] = {
     "average_payment_days": "Days Payable Outstanding",
     "cash_conversion_cycle": "Cash Cycle",
 }
+
+# Historical Prices Field Mappings
+# Based on actual API response from forex/search(fx_sym='USD', source='VCB')
+HISTORICAL_PRICE_MAPPINGS: dict[str, str] = {
+    # Exchange Rate fields with space-containing API column names
+    "buy_cash": "buy _cash",
+    "buy_transfer": "buy _transfer",
+    # Add other historical price field mappings as needed
+    # Note: Most fields like 'sell', 'currency_code', 'currency_name' already use conventional names
+}

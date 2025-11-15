@@ -101,8 +101,8 @@ class TestExchangeRatesEndpoint:
         data = response.json()
         assert len(data) == 2
         assert data[0]["currency_code"] == "USD"
-        # Note: Pydantic uses aliases in JSON output, so field name has space
-        assert data[0]["buy _cash"] == 25154.0
+        # Backend now provides conventional field names
+        assert data[0]["buy_cash"] == 25154.0
         assert data[1]["currency_code"] == "EUR"
 
     @patch("app.routes.route_historical_prices.vcb_exchange_rate")
@@ -148,8 +148,8 @@ class TestExchangeRatesEndpoint:
         data = response.json()
         assert len(data) == 1
         assert data[0]["currency_code"] == "DKK"
-        assert data[0]["buy _cash"] is None  # Dash converted to None
-        assert data[0]["buy _transfer"] == 3611.55
+        assert data[0]["buy_cash"] is None  # Dash converted to None
+        assert data[0]["buy_transfer"] == 3611.55
 
     @patch("app.routes.route_historical_prices.vcb_exchange_rate")
     def test_fetch_exchange_rates_no_data(self, mock_vcb):
