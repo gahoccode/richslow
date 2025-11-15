@@ -46,6 +46,18 @@ async def serve_statements():
     return FileResponse("static/statements.html")
 
 
+@app.get("/dashboard")
+async def serve_dashboard():
+    """Serve the interactive dashboard page."""
+    return FileResponse("static/dashboard.html")
+
+
+@app.get("/market")
+async def serve_market():
+    """Serve the market data page."""
+    return FileResponse("static/market.html")
+
+
 # Health check at root level
 @app.get("/health")
 async def root_health():
