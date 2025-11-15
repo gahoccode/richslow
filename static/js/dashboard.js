@@ -7,7 +7,8 @@ let dashboardData = {
     companyNews: null,
     companyEvents: null,
     insiderDeals: null,
-    companyDividends: null
+    companyDividends: null,
+    companySubsidiaries: null
 };
 
 let cashConversionCycleChartCreated = false;
@@ -205,7 +206,8 @@ async function loadAllData() {
             loadCompanyNews(params.ticker),
             loadCompanyEvents(params.ticker),
             loadInsiderDeals(params.ticker),
-            loadCompanyDividends(params.ticker)
+            loadCompanyDividends(params.ticker),
+            loadCompanySubsidiaries(params.ticker)
         ]);
 
         // Hide loading, show content
@@ -291,6 +293,16 @@ async function loadCompanyDividends(ticker) {
     }
 }
 
+async function loadCompanySubsidiaries(ticker) {
+    try {
+        const url = `/api/company/${ticker}/subsidiaries`;
+        dashboardData.companySubsidiaries = await apiCall(url);
+    } catch (error) {
+        console.warn('Company subsidiaries not available:', error);
+        dashboardData.companySubsidiaries = [];
+    }
+}
+
 function populateDashboard() {
     // Populate company overview
     populateCompanyOverview();
@@ -350,6 +362,9 @@ function populateDashboard() {
     // Populate news and events
     populateNewsFeed();
     populateEventsTimeline();
+
+    // Create ownership structure sunburst
+    createOwnershipSunburst(dashboardData.companySubsidiaries);
 
     // Create insider trading chart
     console.log('Insider deals data:', dashboardData.insiderDeals?.length || 0, 'deals');
@@ -484,4 +499,163 @@ function formatVND(value) {
 function formatPercent(value) {
     if (value === null || value === undefined) return 'N/A';
     return (value * 100).toFixed(2) + '%';
+}
+
+// Create ownership structure sunburst visualization
+function createOwnershipSunburst(subsidiaries) {
+    const container = document.getElementById('ownershipSunburst');
+    const noDataMessage = document.getElementById('noOwnershipDataMessage');
+
+    if (!container) return;
+
+    // Clear previous visualization
+    container.innerHTML = '';
+
+    if (!subsidiaries || subsidiaries.length === 0) {
+        container.innerHTML = `
+            <div class="h-full flex items-center justify-center">
+                <div class="text-center">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    <p class="text-gray-500 text-lg font-medium mb-2">No Ownership Data</p>
+                    <p class="text-gray-400 text-sm">Ownership structure information is not available for this company</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Get current ticker from session storage
+    const params = getParams();
+    const ticker = params?.ticker || 'Company';
+
+    // Prepare hierarchical data for sunburst
+    const data = {
+        name: ticker,
+        children: subsidiaries.map(sub => ({
+            name: sub.sub_company_name,
+            value: sub.sub_own_percent * 100, // Convert 0-1 range to 0-100 for proper scaling
+            ownership: sub.sub_own_percent * 100 // Store actual percentage for display
+        }))
+    };
+
+    const width = container.clientWidth;
+    const height = 384; // h-96 = 24rem = 384px
+    const radius = Math.min(width, height) / 2;
+
+    const svg = d3.select(container)
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('viewBox', `0 0 ${width} ${height}`);
+
+    const g = svg.append('g')
+        .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+    // Color scheme
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    // Create partition
+    const partition = d3.partition()
+        .size([2 * Math.PI, radius])
+        .padding(0.01);
+
+    // Create hierarchy
+    const root = d3.hierarchy(data)
+        .sum(d => d.value)
+        .sort((a, b) => b.value - a.value);
+
+    partition(root);
+
+    // Create arc generator
+    const arc = d3.arc()
+        .startAngle(d => d.x0)
+        .endAngle(d => d.x1)
+        .innerRadius(d => d.y0)
+        .outerRadius(d => d.y1);
+
+    // Create paths
+    const path = g.selectAll('path')
+        .data(root.descendants())
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .style('fill', d => {
+            if (d.depth === 0) return '#e5e7eb'; // Gray for parent
+            return color(d.data.name);
+        })
+        .style('stroke', '#fff')
+        .style('stroke-width', 2)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+            d3.select(this)
+                .style('opacity', 0.8);
+
+            // Show tooltip
+            const tooltip = d3.select('body').append('div')
+                .attr('class', 'tooltip')
+                .style('position', 'absolute')
+                .style('background', 'rgba(0, 0, 0, 0.9)')
+                .style('color', 'white')
+                .style('padding', '8px 12px')
+                .style('border-radius', '4px')
+                .style('font-size', '12px')
+                .style('pointer-events', 'none')
+                .style('z-index', '1000');
+
+            if (d.depth === 0) {
+                tooltip.html(`
+                    <strong>${d.data.name}</strong><br>
+                    Parent Company<br>
+                    ${d.children ? d.children.length : 0} subsidiaries
+                `);
+            } else {
+                tooltip.html(`
+                    <strong>${d.data.name}</strong><br>
+                    Ownership: ${d.data.ownership.toFixed(2)}%<br>
+                    ${d.parent ? `Parent: ${d.parent.data.name}` : ''}
+                `);
+            }
+
+            tooltip
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 10) + 'px');
+        })
+        .on('mouseout', function() {
+            d3.select(this)
+                .style('opacity', 1);
+            d3.selectAll('.tooltip').remove();
+        });
+
+    // Add labels for larger segments
+    const text = g.selectAll('text')
+        .data(root.descendants().filter(d => d.depth > 0 && (d.x1 - d.x0) > 0.2))
+        .enter()
+        .append('text')
+        .attr('transform', function(d) {
+            const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+            const y = (d.y0 + d.y1) / 2;
+            return `rotate(${x - 90}) translate(${y}, 0) rotate(${x < 180 ? 0 : 180})`;
+        })
+        .attr('dy', '0.35em')
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '10px')
+        .attr('font-weight', '500')
+        .attr('fill', 'white')
+        .attr('pointer-events', 'none')
+        .text(d => {
+            const text = d.data.name;
+            const maxLength = 15;
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        });
+
+    // Add center label
+    const centerLabel = g.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('font-size', '14px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#374151')
+        .text(ticker);
 }
