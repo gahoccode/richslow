@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Dividend Timeline Chart**: Interactive stock price visualization with dividend event markers
+  - **Real dividend data integration**: Uses `/api/company/{ticker}/dividends` endpoint for accurate dividend history
+  - **Green triangle markers**: Visual indicators on stock price timeline showing dividend payment dates
+  - **Interactive tooltips**: Display dividend percentage, payment date, cash year, and payment type
+  - **Mixed chart types**: Line chart for stock prices + scatter plot for dividend events
+  - **Proper data matching**: 7-day window algorithm to match dividend dates with nearest stock price data
+
+- **Ownership Structure Sunburst Visualization**: Interactive D3.js hierarchical ownership chart
+  - **Subsidiaries API integration**: Uses `/api/company/{ticker}/subsidiaries` endpoint for ownership data
+  - **Color-coded segments**: Each subsidiary displayed with unique color for easy identification
+  - **Interactive tooltips**: Hover to see subsidiary name, ownership percentage, and parent company
+  - **Responsive design**: Adapts to container size with proper scaling
+  - **Center company label**: Displays parent company ticker in sunburst center
+  - **Proper percentage scaling**: Ownership values converted from 0-1 range to accurate visual representation
+
+### Fixed
+- **Chart.js Date Adapter Error**: Resolved "This method is not implemented" error by adding Chart.js date adapter
+- **Invalid Point Style Configuration**: Fixed Chart.js `pointStyle: 'star'` (not supported) to valid `'triangle'` markers
+- **D3 Sunburst Scaling Issue**: Corrected ownership percentage scaling from 0-1 range to proper 0-100 representation
+- **Data Structure Alignment**: Improved dividend event data mapping for accurate scatter plot coordinates
+
+### Enhanced
+- **Dashboard Visual Intelligence**: Added comprehensive company intelligence features for investment analysis
+- **Data-Driven Decision Making**: Users can now visualize dividend history and corporate structure alongside financial metrics
+- **Professional Chart Implementation**: Industry-standard visualizations with proper error handling and fallback states
+
 ## [1.4.0] - 2025-11-14
 
 ### Added
