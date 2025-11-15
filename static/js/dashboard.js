@@ -6,7 +6,8 @@ let dashboardData = {
     companyOverview: null,
     companyNews: null,
     companyEvents: null,
-    insiderDeals: null
+    insiderDeals: null,
+    companyDividends: null
 };
 
 let cashConversionCycleChartCreated = false;
@@ -203,7 +204,8 @@ async function loadAllData() {
             loadCompanyOverview(params.ticker),
             loadCompanyNews(params.ticker),
             loadCompanyEvents(params.ticker),
-            loadInsiderDeals(params.ticker)
+            loadInsiderDeals(params.ticker),
+            loadCompanyDividends(params.ticker)
         ]);
 
         // Hide loading, show content
@@ -279,6 +281,16 @@ async function loadInsiderDeals(ticker) {
     }
 }
 
+async function loadCompanyDividends(ticker) {
+    try {
+        const url = `/api/company/${ticker}/dividends`;
+        dashboardData.companyDividends = await apiCall(url);
+    } catch (error) {
+        console.warn('Company dividends not available:', error);
+        dashboardData.companyDividends = [];
+    }
+}
+
 function populateDashboard() {
     // Populate company overview
     populateCompanyOverview();
@@ -293,6 +305,11 @@ function populateDashboard() {
 
     // Create financial statement charts
     const statements = dashboardData.financialStatements;
+
+    // Create dividend timeline chart
+    if (dashboardData.stockPrices && dashboardData.stockPrices.length > 0) {
+        createDividendTimelineChart('dividendTimelineChart', dashboardData.stockPrices, dashboardData.companyDividends);
+    }
     if (statements) {
         const years = statements.years || [];
         const incomeStatements = statements.income_statements || [];

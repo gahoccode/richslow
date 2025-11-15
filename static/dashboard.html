@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
 <body class="bg-gray-50">
@@ -157,6 +158,15 @@
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Stock Price & Volume</h2>
                 <div class="h-80">
                     <canvas id="priceChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Dividend Timeline Section -->
+            <section id="dividendSection" class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Dividend Timeline</h2>
+                <p class="text-sm text-gray-500 mb-4">Stock price with dividend event markers (green stars indicate dividend payments)</p>
+                <div class="h-80">
+                    <canvas id="dividendTimelineChart"></canvas>
                 </div>
             </section>
 

@@ -949,75 +949,110 @@ function createCashConversionCycleChart(canvasId, ratios, years) {
  * Create dividend timeline chart with event markers
  * @param {string} canvasId - Canvas element ID
  * @param {Array} priceData - Stock OHLCV data
- * @param {Array} ratios - Financial ratios data with dividend yield
- * @param {Array} years - Years array
+ * @param {Array} dividends - Dividend history data from API
  */
-function createDividendTimelineChart(canvasId, priceData, ratios, years) {
+function createDividendTimelineChart(canvasId, priceData, dividends) {
+
     const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
+    if (!ctx) {
+        console.warn('Canvas element not found:', canvasId);
+        return null;
+    }
 
     if (chartInstances[canvasId]) {
         chartInstances[canvasId].destroy();
     }
 
     if (!priceData || priceData.length === 0) {
+        // Show "no data" message
+        ctx.parentElement.innerHTML = `
+            <div class="h-80 flex items-center justify-center">
+                <div class="text-center">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-gray-500 text-lg font-medium mb-2">No Price Data Available</p>
+                    <p class="text-gray-400 text-sm">Stock price data is not available for this company</p>
+                </div>
+            </div>
+        `;
         return null;
     }
 
-    // Prepare price data
-    const prices = priceData.map(item => ({
-        x: new Date(item.time).getTime(),
-        y: item.close
-    }));
+    // Prepare price data for regular line chart (simpler approach)
+    const labels = priceData.map(item => new Date(item.time).toLocaleDateString());
+    const prices = priceData.map(item => item.close);
 
-    // Prepare dividend events (using dividend yield from ratios)
+    // Prepare dividend events from dividend history data
     const dividendEvents = [];
-    if (ratios && ratios.length > 0) {
-        ratios.forEach(ratio => {
-            if (ratio.dividend_yield && ratio.dividend_yield > 0) {
-                // Find approximate price data point for this year
-                const yearPrice = priceData.find(p =>
-                    new Date(p.time).getFullYear() === ratio.year_report
-                );
-                if (yearPrice) {
+    if (dividends && dividends.length > 0) {
+        dividends.forEach(dividend => {
+            if (dividend.exercise_date && dividend.cash_dividend_percentage > 0) {
+                // Parse the exercise date
+                const exerciseDate = new Date(dividend.exercise_date);
+
+                // Find closest stock price date to exercise date
+                const priceIndex = priceData.findIndex(p => {
+                    const priceDate = new Date(p.time);
+                    return Math.abs(priceDate - exerciseDate) <= 7 * 24 * 60 * 60 * 1000; // Within 7 days
+                });
+
+                if (priceIndex !== -1) {
                     dividendEvents.push({
-                        x: new Date(yearPrice.time).getTime(),
-                        y: yearPrice.close,
-                        dividendYield: ratio.dividend_yield,
-                        year: ratio.year_report
+                        date: exerciseDate,
+                        dividendPercentage: dividend.cash_dividend_percentage,
+                        year: dividend.cash_year,
+                        issueMethod: dividend.issue_method,
+                        price: priceData[priceIndex].close,
+                        priceIndex: priceIndex
                     });
                 }
             }
         });
     }
 
+    // Create datasets
+    const datasets = [
+        {
+            type: 'line',
+            label: 'Stock Price',
+            data: prices,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        }
+    ];
+
+    // Add dividend events as scatter plot if available
+    if (dividendEvents.length > 0) {
+        const dividendScatterData = dividendEvents.map(event => ({
+            x: labels[event.priceIndex] || new Date(event.date).toLocaleDateString(),
+            y: event.price,
+            ...event // Include all event data for tooltip access
+        }));
+
+        datasets.push({
+            type: 'scatter',
+            label: 'Dividend Events',
+            data: dividendScatterData,
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgb(34, 197, 94)',
+            borderWidth: 2,
+            pointRadius: 12,
+            pointHoverRadius: 15,
+            pointStyle: 'triangle'
+        });
+    }
+
     chartInstances[canvasId] = new Chart(ctx, {
-        type: 'line',
+        type: 'line', // Base type for the chart
         data: {
-            datasets: [
-                {
-                    label: 'Stock Price',
-                    data: prices,
-                    borderColor: 'rgb(59, 130, 246)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.1,
-                    pointRadius: 0,
-                    pointHoverRadius: 5
-                },
-                {
-                    label: 'Dividend Events',
-                    data: dividendEvents,
-                    borderColor: 'rgb(34, 197, 94)',
-                    backgroundColor: 'rgb(34, 197, 94)',
-                    borderWidth: 0,
-                    pointRadius: 8,
-                    pointHoverRadius: 10,
-                    showLine: false,
-                    pointStyle: 'star'
-                }
-            ]
+            labels: labels,
+            datasets: datasets
         },
         options: {
             ...defaultChartConfig,
@@ -1025,16 +1060,12 @@ function createDividendTimelineChart(canvasId, priceData, ratios, years) {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    type: 'time',
-                    time: {
-                        unit: 'month',
-                        displayFormats: {
-                            month: 'MMM yyyy'
-                        }
-                    },
                     title: {
                         display: true,
                         text: 'Date'
+                    },
+                    ticks: {
+                        maxTicksLimit: 8
                     }
                 },
                 y: {
@@ -1044,6 +1075,11 @@ function createDividendTimelineChart(canvasId, priceData, ratios, years) {
                     },
                     ticks: {
                         callback: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(0) + 'K';
+                            }
                             return value.toLocaleString('vi-VN');
                         }
                     }
@@ -1057,9 +1093,15 @@ function createDividendTimelineChart(canvasId, priceData, ratios, years) {
                         label: function(context) {
                             if (context.dataset.label === 'Stock Price') {
                                 return `Price: ${context.parsed.y.toLocaleString('vi-VN')} VND`;
-                            } else if (context.dataset.label === 'Dividend Events') {
-                                const point = context.raw;
-                                return `Dividend: ${point.dividendYield}% (${point.year})`;
+                            } else if (context.dataset.label === 'Dividend Events' && context.raw) {
+                                const event = context.raw;
+                                return [
+                                    `Dividend: ${event.dividendPercentage}%`,
+                                    `Date: ${new Date(event.date).toLocaleDateString()}`,
+                                    `Year: ${event.year}`,
+                                    `Type: ${event.issueMethod}`,
+                                    `Price: ${event.y.toLocaleString('vi-VN')} VND`
+                                ];
                             }
                             return '';
                         }
@@ -1069,7 +1111,7 @@ function createDividendTimelineChart(canvasId, priceData, ratios, years) {
         }
     });
 
-    return chartInstances[canvasId];
+      return chartInstances[canvasId];
 }
 
 /**
