@@ -207,7 +207,8 @@ async function loadAllData() {
             loadCompanyEvents(params.ticker),
             loadInsiderDeals(params.ticker),
             loadCompanyDividends(params.ticker),
-            loadCompanySubsidiaries(params.ticker)
+            loadCompanySubsidiaries(params.ticker),
+            loadIndustryBenchmark(params.ticker)
         ]);
 
         // Hide loading, show content
@@ -303,6 +304,17 @@ async function loadCompanySubsidiaries(ticker) {
     }
 }
 
+async function loadIndustryBenchmark(ticker) {
+    try {
+        const url = `/api/industry/benchmark/company/${ticker}`;
+        dashboardData.industryBenchmark = await apiCall(url);
+        console.log('Industry benchmark loaded for', dashboardData.industryBenchmark.industry_name);
+    } catch (error) {
+        console.warn('Industry benchmark not available:', error);
+        dashboardData.industryBenchmark = null;
+    }
+}
+
 function populateDashboard() {
     // Populate company overview
     populateCompanyOverview();
@@ -342,18 +354,18 @@ function populateDashboard() {
         const latestRatios = ratios.find(r => r.year_report === latestYear) || ratios[0] || {};
 
         // Valuation radar
-        createValuationRadarChart('valuationRadarChart', latestRatios);
+        createValuationRadarChart('valuationRadarChart', latestRatios, dashboardData.industryBenchmark);
 
         // Profitability gauges
-        createGaugeChart('roeGauge', latestRatios.roe, 'ROE');
-        createGaugeChart('roaGauge', latestRatios.roa, 'ROA');
-        createGaugeChart('roicGauge', latestRatios.roic, 'ROIC');
+        createGaugeChart('roeGauge', latestRatios.roe, 'ROE', dashboardData.industryBenchmark);
+        createGaugeChart('roaGauge', latestRatios.roa, 'ROA', dashboardData.industryBenchmark);
+        createGaugeChart('roicGauge', latestRatios.roic, 'ROIC', dashboardData.industryBenchmark);
 
         // Liquidity bars
         populateLiquidityBars(latestRatios);
 
         // Efficiency chart
-        createEfficiencyChart('efficiencyChart', ratios, years);
+        createEfficiencyChart('efficiencyChart', ratios, years, dashboardData.industryBenchmark);
 
         // Leverage gauge
         createLeverageGauge('leverageGauge', latestRatios.debt_to_equity);

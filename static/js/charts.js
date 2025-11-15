@@ -336,8 +336,9 @@ function createCashFlowWaterfallChart(canvasId, cashFlows, year) {
  * Create valuation radar chart
  * @param {string} canvasId - Canvas element ID
  * @param {Object} ratios - Financial ratios object
+ * @param {Object} industryBenchmark - Industry benchmark data
  */
-function createValuationRadarChart(canvasId, ratios) {
+function createValuationRadarChart(canvasId, ratios, industryBenchmark = null) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
 
@@ -345,30 +346,56 @@ function createValuationRadarChart(canvasId, ratios) {
         chartInstances[canvasId].destroy();
     }
 
-    // Normalize ratios to 0-100 scale for radar chart
+    // Normalize ratios to 0-50 scale for radar chart
     const normalizeRatio = (value, max) => {
         if (value === null || value === undefined) return 0;
-        return Math.min((value / max) * 100, 100);
+        return Math.min((value / max) * 50, 50);
     };
+
+    // Prepare datasets
+    const datasets = [{
+        label: 'Company',
+        data: [
+            normalizeRatio(ratios.pe_ratio, 50),
+            normalizeRatio(ratios.pb_ratio, 10),
+            normalizeRatio(ratios.ps_ratio, 10),
+            normalizeRatio(ratios.ev_ebitda, 30)
+        ],
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        borderColor: 'rgb(59, 130, 246)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgb(59, 130, 246)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgb(59, 130, 246)'
+    }];
+
+    // Add industry benchmark if available
+    if (industryBenchmark && industryBenchmark.benchmarks) {
+        const benchmarkData = [
+            normalizeRatio(industryBenchmark.benchmarks.pe_ratio?.median, 50),
+            normalizeRatio(industryBenchmark.benchmarks.pb_ratio?.median, 10),
+            normalizeRatio(industryBenchmark.benchmarks.ps_ratio?.median, 10),
+            normalizeRatio(industryBenchmark.benchmarks.ev_ebitda?.median, 30)
+        ];
+
+        datasets.push({
+            label: `Industry Median (${industryBenchmark.industry_name})`,
+            data: benchmarkData,
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            borderColor: 'rgb(239, 68, 68)',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointBackgroundColor: 'rgb(239, 68, 68)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(239, 68, 68)'
+        });
+    }
 
     const data = {
         labels: ['P/E Ratio', 'P/B Ratio', 'P/S Ratio', 'EV/EBITDA'],
-        datasets: [{
-            label: 'Valuation Metrics',
-            data: [
-                normalizeRatio(ratios.pe_ratio, 50),
-                normalizeRatio(ratios.pb_ratio, 10),
-                normalizeRatio(ratios.ps_ratio, 10),
-                normalizeRatio(ratios.ev_ebitda, 30)
-            ],
-            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-            borderColor: 'rgb(59, 130, 246)',
-            borderWidth: 2,
-            pointBackgroundColor: 'rgb(59, 130, 246)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgb(59, 130, 246)'
-        }]
+        datasets: datasets
     };
 
     chartInstances[canvasId] = new Chart(ctx, {
@@ -382,9 +409,9 @@ function createValuationRadarChart(canvasId, ratios) {
                         display: true
                     },
                     suggestedMin: 0,
-                    suggestedMax: 100,
+                    suggestedMax: 50,
                     ticks: {
-                        stepSize: 20
+                        stepSize: 10
                     }
                 }
             },
@@ -396,7 +423,25 @@ function createValuationRadarChart(canvasId, ratios) {
                         label: function(context) {
                             const labels = ['P/E', 'P/B', 'P/S', 'EV/EBITDA'];
                             const values = [ratios.pe_ratio, ratios.pb_ratio, ratios.ps_ratio, ratios.ev_ebitda];
-                            return `${labels[context.dataIndex]}: ${values[context.dataIndex] || 'N/A'}`;
+                            const benchmarkValues = [
+                                industryBenchmark?.benchmarks?.pe_ratio?.median,
+                                industryBenchmark?.benchmarks?.pb_ratio?.median,
+                                industryBenchmark?.benchmarks?.ps_ratio?.median,
+                                industryBenchmark?.benchmarks?.ev_ebitda?.median
+                            ];
+
+                            const companyValue = values[context.dataIndex] || 'N/A';
+                            const benchmarkValue = benchmarkValues[context.dataIndex] || 'N/A';
+
+                            let result = `${labels[context.dataIndex]}: ${companyValue}`;
+
+                            if (context.datasetIndex === 0 && industryBenchmark) {
+                                result += ` (vs Industry: ${benchmarkValue})`;
+                            } else if (context.datasetIndex === 1) {
+                                result = `Industry Median: ${benchmarkValue}`;
+                            }
+
+                            return result;
                         }
                     }
                 }
@@ -412,8 +457,9 @@ function createValuationRadarChart(canvasId, ratios) {
  * @param {string} canvasId - Canvas element ID
  * @param {number} value - Ratio value (0-1 scale)
  * @param {string} label - Gauge label
+ * @param {Object} industryBenchmark - Industry benchmark data
  */
-function createGaugeChart(canvasId, value, label) {
+function createGaugeChart(canvasId, value, label, industryBenchmark = null) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
 
@@ -423,6 +469,16 @@ function createGaugeChart(canvasId, value, label) {
 
     const percentage = (value || 0) * 100;
     const remaining = 100 - percentage;
+
+    // Get industry benchmark percentage if available
+    let benchmarkPercentage = null;
+    if (industryBenchmark && industryBenchmark.benchmarks) {
+        const benchmarkField = label.toLowerCase();
+        const benchmarkValue = industryBenchmark.benchmarks[`${benchmarkField}`]?.median;
+        if (benchmarkValue) {
+            benchmarkPercentage = benchmarkValue * 100;
+        }
+    }
 
     chartInstances[canvasId] = new Chart(ctx, {
         type: 'doughnut',
@@ -452,7 +508,11 @@ function createGaugeChart(canvasId, value, label) {
                     callbacks: {
                         label: function(context) {
                             if (context.dataIndex === 0) {
-                                return `${label}: ${percentage.toFixed(2)}%`;
+                                let result = `${label}: ${percentage.toFixed(2)}%`;
+                                if (benchmarkPercentage !== null) {
+                                    result += ` (Industry: ${benchmarkPercentage.toFixed(2)}%)`;
+                                }
+                                return result;
                             }
                             return null;
                         }
@@ -487,8 +547,9 @@ function createGaugeChart(canvasId, value, label) {
  * @param {string} canvasId - Canvas element ID
  * @param {Array} ratios - Financial ratios data
  * @param {Array} years - Years array
+ * @param {Object} industryBenchmark - Industry benchmark data
  */
-function createEfficiencyChart(canvasId, ratios, years) {
+function createEfficiencyChart(canvasId, ratios, years, industryBenchmark = null) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
 
@@ -511,36 +572,97 @@ function createEfficiencyChart(canvasId, ratios, years) {
         return ratio ? ratio.cash_conversion_cycle : null;
     });
 
+    // Create industry benchmark lines if available
+    const datasets = [
+        {
+            label: 'Asset Turnover',
+            data: assetTurnover,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            tension: 0.1,
+            fill: false,
+            yAxisID: 'y'
+        },
+        {
+            label: 'Inventory Turnover',
+            data: inventoryTurnover,
+            borderColor: 'rgb(16, 185, 129)',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            borderWidth: 2,
+            tension: 0.1,
+            fill: false,
+            yAxisID: 'y'
+        },
+        {
+            label: 'Cash Conversion Cycle',
+            data: ccc,
+            borderColor: 'rgb(249, 115, 22)',
+            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+            borderWidth: 2,
+            tension: 0.1,
+            fill: false,
+            yAxisID: 'y1'
+        }
+    ];
+
+    // Add industry benchmark lines if available
+    if (industryBenchmark && industryBenchmark.benchmarks) {
+        const benchmarkAssetTurnover = industryBenchmark.benchmarks.asset_turnover?.median;
+        const benchmarkInventoryTurnover = industryBenchmark.benchmarks.inventory_turnover?.median;
+        const benchmarkCCC = industryBenchmark.benchmarks.cash_conversion_cycle?.median;
+
+        if (benchmarkAssetTurnover) {
+            datasets.push({
+                label: `Industry Asset Turnover (${industryBenchmark.industry_name})`,
+                data: Array(years.length).fill(benchmarkAssetTurnover),
+                borderColor: 'rgba(59, 130, 246, 0.5)',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0,
+                fill: false,
+                pointRadius: 0,
+                yAxisID: 'y'
+            });
+        }
+
+        if (benchmarkInventoryTurnover) {
+            datasets.push({
+                label: `Industry Inventory Turnover (${industryBenchmark.industry_name})`,
+                data: Array(years.length).fill(benchmarkInventoryTurnover),
+                borderColor: 'rgba(16, 185, 129, 0.5)',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0,
+                fill: false,
+                pointRadius: 0,
+                yAxisID: 'y'
+            });
+        }
+
+        if (benchmarkCCC) {
+            datasets.push({
+                label: `Industry Cash Conversion Cycle (${industryBenchmark.industry_name})`,
+                data: Array(years.length).fill(benchmarkCCC),
+                borderColor: 'rgba(249, 115, 22, 0.5)',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0,
+                fill: false,
+                pointRadius: 0,
+                yAxisID: 'y1'
+            });
+        }
+    }
+
     chartInstances[canvasId] = new Chart(ctx, {
         type: 'line',
         data: {
             labels: years,
-            datasets: [
-                {
-                    label: 'Asset Turnover',
-                    data: assetTurnover,
-                    borderColor: 'rgb(59, 130, 246)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 2,
-                    yAxisID: 'y'
-                },
-                {
-                    label: 'Inventory Turnover',
-                    data: inventoryTurnover,
-                    borderColor: 'rgb(16, 185, 129)',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 2,
-                    yAxisID: 'y'
-                },
-                {
-                    label: 'Cash Conversion Cycle (Days)',
-                    data: ccc,
-                    borderColor: 'rgb(249, 115, 22)',
-                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                    borderWidth: 2,
-                    yAxisID: 'y1'
-                }
-            ]
+            datasets: datasets
         },
         options: {
             ...defaultChartConfig,

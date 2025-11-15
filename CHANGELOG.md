@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Industry Benchmark Overlays**: Competitive analysis with industry median comparisons across all key financial charts
+  - **Valuation Radar Benchmark**: Industry median overlay on P/E, P/B, P/S, EV/EBITDA ratios with red dashed lines
+  - **Profitability Gauge Benchmarks**: ROE, ROA, ROIC gauges show industry median percentages in tooltips
+  - **Efficiency Chart Benchmarks**: Asset turnover, inventory turnover, and cash conversion cycle industry comparisons
+  - **New Industry Benchmark API**: 3 endpoints for comprehensive industry analysis
+    - `GET /api/industry/benchmark/{industry_id}` - Benchmark by ICB industry code
+    - `GET /api/industry/benchmark?industry_name={name}` - Benchmark by industry name
+    - `GET /api/industry/benchmark/company/{ticker}` - Auto-detect company industry and benchmark
+    - `GET /api/industry/classifications` - Get industry ID to name mapping
+  - **Statistical Analysis**: Industry calculations include mean, median, 25th/75th percentiles, standard deviation
+  - **Visual Distinction**: Company data in solid lines, industry benchmarks in dashed lines with transparency
+  - **Performance Context**: Users can instantly see if company metrics outperform/underperform industry averages
+  - **vnstock Integration**: Uses vnstock's `symbols_by_industries()` and `industries_icb()` for industry classification
+
 - **Dividend Timeline Chart**: Interactive stock price visualization with dividend event markers
   - **Real dividend data integration**: Uses `/api/company/{ticker}/dividends` endpoint for accurate dividend history
   - **Green triangle markers**: Visual indicators on stock price timeline showing dividend payment dates
@@ -24,6 +38,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Proper percentage scaling**: Ownership values converted from 0-1 range to accurate visual representation
 
 ### Fixed
+- **Industry Benchmark 500 Error**: Resolved critical API compatibility issues with vnstock v3.2.6
+  - **vnstock API Update**: Fixed `Vnstock().listing` to `Listing()` for correct vnstock v3.2.6 usage
+  - **Function Name Error**: Corrected `_safe_get_float` to `safe_get_float` (removed underscore)
+  - **Vietnamese Column Mapping**: Added comprehensive mapping from Vietnamese ratio names to English field names
+  - **Data Structure Handling**: Updated to use `icb_name3`, `icb_name2`, `icb_name4` columns instead of non-existent `industry` column
+  - **Hierarchical Column Flattening**: Properly implemented `flatten_hierarchical_index()` for MultiIndex DataFrames
+  - **Field Mapping Integration**: Created Vietnamese-to-English mapping for 17 key financial ratios
+  - **Endpoint Compatibility**: All industry benchmark endpoints now return 200 status with proper data
+
 - **Chart.js Date Adapter Error**: Resolved "This method is not implemented" error by adding Chart.js date adapter
 - **Invalid Point Style Configuration**: Fixed Chart.js `pointStyle: 'star'` (not supported) to valid `'triangle'` markers
 - **D3 Sunburst Scaling Issue**: Corrected ownership percentage scaling from 0-1 range to proper 0-100 representation
