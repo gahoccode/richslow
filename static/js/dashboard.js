@@ -9,6 +9,8 @@ let dashboardData = {
     insiderDeals: null
 };
 
+let cashConversionCycleChartCreated = false;
+
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
@@ -168,6 +170,20 @@ function switchRatioTab(tabName) {
     if (activeContent) {
         activeContent.classList.remove('hidden');
     }
+
+    // Create cash conversion cycle chart when efficiency tab is activated
+    if (tabName === 'efficiency' && !cashConversionCycleChartCreated) {
+        const statements = dashboardData.financialStatements;
+        if (statements) {
+            const years = statements.years || [];
+            const ratios = statements.ratios || [];
+
+            if (years.length > 0 && ratios.length > 0) {
+                createCashConversionCycleChart('cashConversionCycleChart', ratios, years);
+                cashConversionCycleChartCreated = true;
+            }
+        }
+    }
 }
 
 async function loadAllData() {
@@ -309,9 +325,6 @@ function populateDashboard() {
 
         // Efficiency chart
         createEfficiencyChart('efficiencyChart', ratios, years);
-
-        // Cash conversion cycle chart
-        createCashConversionCycleChart('cashConversionCycleChart', ratios, years);
 
         // Leverage gauge
         createLeverageGauge('leverageGauge', latestRatios.debt_to_equity);
