@@ -5,11 +5,11 @@ from typing import Optional
 
 from app.services.service_industry_benchmark import (
     get_industry_benchmark_ratios,
-    get_industry_classification_map
+    get_industry_classification_map,
 )
 from app.schemas.schema_industry_benchmark import (
     IndustryBenchmark,
-    IndustryBenchmarkRequest
+    IndustryBenchmarkRequest,
 )
 
 router = APIRouter(prefix="/api/industry", tags=["industry-benchmark"])
@@ -18,7 +18,9 @@ router = APIRouter(prefix="/api/industry", tags=["industry-benchmark"])
 @router.get("/benchmark/{industry_id}", response_model=IndustryBenchmark)
 async def get_industry_benchmark_by_id(
     industry_id: int = Path(..., description="Industry ID (ICB classification code)"),
-    min_companies: int = Query(5, description="Minimum companies required for valid benchmark")
+    min_companies: int = Query(
+        5, description="Minimum companies required for valid benchmark"
+    ),
 ) -> IndustryBenchmark:
     """
     Get industry benchmark financial ratios by industry ID.
@@ -38,21 +40,24 @@ async def get_industry_benchmark_by_id(
     """
     try:
         benchmark_data = get_industry_benchmark_ratios(
-            industry_id=industry_id,
-            min_companies=min_companies
+            industry_id=industry_id, min_companies=min_companies
         )
         return IndustryBenchmark(**benchmark_data)
 
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve industry benchmark: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to retrieve industry benchmark: {str(e)}"
+        )
 
 
 @router.get("/benchmark", response_model=IndustryBenchmark)
 async def get_industry_benchmark_by_name(
     industry_name: str = Query(..., description="Industry name"),
-    min_companies: int = Query(5, description="Minimum companies required for valid benchmark")
+    min_companies: int = Query(
+        5, description="Minimum companies required for valid benchmark"
+    ),
 ) -> IndustryBenchmark:
     """
     Get industry benchmark financial ratios by industry name.
@@ -72,15 +77,16 @@ async def get_industry_benchmark_by_name(
     """
     try:
         benchmark_data = get_industry_benchmark_ratios(
-            industry_name=industry_name,
-            min_companies=min_companies
+            industry_name=industry_name, min_companies=min_companies
         )
         return IndustryBenchmark(**benchmark_data)
 
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve industry benchmark: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to retrieve industry benchmark: {str(e)}"
+        )
 
 
 @router.get("/classifications")
@@ -96,12 +102,15 @@ async def get_industry_classifications() -> dict[str, str]:
         return classification_map
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve industry classifications: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve industry classifications: {str(e)}",
+        )
 
 
 @router.get("/benchmark/company/{ticker}")
 async def get_company_industry_benchmark(
-    ticker: str = Path(..., description="Stock ticker symbol")
+    ticker: str = Path(..., description="Stock ticker symbol"),
 ) -> IndustryBenchmark:
     """
     Get industry benchmark for a specific company's industry.
@@ -123,12 +132,15 @@ async def get_company_industry_benchmark(
         from vnstock import Vnstock
 
         # Get company overview to determine industry
-        stock = Vnstock().stock(symbol=ticker, source='VCI')
+        stock = Vnstock().stock(symbol=ticker, source="VCI")
         company = stock.company
         overview_df = company.overview()
 
         if overview_df.empty:
-            raise HTTPException(status_code=404, detail=f"Company overview not found for ticker: {ticker}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Company overview not found for ticker: {ticker}",
+            )
 
         # Extract industry information
         row = overview_df.iloc[0]
@@ -136,12 +148,12 @@ async def get_company_industry_benchmark(
         industry_name = None
 
         # Try to get industry names from overview (using ICB naming)
-        if 'icb_name3' in overview_df.columns:
-            industry_name_val = row.get('icb_name3')
+        if "icb_name3" in overview_df.columns:
+            industry_name_val = row.get("icb_name3")
             if industry_name_val and not pd.isna(industry_name_val):
                 industry_name = str(industry_name_val)
-        elif 'icb_name2' in overview_df.columns:
-            industry_name_val = row.get('icb_name2')
+        elif "icb_name2" in overview_df.columns:
+            industry_name_val = row.get("icb_name2")
             if industry_name_val and not pd.isna(industry_name_val):
                 industry_name = str(industry_name_val)
 
@@ -149,7 +161,10 @@ async def get_company_industry_benchmark(
         if industry_name:
             classification_map = get_industry_classification_map()
             for icb_code, icb_name in classification_map.items():
-                if industry_name.lower() in icb_name.lower() or icb_name.lower() in industry_name.lower():
+                if (
+                    industry_name.lower() in icb_name.lower()
+                    or icb_name.lower() in industry_name.lower()
+                ):
                     try:
                         industry_id = int(icb_code)
                         break
@@ -158,9 +173,7 @@ async def get_company_industry_benchmark(
 
         # Get benchmark data
         benchmark_data = get_industry_benchmark_ratios(
-            industry_id=industry_id,
-            industry_name=industry_name,
-            min_companies=5
+            industry_id=industry_id, industry_name=industry_name, min_companies=5
         )
 
         return IndustryBenchmark(**benchmark_data)
@@ -168,4 +181,7 @@ async def get_company_industry_benchmark(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve company industry benchmark: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve company industry benchmark: {str(e)}",
+        )

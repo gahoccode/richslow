@@ -131,7 +131,9 @@ class BalanceSheetData(BaseModel):
         None, description="Long-term prepayments"
     )
     goodwill: float | None = Field(None, description="Goodwill")
-    goodwill_alt: float | None = Field(None, description="Goodwill (alternative column)")
+    goodwill_alt: float | None = Field(
+        None, description="Goodwill (alternative column)"
+    )
     other_non_current_assets: float | None = Field(
         None, description="Other non-current assets"
     )

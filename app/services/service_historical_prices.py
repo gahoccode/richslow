@@ -50,8 +50,14 @@ def process_exchange_rate_data(df: pd.DataFrame) -> list[ExchangeRate]:
         record = {
             "currency_code": row["currency_code"],
             "currency_name": row["currency_name"],
-            "buy_cash": clean_price_string(apply_field_mapping(row, "buy_cash", HISTORICAL_PRICE_MAPPINGS) or row["buy _cash"]),
-            "buy_transfer": clean_price_string(apply_field_mapping(row, "buy_transfer", HISTORICAL_PRICE_MAPPINGS) or row["buy _transfer"]),
+            "buy_cash": clean_price_string(
+                apply_field_mapping(row, "buy_cash", HISTORICAL_PRICE_MAPPINGS)
+                or row["buy _cash"]
+            ),
+            "buy_transfer": clean_price_string(
+                apply_field_mapping(row, "buy_transfer", HISTORICAL_PRICE_MAPPINGS)
+                or row["buy _transfer"]
+            ),
             "sell": clean_price_string(row["sell"]),
             "date": parse_exchange_date(row["date"]),
         }

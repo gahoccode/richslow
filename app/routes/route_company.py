@@ -47,7 +47,7 @@ router = APIRouter(
 
 @router.get("/{ticker}/overview", response_model=CompanyOverviewTCBS)
 async def get_company_overview_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> CompanyOverviewTCBS:
     """Get company overview information from TCBS.
 
@@ -68,12 +68,14 @@ async def get_company_overview_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/profile", response_model=CompanyProfile)
 async def get_company_profile_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> CompanyProfile:
     """Get company profile information from TCBS.
 
@@ -94,12 +96,14 @@ async def get_company_profile_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/shareholders", response_model=list[CompanyShareholders])
 async def get_company_shareholders_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[CompanyShareholders]:
     """Get company shareholder information from TCBS.
 
@@ -119,12 +123,14 @@ async def get_company_shareholders_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/officers", response_model=list[CompanyOfficer])
 async def get_company_officers_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[CompanyOfficer]:
     """Get company officer information from TCBS.
 
@@ -144,12 +150,14 @@ async def get_company_officers_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/subsidiaries", response_model=list[CompanySubsidiaries])
 async def get_company_subsidiaries_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[CompanySubsidiaries]:
     """Get company subsidiary information from TCBS.
 
@@ -169,12 +177,14 @@ async def get_company_subsidiaries_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/dividends", response_model=list[DividendHistory])
 async def get_company_dividends_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[DividendHistory]:
     """Get company dividend history from TCBS.
 
@@ -194,12 +204,14 @@ async def get_company_dividends_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/insider-deals", response_model=list[CompanyInsiderDeals])
 async def get_company_insider_deals_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[CompanyInsiderDeals]:
     """Get company insider trading information from TCBS.
 
@@ -219,12 +231,14 @@ async def get_company_insider_deals_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/events", response_model=list[CompanyEventsTCBS])
 async def get_company_events_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[CompanyEventsTCBS]:
     """Get company corporate events from TCBS.
 
@@ -245,12 +259,14 @@ async def get_company_events_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/news", response_model=list[CompanyNews])
 async def get_company_news_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[CompanyNews]:
     """Get company news from TCBS.
 
@@ -270,12 +286,14 @@ async def get_company_news_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/ratio", response_model=list[CompanyRatioVCI])
 async def get_company_ratio_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[CompanyRatioVCI]:
     """Get company financial ratios from VCI.
 
@@ -296,12 +314,14 @@ async def get_company_ratio_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/reports", response_model=list[CompanyReportsVCI])
 async def get_company_reports_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> list[CompanyReportsVCI]:
     """Get company financial reports from VCI.
 
@@ -321,12 +341,14 @@ async def get_company_reports_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{ticker}/trading-stats", response_model=TradingStatsVCI)
 async def get_company_trading_stats_endpoint(
-    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')")
+    ticker: str = Path(..., description="Stock ticker symbol (e.g., 'VCB', 'FPT')"),
 ) -> TradingStatsVCI:
     """Get company trading statistics from VCI.
 
@@ -347,4 +369,6 @@ async def get_company_trading_stats_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
