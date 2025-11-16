@@ -6,6 +6,7 @@ Pydantic models for exchange rates, gold prices, and stock OHLCV data.
 
 import pandas as pd
 
+from app.config.field_mappings import HISTORICAL_PRICE_MAPPINGS
 from app.schemas.historical_prices import (
     ExchangeRate,
     GoldBTMC,
@@ -18,6 +19,7 @@ from app.utils.data_cleaning import (
     parse_btmc_datetime,
     parse_exchange_date,
 )
+from app.utils.transform import apply_field_mapping
 
 
 def process_exchange_rate_data(df: pd.DataFrame) -> list[ExchangeRate]:
@@ -48,8 +50,8 @@ def process_exchange_rate_data(df: pd.DataFrame) -> list[ExchangeRate]:
         record = {
             "currency_code": row["currency_code"],
             "currency_name": row["currency_name"],
-            "buy _cash": clean_price_string(row["buy _cash"]),
-            "buy _transfer": clean_price_string(row["buy _transfer"]),
+            "buy_cash": clean_price_string(apply_field_mapping(row, "buy_cash", HISTORICAL_PRICE_MAPPINGS) or row["buy _cash"]),
+            "buy_transfer": clean_price_string(apply_field_mapping(row, "buy_transfer", HISTORICAL_PRICE_MAPPINGS) or row["buy _transfer"]),
             "sell": clean_price_string(row["sell"]),
             "date": parse_exchange_date(row["date"]),
         }

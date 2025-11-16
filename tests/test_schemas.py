@@ -408,16 +408,16 @@ class TestSchemaCompatibility:
 class TestHistoricalPricesSchemas:
     """Test Pydantic model validation for historical price schemas."""
 
-    def test_exchange_rate_with_proper_aliases(self):
-        """Test ExchangeRate schema with correct vnstock field aliases (buy _cash, buy _transfer)."""
+    def test_exchange_rate_with_conventional_field_names(self):
+        """Test ExchangeRate schema with conventional field names (buy_cash, buy_transfer)."""
         from app.schemas.historical_prices import ExchangeRate
 
-        # Data matching vnstock API structure with spaces in column names
+        # Data with conventional field names from backend service
         valid_data = {
             "currency_code": "USD",
             "currency_name": "US DOLLAR",
-            "buy _cash": 25154.00,  # Note: space before underscore
-            "buy _transfer": 25184.00,  # Note: space before underscore
+            "buy_cash": 25154.00,  # Conventional field name
+            "buy_transfer": 25184.00,  # Conventional field name
             "sell": 25484.00,
             "date": datetime(2024, 5, 10)
         }
@@ -442,7 +442,8 @@ class TestHistoricalPricesSchemas:
         rate = ExchangeRate(
             currency_code="DKK",
             currency_name="DANISH KRONE",
-            **{"buy _cash": None, "buy _transfer": 3611.55},
+            buy_cash=None,
+            buy_transfer=3611.55,
             sell=3749.84,
             date=datetime(2024, 5, 10)
         )
@@ -571,7 +572,8 @@ class TestHistoricalPricesSchemas:
         rate = ExchangeRate(
             currency_code="USD",
             currency_name="US DOLLAR",
-            **{"buy _cash": 25154.00, "buy _transfer": 25184.00},
+            buy_cash=25154.00,
+            buy_transfer=25184.00,
             sell=25484.00,
             date=datetime(2024, 5, 10)
         )
