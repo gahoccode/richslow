@@ -217,3 +217,4 @@ The test suite is organized into comprehensive categories to ensure reliability 
 - Document as you build - not after
 - Test documentation accuracy
 - when version bump: update both @pyproject.toml and @main.py
+- All company endpoints need the /api/company/ prefix.
