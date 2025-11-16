@@ -37,6 +37,46 @@ const defaultChartConfig = {
 };
 
 /**
+ * Safely parse date string to Date object
+ * @param {string|Date} dateValue - Date string or Date object
+ * @returns {Date|null} Valid Date object or null if invalid
+ */
+function safeDateParse(dateValue) {
+    if (!dateValue) return null;
+
+    try {
+        const date = new Date(dateValue);
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            return null;
+        }
+        return date;
+    } catch (e) {
+        console.warn('Invalid date value:', dateValue, e);
+        return null;
+    }
+}
+
+/**
+ * Safely format date to locale string
+ * @param {string|Date} dateValue - Date string or Date object
+ * @param {string} locale - Locale string (default: 'en-US')
+ * @param {object} options - Intl.DateTimeFormat options
+ * @returns {string} Formatted date string or empty string if invalid
+ */
+function safeFormatDate(dateValue, locale = 'en-US', options = {}) {
+    const date = safeDateParse(dateValue);
+    if (!date) return '';
+
+    try {
+        return date.toLocaleDateString(locale, options);
+    } catch (e) {
+        console.warn('Date formatting error:', dateValue, e);
+        return '';
+    }
+}
+
+/**
  * Create stock price candlestick chart (using line chart as substitute)
  * @param {string} canvasId - Canvas element ID
  * @param {Array} priceData - Stock OHLCV data
@@ -50,9 +90,11 @@ function createPriceChart(canvasId, priceData) {
         chartInstances[canvasId].destroy();
     }
 
-    const labels = priceData.map(d => new Date(d.time).toLocaleDateString());
-    const closePrices = priceData.map(d => d.close);
-    const volumes = priceData.map(d => d.volume);
+    // Filter out invalid dates and create aligned arrays
+    const validData = priceData.filter(d => d.time && d.close !== null && d.close !== undefined);
+    const labels = validData.map(d => safeFormatDate(d.time));
+    const closePrices = validData.map(d => d.close);
+    const volumes = validData.map(d => d.volume);
 
     chartInstances[canvasId] = new Chart(ctx, {
         type: 'line',
@@ -818,7 +860,11 @@ function createInsiderTradingChart(canvasId, insiderDeals) {
     insiderDeals.forEach(deal => {
         if (!deal.deal_announce_date || !deal.deal_quantity) return;
 
-        const date = new Date(deal.deal_announce_date);
+        const date = safeDateParse(deal.deal_announce_date);
+        if (!date) {
+            console.warn('Invalid insider deal date:', deal.deal_announce_date);
+            return; // Skip invalid dates
+        }
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
         if (!monthlyData[monthKey]) {
@@ -864,8 +910,9 @@ function createInsiderTradingChart(canvasId, insiderDeals) {
     // Format labels for display
     const labels = sortedMonths.map(item => {
         const [year, month] = item.month.split('-');
-        const date = new Date(year, month - 1);
-        return date.toLocaleDateString('vi-VN', { month: 'short', year: 'numeric' });
+        const date = safeDateParse(`${year}-${month}-01`); // Construct ISO date string first
+        if (!date) return item.month; // Fallback to raw month string
+        return safeFormatDate(date, 'vi-VN', { month: 'short', year: 'numeric' });
     });
 
     chartInstances[canvasId] = new Chart(ctx, {
@@ -1110,20 +1157,26 @@ function createDividendTimelineChart(canvasId, priceData, dividends) {
     }
 
     // Prepare price data for regular line chart (simpler approach)
-    const labels = priceData.map(item => new Date(item.time).toLocaleDateString());
-    const prices = priceData.map(item => item.close);
+    const validPriceData = priceData.filter(item => item.time && item.close !== null && item.close !== undefined);
+    const labels = validPriceData.map(item => safeFormatDate(item.time));
+    const prices = validPriceData.map(item => item.close);
 
     // Prepare dividend events from dividend history data
     const dividendEvents = [];
     if (dividends && dividends.length > 0) {
         dividends.forEach(dividend => {
             if (dividend.exercise_date && dividend.cash_dividend_percentage > 0) {
-                // Parse the exercise date
-                const exerciseDate = new Date(dividend.exercise_date);
+                // Parse the exercise date safely
+                const exerciseDate = safeDateParse(dividend.exercise_date);
+                if (!exerciseDate) {
+                    console.warn('Invalid dividend exercise date:', dividend.exercise_date);
+                    return; // Skip invalid dividend dates
+                }
 
                 // Find closest stock price date to exercise date
-                const priceIndex = priceData.findIndex(p => {
-                    const priceDate = new Date(p.time);
+                const priceIndex = validPriceData.findIndex(p => {
+                    const priceDate = safeDateParse(p.time);
+                    if (!priceDate) return false;
                     return Math.abs(priceDate - exerciseDate) <= 7 * 24 * 60 * 60 * 1000; // Within 7 days
                 });
 
@@ -1133,7 +1186,7 @@ function createDividendTimelineChart(canvasId, priceData, dividends) {
                         dividendPercentage: dividend.cash_dividend_percentage,
                         year: dividend.cash_year,
                         issueMethod: dividend.issue_method,
-                        price: priceData[priceIndex].close,
+                        price: validPriceData[priceIndex].close,
                         priceIndex: priceIndex
                     });
                 }
@@ -1160,7 +1213,7 @@ function createDividendTimelineChart(canvasId, priceData, dividends) {
     // Add dividend events as scatter plot if available
     if (dividendEvents.length > 0) {
         const dividendScatterData = dividendEvents.map(event => ({
-            x: labels[event.priceIndex] || new Date(event.date).toLocaleDateString(),
+            x: labels[event.priceIndex] || safeFormatDate(event.date),
             y: event.price,
             ...event // Include all event data for tooltip access
         }));
@@ -1227,7 +1280,7 @@ function createDividendTimelineChart(canvasId, priceData, dividends) {
                                 const event = context.raw;
                                 return [
                                     `Dividend: ${event.dividendPercentage}%`,
-                                    `Date: ${new Date(event.date).toLocaleDateString()}`,
+                                    `Date: ${safeFormatDate(event.date)}`,
                                     `Year: ${event.year}`,
                                     `Type: ${event.issueMethod}`,
                                     `Price: ${event.y.toLocaleString('vi-VN')} VND`

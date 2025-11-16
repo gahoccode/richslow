@@ -234,7 +234,18 @@ async function loadFinancialStatements(params) {
 async function loadStockPrices(params) {
     try {
         const url = `/api/stock-prices/${params.ticker}?start_date=${params.startDate}&end_date=${params.endDate}&interval=1D`;
-        dashboardData.stockPrices = await apiCall(url);
+        const rawData = await apiCall(url);
+
+        // Validate and clean data - filter out entries with invalid dates or missing prices
+        dashboardData.stockPrices = rawData.filter(item => {
+            if (!item.time || !item.close) {
+                console.warn('Invalid stock price data (missing time or close):', item);
+                return false;
+            }
+            return true;
+        });
+
+        console.log(`Loaded ${dashboardData.stockPrices.length} valid stock prices out of ${rawData.length} total`);
     } catch (error) {
         console.warn('Stock prices not available:', error);
         dashboardData.stockPrices = [];
@@ -405,17 +416,34 @@ function populateDashboard() {
     // Populate key metrics
     populateKeyMetrics();
 
-    // Create stock price chart
+    // Create stock price chart with error handling
     if (dashboardData.stockPrices && dashboardData.stockPrices.length > 0) {
-        createPriceChart('priceChart', dashboardData.stockPrices);
+        try {
+            createPriceChart('priceChart', dashboardData.stockPrices);
+        } catch (error) {
+            console.error('Failed to create price chart:', error);
+            // Hide chart section instead of showing error
+            const chartSection = document.getElementById('priceChart');
+            if (chartSection && chartSection.parentElement) {
+                chartSection.parentElement.innerHTML = '<p class="text-gray-500 text-sm">Unable to display price chart</p>';
+            }
+        }
     }
 
     // Create financial statement charts
     const statements = dashboardData.financialStatements;
 
-    // Create dividend timeline chart
+    // Create dividend timeline chart with error handling
     if (dashboardData.stockPrices && dashboardData.stockPrices.length > 0) {
-        createDividendTimelineChart('dividendTimelineChart', dashboardData.stockPrices, dashboardData.companyDividends);
+        try {
+            createDividendTimelineChart('dividendTimelineChart', dashboardData.stockPrices, dashboardData.companyDividends);
+        } catch (error) {
+            console.error('Failed to create dividend timeline chart:', error);
+            const chartSection = document.getElementById('dividendTimelineChart');
+            if (chartSection && chartSection.parentElement) {
+                chartSection.parentElement.innerHTML = '<p class="text-gray-500 text-sm">Unable to display dividend timeline</p>';
+            }
+        }
     }
     if (statements) {
         const years = statements.years || [];
