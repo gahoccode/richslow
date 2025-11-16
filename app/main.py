@@ -5,6 +5,8 @@ from fastapi.staticfiles import StaticFiles
 
 from app.routes.route_company import router as company_router
 from app.routes.route_historical_prices import router as historical_router
+from app.routes.route_industry_benchmark import router as industry_benchmark_router
+from app.routes.route_quarterly_ratios import router as quarterly_ratios_router
 from app.routes.route_statements import router as statements_router
 
 app = FastAPI(
@@ -28,6 +30,8 @@ app.add_middleware(
 app.include_router(statements_router)
 app.include_router(historical_router)
 app.include_router(company_router)
+app.include_router(industry_benchmark_router)
+app.include_router(quarterly_ratios_router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -44,6 +48,18 @@ async def serve_index():
 async def serve_statements():
     """Serve the financial statements page."""
     return FileResponse("static/statements.html")
+
+
+@app.get("/dashboard")
+async def serve_dashboard():
+    """Serve the interactive dashboard page."""
+    return FileResponse("static/dashboard.html")
+
+
+@app.get("/market")
+async def serve_market():
+    """Serve the market data page."""
+    return FileResponse("static/market.html")
 
 
 # Health check at root level

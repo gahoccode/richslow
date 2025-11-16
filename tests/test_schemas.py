@@ -2,31 +2,29 @@
 
 import json
 from datetime import datetime
-from typing import Any, Dict
 
 import pytest
 from pydantic import ValidationError
 
+from app.schemas.schema_common import PeriodType
+from app.schemas.schema_company import (
+    CompanyEventsTCBS,
+    CompanyInsiderDeals,
+    CompanyNews,
+    CompanyOfficer,
+    CompanyOverviewTCBS,
+    CompanyProfile,
+    CompanyShareholders,
+    CompanySubsidiaries,
+    DividendHistory,
+)
 from app.schemas.schema_statements import (
     BalanceSheetData,
     CashFlowData,
     FinancialRatiosData,
     FinancialStatementsResponse,
-    FinancialStatement,
     IncomeStatementData,
     StatementsRequest,
-)
-from app.schemas.schema_common import PeriodType
-from app.schemas.schema_company import (
-    DividendHistory,
-    CompanyOverviewTCBS,
-    CompanyProfile,
-    CompanyShareholders,
-    CompanyOfficer,
-    CompanySubsidiaries,
-    CompanyInsiderDeals,
-    CompanyEventsTCBS,
-    CompanyNews,
 )
 
 
@@ -39,14 +37,14 @@ class TestSchemaValidation:
         valid_data = {
             "ticker": "FPT",
             "start_date": "2023-01-01",
-            "end_date": "2023-12-31", 
-            "period": "year"
+            "end_date": "2023-12-31",
+            "period": "year",
         }
-        
+
         request = StatementsRequest(**valid_data)
         assert request.ticker == "FPT"
         assert request.period == PeriodType.yearly
-        
+
         # Test serialization
         serialized = request.model_dump()
         assert serialized["ticker"] == "FPT"
@@ -57,14 +55,14 @@ class TestSchemaValidation:
         # Missing required fields
         with pytest.raises(ValidationError):
             StatementsRequest()
-        
+
         # Invalid period
         with pytest.raises(ValidationError):
             StatementsRequest(
                 ticker="FPT",
                 start_date="2023-01-01",
                 end_date="2023-12-31",
-                period="invalid"
+                period="invalid",
             )
 
     def test_income_statement_data_validation(self):
@@ -77,7 +75,7 @@ class TestSchemaValidation:
             "net_profit": 180000.0,
             "attributable_to_parent": 175000.0,
         }
-        
+
         income = IncomeStatementData(**valid_data)
         assert income.year_report == 2023
         assert income.revenue == 1000000.0
@@ -87,7 +85,7 @@ class TestSchemaValidation:
         """Test IncomeStatementData with null values."""
         # Only required field provided
         minimal_data = {"year_report": 2023}
-        
+
         income = IncomeStatementData(**minimal_data)
         assert income.year_report == 2023
         assert income.revenue is None
@@ -103,7 +101,7 @@ class TestSchemaValidation:
             "owners_equity": 800000.0,
             "cash_and_equivalents": 200000.0,
         }
-        
+
         balance = BalanceSheetData(**valid_data)
         assert balance.year_report == 2023
         assert balance.total_assets == 2000000.0
@@ -118,7 +116,7 @@ class TestSchemaValidation:
             "financing_cash_flow": -100000.0,
             "net_change_in_cash": 150000.0,
         }
-        
+
         cash_flow = CashFlowData(**valid_data)
         assert cash_flow.year_report == 2023
         assert cash_flow.operating_cash_flow == 300000.0
@@ -171,9 +169,9 @@ class TestFinancialRatiosDataValidation:
             "average_payment_days": 30.0,
             "cash_conversion_cycle": 75.0,
         }
-        
+
         ratios = FinancialRatiosData(**complete_data)
-        
+
         # Test all critical fields that were previously missing
         assert ratios.year_report == 2023
         assert ratios.dividend_yield == 0.025
@@ -191,10 +189,10 @@ class TestFinancialRatiosDataValidation:
     def test_financial_ratios_minimal_data(self):
         """Test FinancialRatiosData with only required field."""
         minimal_data = {"year_report": 2023}
-        
+
         ratios = FinancialRatiosData(**minimal_data)
         assert ratios.year_report == 2023
-        
+
         # All other fields should be None
         assert ratios.pe_ratio is None
         assert ratios.roe is None
@@ -206,20 +204,20 @@ class TestFinancialRatiosDataValidation:
         """Test that all expected financial ratio fields are defined."""
         # Get all model fields
         fields = FinancialRatiosData.model_fields.keys()
-        
+
         # Critical fields that must be present (the ones we recently fixed)
         required_fields = {
             "year_report",
             # Previously missing fields
             "dividend_yield",
-            "roe", 
+            "roe",
             "roa",
             "gross_profit_margin",
-            "net_profit_margin", 
+            "net_profit_margin",
             "debt_to_equity",
             "bank_loans_long_term_debt_to_equity",
             "average_collection_days",
-            "average_inventory_days", 
+            "average_inventory_days",
             "average_payment_days",
             "cash_conversion_cycle",
             # Other important fields
@@ -228,10 +226,10 @@ class TestFinancialRatiosDataValidation:
             "current_ratio",
             "asset_turnover",
         }
-        
+
         missing_fields = required_fields - set(fields)
         assert not missing_fields, f"Missing required fields: {missing_fields}"
-        
+
         # Verify we have comprehensive coverage (should be 34+ fields)
         assert len(fields) >= 34, f"Expected at least 34 fields, got {len(fields)}"
 
@@ -240,10 +238,10 @@ class TestFinancialRatiosDataValidation:
         # Test with string numbers (should convert)
         data_with_strings = {
             "year_report": "2023",  # Should convert to int
-            "pe_ratio": "15.5",     # Should convert to float
-            "roe": "0.225",         # Should convert to float
+            "pe_ratio": "15.5",  # Should convert to float
+            "roe": "0.225",  # Should convert to float
         }
-        
+
         ratios = FinancialRatiosData(**data_with_strings)
         assert ratios.year_report == 2023
         assert ratios.pe_ratio == 15.5
@@ -254,7 +252,7 @@ class TestFinancialRatiosDataValidation:
         # Invalid year_report type
         with pytest.raises(ValidationError):
             FinancialRatiosData(year_report="invalid")
-        
+
         # Invalid ratio values
         with pytest.raises(ValidationError):
             FinancialRatiosData(year_report=2023, pe_ratio="not_a_number")
@@ -274,9 +272,7 @@ class TestFinancialStatementsResponse:
             "balance_sheets": [
                 {"year_report": 2023, "total_assets": 2000000, "owners_equity": 800000}
             ],
-            "cash_flows": [
-                {"year_report": 2023, "operating_cash_flow": 300000}
-            ],
+            "cash_flows": [{"year_report": 2023, "operating_cash_flow": 300000}],
             "ratios": [
                 {
                     "year_report": 2023,
@@ -295,9 +291,9 @@ class TestFinancialStatementsResponse:
                 "ratios": [],
             },
         }
-        
+
         response = FinancialStatementsResponse(**response_data)
-        
+
         assert response.ticker == "FPT"
         assert response.period == "year"
         assert len(response.income_statements) == 1
@@ -308,7 +304,7 @@ class TestFinancialStatementsResponse:
     def test_response_serialization(self):
         """Test that response can be serialized to JSON."""
         response_data = {
-            "ticker": "FPT", 
+            "ticker": "FPT",
             "period": "year",
             "income_statements": [{"year_report": 2023}],
             "balance_sheets": [{"year_report": 2023}],
@@ -316,18 +312,18 @@ class TestFinancialStatementsResponse:
             "ratios": [{"year_report": 2023, "pe_ratio": 15.5}],
             "years": [2023],
         }
-        
+
         response = FinancialStatementsResponse(**response_data)
-        
+
         # Test model_dump (Pydantic v2)
         serialized = response.model_dump()
         assert isinstance(serialized, dict)
         assert serialized["ticker"] == "FPT"
-        
+
         # Test JSON serialization
         json_str = response.model_dump_json()
         assert isinstance(json_str, str)
-        
+
         # Verify it can be loaded back
         loaded_data = json.loads(json_str)
         assert loaded_data["ticker"] == "FPT"
@@ -345,7 +341,7 @@ class TestSchemaCompatibility:
             "pb_ratio": 2.1,
             # Missing many of the newer fields we added
         }
-        
+
         # Should still work
         ratios = FinancialRatiosData(**old_ratios_data)
         assert ratios.year_report == 2023
@@ -362,7 +358,7 @@ class TestSchemaCompatibility:
             "pe_ratio": 15.5,
             "unknown_field": "should_be_ignored",
         }
-        
+
         ratios = FinancialRatiosData(**data_with_extra)
         assert ratios.year_report == 2023
         assert ratios.pe_ratio == 15.5
@@ -372,21 +368,21 @@ class TestSchemaCompatibility:
         """Test that all model fields have proper documentation."""
         # Get model info
         fields = FinancialRatiosData.model_fields
-        
+
         # Check that important fields have descriptions
         critical_fields = [
-            "pe_ratio", 
-            "roe", 
-            "debt_to_equity", 
+            "pe_ratio",
+            "roe",
+            "debt_to_equity",
             "average_collection_days",
-            "cash_conversion_cycle"
+            "cash_conversion_cycle",
         ]
-        
+
         for field_name in critical_fields:
             assert field_name in fields
             field_info = fields[field_name]
             # Should have a description
-            assert hasattr(field_info, 'description') and field_info.description
+            assert hasattr(field_info, "description") and field_info.description
 
     def test_schema_json_export(self):
         """Test that schema can be exported as JSON schema for documentation."""
@@ -402,7 +398,10 @@ class TestSchemaCompatibility:
         for field in critical_fields:
             assert field in schema["properties"]
             # Should have type information
-            assert "type" in schema["properties"][field] or "anyOf" in schema["properties"][field]
+            assert (
+                "type" in schema["properties"][field]
+                or "anyOf" in schema["properties"][field]
+            )
 
 
 class TestHistoricalPricesSchemas:
@@ -419,7 +418,7 @@ class TestHistoricalPricesSchemas:
             "buy_cash": 25154.00,  # Conventional field name
             "buy_transfer": 25184.00,  # Conventional field name
             "sell": 25484.00,
-            "date": datetime(2024, 5, 10)
+            "date": datetime(2024, 5, 10),
         }
 
         rate = ExchangeRate(**valid_data)
@@ -445,7 +444,7 @@ class TestHistoricalPricesSchemas:
             buy_cash=None,
             buy_transfer=3611.55,
             sell=3749.84,
-            date=datetime(2024, 5, 10)
+            date=datetime(2024, 5, 10),
         )
         assert rate.currency_code == "DKK"
         assert rate.buy_cash is None  # None is valid for optional field
@@ -462,9 +461,7 @@ class TestHistoricalPricesSchemas:
 
         # Test schema validation
         gold = GoldSJC(
-            name="SJC 1L, 10L, 1KG",
-            buy_price=88500000.0,
-            sell_price=90500000.0
+            name="SJC 1L, 10L, 1KG", buy_price=88500000.0, sell_price=90500000.0
         )
         assert gold.name == "SJC 1L, 10L, 1KG"
         assert gold.buy_price == 88500000.0
@@ -490,7 +487,7 @@ class TestHistoricalPricesSchemas:
             buy_price=8845000,
             sell_price=9000000,
             world_price=7338000,
-            time=datetime(2024, 5, 28, 8, 52)
+            time=datetime(2024, 5, 28, 8, 52),
         )
         assert gold.karat == "24k"
         assert gold.time.hour == 8
@@ -525,7 +522,7 @@ class TestHistoricalPricesSchemas:
             high=90200.0,
             low=88800.0,
             close=90000.0,
-            volume=1500000.0
+            volume=1500000.0,
         )
         assert ohlcv.open == 89500.0
         assert ohlcv.high == 90200.0
@@ -533,7 +530,7 @@ class TestHistoricalPricesSchemas:
 
     def test_data_cleaning_edge_cases(self):
         """Test data cleaning utilities with edge cases."""
-        from app.utils.data_cleaning import clean_price_string, clean_price_int
+        from app.utils.data_cleaning import clean_price_int, clean_price_string
 
         # Empty strings
         assert clean_price_string("") is None
@@ -575,7 +572,7 @@ class TestHistoricalPricesSchemas:
             buy_cash=25154.00,
             buy_transfer=25184.00,
             sell=25484.00,
-            date=datetime(2024, 5, 10)
+            date=datetime(2024, 5, 10),
         )
         rate_json = rate.model_dump_json()
         assert "USD" in rate_json
@@ -593,7 +590,7 @@ class TestHistoricalPricesSchemas:
             buy_price=8845000,
             sell_price=9000000,
             world_price=7338000,
-            time=datetime(2024, 5, 28, 8, 52)
+            time=datetime(2024, 5, 28, 8, 52),
         )
         btmc_json = btmc.model_dump_json()
         assert "24k" in btmc_json
@@ -605,7 +602,7 @@ class TestHistoricalPricesSchemas:
             high=90200.0,
             low=88800.0,
             close=90000.0,
-            volume=1500000.0
+            volume=1500000.0,
         )
         ohlcv_json = ohlcv.model_dump_json()
         assert "89500" in ohlcv_json
@@ -621,7 +618,7 @@ class TestCompanySchemaValidation:
             "exercise_date": "25/07/23",
             "cash_year": 2023,
             "cash_dividend_percentage": 0.181,
-            "issue_method": "share"
+            "issue_method": "share",
         }
 
         dividend = DividendHistory(**dividend_data)
@@ -649,7 +646,7 @@ class TestCompanySchemaValidation:
             "short_name": "Vietcombank",
             "website": "https://vietcombank.com.vn",
             "industry_id": 289,
-            "industry_id_v2": "8355"
+            "industry_id_v2": "8355",
         }
 
         overview = CompanyOverviewTCBS(**overview_data)
@@ -667,11 +664,13 @@ class TestCompanySchemaValidation:
             "company_promise": None,
             "business_risk": "Rủi ro kinh doanh...",
             "key_developments": "Các phát triển chính...",
-            "business_strategies": "Chiến lược kinh doanh..."
+            "business_strategies": "Chiến lược kinh doanh...",
         }
 
         profile = CompanyProfile(**profile_data)
-        assert profile.company_name == "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam"
+        assert (
+            profile.company_name == "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam"
+        )
         assert profile.company_promise is None  # Optional field
 
     def test_company_shareholders_validation(self):
@@ -679,12 +678,9 @@ class TestCompanySchemaValidation:
         shareholders_data = [
             {
                 "share_holder": "Ngân Hàng Nhà Nước Việt Nam",
-                "share_own_percent": 0.7480
+                "share_own_percent": 0.7480,
             },
-            {
-                "share_holder": "Mizuho Bank Limited",
-                "share_own_percent": 0.1500
-            }
+            {"share_holder": "Mizuho Bank Limited", "share_own_percent": 0.1500},
         ]
 
         shareholders = [CompanyShareholders(**data) for data in shareholders_data]
@@ -697,7 +693,7 @@ class TestCompanySchemaValidation:
         officer_data = {
             "officer_name": "Nguyễn Thanh Tùng",
             "officer_position": "Tổng Giám đốc",
-            "officer_own_percent": 0.0
+            "officer_own_percent": 0.0,
         }
 
         officer = CompanyOfficer(**officer_data)
@@ -707,9 +703,7 @@ class TestCompanySchemaValidation:
 
         # Test with None position (some officers have None in documentation)
         officer_none_pos = CompanyOfficer(
-            officer_name="Test Officer",
-            officer_position=None,
-            officer_own_percent=0.0
+            officer_name="Test Officer", officer_position=None, officer_own_percent=0.0
         )
         assert officer_none_pos.officer_position is None
 
@@ -717,7 +711,7 @@ class TestCompanySchemaValidation:
         """Test CompanySubsidiaries model validation using sample data from documentation."""
         subsidiary_data = {
             "sub_company_name": "Công ty TNHH Chứng khoán Ngân hàng Thương mại Ngoại thương Việt Nam",
-            "sub_own_percent": 1.000
+            "sub_own_percent": 1.000,
         }
 
         subsidiary = CompanySubsidiaries(**subsidiary_data)
@@ -732,7 +726,7 @@ class TestCompanySchemaValidation:
             "deal_action": "Mua",
             "deal_quantity": 5000.0,
             "deal_price": 80900.0,
-            "deal_ratio": 0.115
+            "deal_ratio": 0.115,
         }
 
         deal = CompanyInsiderDeals(**insider_deal_data)
@@ -756,7 +750,7 @@ class TestCompanySchemaValidation:
             "exer_date": "2024-04-27 00:00:00",
             "reg_final_date": "2024-03-27 00:00:00",
             "exer_right_date": "2024-03-26 00:00:00",
-            "event_desc": "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam..."
+            "event_desc": "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam...",
         }
 
         event = CompanyEventsTCBS(**event_data)
@@ -777,7 +771,7 @@ class TestCompanySchemaValidation:
             "id": 11170634,
             "title": "VCB: Công bố đường dẫn BCTC riêng và HN Q1/2024",
             "source": "TCBS",
-            "publish_date": "2024-05-02 15:53:00"
+            "publish_date": "2024-05-02 15:53:00",
         }
 
         news = CompanyNews(**news_data)
@@ -790,7 +784,7 @@ class TestCompanySchemaValidation:
         officer_data = {
             "officer_name": "Đàm Lam Thanh",
             "officer_position": None,  # Some officers in docs have None position
-            "officer_own_percent": 0.0
+            "officer_own_percent": 0.0,
         }
 
         officer = CompanyOfficer(**officer_data)
@@ -803,7 +797,7 @@ class TestCompanySchemaValidation:
             "exercise_date": "22/12/21",
             "cash_year": 2022,
             "cash_dividend_percentage": 0.276,
-            "issue_method": "share"
+            "issue_method": "share",
         }
 
         dividend = DividendHistory(**dividend_data)
@@ -832,7 +826,7 @@ class TestCompanySchemaValidation:
             "short_name": "Vietcombank",
             "website": "https://vietcombank.com.vn",
             "industry_id": 289,
-            "industry_id_v2": "8355"
+            "industry_id_v2": "8355",
         }
 
         overview = CompanyOverviewTCBS(**overview_data)
@@ -852,9 +846,9 @@ class TestCompanySchemaValidation:
         with pytest.raises(ValidationError):
             DividendHistory(
                 exercise_date=25,  # Should be string, not int
-                cash_year="2023",   # Should be int, not string
+                cash_year="2023",  # Should be int, not string
                 cash_dividend_percentage=0.181,
-                issue_method="share"
+                issue_method="share",
             )
 
     def test_invalid_company_officer_data(self):
@@ -868,5 +862,5 @@ class TestCompanySchemaValidation:
             CompanyOfficer(
                 officer_name="Test Officer",
                 officer_position="Manager",
-                officer_own_percent="high"  # Should be float, not string
+                officer_own_percent="high",  # Should be float, not string
             )

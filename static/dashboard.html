@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - RichSlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-gray-200 border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-screen-2xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <a href="/" class="flex items-center space-x-3">
+                <span class="self-center text-2xl font-semibold text-blue-600">RichSlow</span>
+            </a>
+
+            <!-- Ticker Display & Controls -->
+            <div class="flex items-center space-x-4">
+                <div id="tickerDisplay" class="hidden md:flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-lg">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                    <span id="currentTicker" class="font-semibold text-blue-900"></span>
+                    <span id="currentPeriod" class="text-sm text-blue-600"></span>
+                </div>
+
+                <button id="changeTicker" class="text-sm text-blue-600 hover:text-blue-800 font-medium" aria-label="Change ticker symbol">
+                    Change
+                </button>
+
+                <button id="showKeyboardHelp" class="text-sm text-gray-500 hover:text-gray-700" title="Keyboard shortcuts (Alt + ?)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="hidden w-full md:block md:w-auto">
+                <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white">
+                    <li>
+                        <a href="/" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0">Home</a>
+                    </li>
+                    <li>
+                        <a href="/dashboard" class="block py-2 px-3 text-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0" aria-current="page">Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="/statements" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0">Statements</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-screen-2xl mx-auto px-4 py-6" role="main">
+        <!-- Loading State -->
+        <div id="loadingDashboard" class="flex items-center justify-center min-h-screen" role="status" aria-live="polite">
+            <div class="text-center">
+                <svg class="animate-spin h-16 w-16 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-xl text-gray-600">Loading comprehensive analysis...</p>
+                <p class="text-sm text-gray-500 mt-2">Fetching financial data from Vietnamese stock exchanges</p>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorDashboard" class="hidden min-h-screen flex items-center justify-center">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
+                <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-red-800 mb-2">Error Loading Dashboard</h3>
+                <p id="errorMessage" class="text-red-600 mb-4">Failed to load financial data.</p>
+                <button onclick="location.href='/'" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg">
+                    Return to Home
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" class="hidden space-y-6">
+            <!-- Overview Section -->
+            <section id="overviewSection">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Company Overview Card -->
+                    <div class="lg:col-span-1 bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Company Overview</h2>
+                        <div id="companyOverview" class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">Exchange</span>
+                                <span id="companyExchange" class="text-sm font-medium text-gray-900">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">Industry</span>
+                                <span id="companyIndustry" class="text-sm font-medium text-gray-900">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">Employees</span>
+                                <span id="companyEmployees" class="text-sm font-medium text-gray-900">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">Foreign Ownership</span>
+                                <span id="companyForeignOwnership" class="text-sm font-medium text-gray-900">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">Stock Rating</span>
+                                <span id="companyRating" class="text-sm font-medium text-gray-900">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Metrics Cards -->
+                    <div class="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-gray-500 uppercase">P/E Ratio</span>
+                                <span class="text-xs text-blue-600">💹</span>
+                            </div>
+                            <p id="metricPE" class="text-2xl font-bold text-gray-900">-</p>
+                            <p class="text-xs text-gray-500 mt-1">Valuation</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-gray-500 uppercase">ROE</span>
+                                <span class="text-xs text-green-600">📈</span>
+                            </div>
+                            <p id="metricROE" class="text-2xl font-bold text-gray-900">-</p>
+                            <p class="text-xs text-gray-500 mt-1">Profitability</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-gray-500 uppercase">D/E Ratio</span>
+                                <span class="text-xs text-purple-600">⚖️</span>
+                            </div>
+                            <p id="metricDE" class="text-2xl font-bold text-gray-900">-</p>
+                            <p class="text-xs text-gray-500 mt-1">Leverage</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-gray-500 uppercase">Current Ratio</span>
+                                <span class="text-xs text-orange-600">💧</span>
+                            </div>
+                            <p id="metricCurrent" class="text-2xl font-bold text-gray-900">-</p>
+                            <p class="text-xs text-gray-500 mt-1">Liquidity</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stock Price Chart Section -->
+            <section id="priceChartSection" class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Stock Price & Volume</h2>
+                <div class="h-80">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Dividend Timeline Section -->
+            <section id="dividendSection" class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Dividend Timeline</h2>
+                <p class="text-sm text-gray-500 mb-4">Stock price with dividend event markers (green stars indicate dividend payments)</p>
+                <div class="h-80">
+                    <canvas id="dividendTimelineChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Financial Statements Section -->
+            <section id="financialStatementsSection">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Financial Statements</h2>
+                        <p class="text-sm text-gray-500 mt-1">Multi-year revenue, profit, and cash flow analysis</p>
+                    </div>
+
+                    <!-- Sub-tabs for statements -->
+                    <div class="border-b border-gray-200 px-6">
+                        <nav class="-mb-px flex space-x-8">
+                            <button class="statement-tab active border-blue-500 text-blue-600 py-3 px-1 border-b-2 font-medium text-sm" data-tab="revenue">
+                                Revenue Analysis
+                            </button>
+                            <button class="statement-tab border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 border-b-2 font-medium text-sm" data-tab="profitability">
+                                Profitability
+                            </button>
+                            <button class="statement-tab border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 border-b-2 font-medium text-sm" data-tab="cashflow">
+                                Cash Flow
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div class="p-6">
+                        <div id="revenueTab" class="statement-content">
+                            <div class="h-80">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                        <div id="profitabilityTab" class="statement-content hidden">
+                            <div class="h-80">
+                                <canvas id="profitabilityChart"></canvas>
+                            </div>
+                        </div>
+                        <div id="cashflowTab" class="statement-content hidden">
+                            <div class="h-80">
+                                <canvas id="cashflowWaterfallChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Financial Ratios Dashboard -->
+            <section id="ratiosDashboardSection">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Financial Ratios Analysis</h2>
+                        <p class="text-sm text-gray-500 mt-1">Comprehensive ratio metrics across multiple dimensions</p>
+                    </div>
+
+                    <!-- Ratios sub-tabs -->
+                    <div class="border-b border-gray-200 px-6">
+                        <nav class="-mb-px flex space-x-6 overflow-x-auto">
+                            <button class="ratio-tab active border-blue-500 text-blue-600 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap" data-tab="valuation">
+                                Valuation
+                            </button>
+                            <button class="ratio-tab border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap" data-tab="profitability-ratios">
+                                Profitability
+                            </button>
+                            <button class="ratio-tab border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap" data-tab="liquidity">
+                                Liquidity
+                            </button>
+                            <button class="ratio-tab border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap" data-tab="efficiency">
+                                Efficiency
+                            </button>
+                            <button class="ratio-tab border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap" data-tab="leverage">
+                                Leverage
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- Valuation Tab -->
+                        <div id="valuationTab" class="ratio-content">
+                            <div class="h-96">
+                                <canvas id="valuationRadarChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Profitability Tab -->
+                        <div id="profitability-ratiosTab" class="ratio-content hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="gauge-container">
+                                    <canvas id="roeGauge"></canvas>
+                                    <p class="text-center text-sm text-gray-600 mt-2">Return on Equity</p>
+                                </div>
+                                <div class="gauge-container">
+                                    <canvas id="roaGauge"></canvas>
+                                    <p class="text-center text-sm text-gray-600 mt-2">Return on Assets</p>
+                                </div>
+                                <div class="gauge-container">
+                                    <canvas id="roicGauge"></canvas>
+                                    <p class="text-center text-sm text-gray-600 mt-2">Return on Invested Capital</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Liquidity Tab -->
+                        <div id="liquidityTab" class="ratio-content hidden">
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Current Ratio</span>
+                                        <span id="currentRatioValue" class="text-sm font-semibold text-gray-900">-</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div id="currentRatioBar" class="bg-blue-600 h-3 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Quick Ratio</span>
+                                        <span id="quickRatioValue" class="text-sm font-semibold text-gray-900">-</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div id="quickRatioBar" class="bg-green-600 h-3 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Cash Ratio</span>
+                                        <span id="cashRatioValue" class="text-sm font-semibold text-gray-900">-</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div id="cashRatioBar" class="bg-purple-600 h-3 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Efficiency Tab -->
+                        <div id="efficiencyTab" class="ratio-content hidden">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Efficiency Metrics</h3>
+                                    <div class="h-80">
+                                        <canvas id="efficiencyChart"></canvas>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="text-lg font-semibold text-gray-900">Cash Conversion Cycle</h3>
+                                        <div class="flex space-x-2">
+                                            <button id="cccYearlyBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                                Yearly
+                                            </button>
+                                            <button id="cccQuarterlyBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                                                Quarterly
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="h-80">
+                                        <canvas id="cashConversionCycleChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leverage Tab -->
+                        <div id="leverageTab" class="ratio-content hidden">
+                            <div class="h-80">
+                                <canvas id="leverageGauge"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Company Information Section -->
+            <section id="companyInfoSection" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- News Feed -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Latest News</h2>
+                        <div id="newsFeed" class="space-y-4 max-h-96 overflow-y-auto">
+                            <p class="text-sm text-gray-500">Loading news...</p>
+                        </div>
+                    </div>
+
+                    <!-- Corporate Events -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Corporate Events</h2>
+                        <div id="eventsTimeline" class="space-y-4 max-h-96 overflow-y-auto">
+                            <p class="text-sm text-gray-500">Loading events...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insider Trading Activity -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Insider Trading Activity</h2>
+                    <p class="text-sm text-gray-500 mb-4">Monthly buy vs sell volume comparison (green=buy, red=sell)</p>
+                    <div class="h-80">
+                        <canvas id="insiderTradingChart"></canvas>
+                        <div id="noInsiderDataMessage" class="hidden h-80 flex items-center justify-center">
+                            <div class="text-center">
+                                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                <p class="text-gray-500 text-lg font-medium mb-2">No Insider Trading Data</p>
+                                <p class="text-gray-400 text-sm">Insider trading information is not available for this company</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ownership Structure -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Ownership Structure</h2>
+                    <p class="text-sm text-gray-500 mb-4">Interactive sunburst chart showing subsidiaries and ownership percentages</p>
+                    <div class="h-96">
+                        <div id="ownershipSunburst" class="w-full h-full">
+                            <div id="noOwnershipDataMessage" class="h-full flex items-center justify-center">
+                                <div class="text-center">
+                                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                    <p class="text-gray-500 text-lg font-medium mb-2">No Ownership Data</p>
+                                    <p class="text-gray-400 text-sm">Ownership structure information is not available for this company</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Help Modal -->
+    <div id="keyboardHelpModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('keyboardHelpModal').classList.add('hidden')"></div>
+
+            <!-- Modal panel -->
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
+                                ⌨️ Keyboard Shortcuts
+                            </h3>
+                            <div class="mt-2">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center py-2 border-b">
+                                        <span class="text-sm text-gray-700">Go to Home</span>
+                                        <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded">Alt + H</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b">
+                                        <span class="text-sm text-gray-700">Go to Statements</span>
+                                        <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded">Alt + S</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b">
+                                        <span class="text-sm text-gray-700">Go to Market Data</span>
+                                        <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded">Alt + M</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b">
+                                        <span class="text-sm text-gray-700">Change Ticker</span>
+                                        <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded">Alt + C</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b">
+                                        <span class="text-sm text-gray-700">Switch Ratio Tabs</span>
+                                        <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded">Alt + 1-5</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2">
+                                        <span class="text-sm text-gray-700">Show This Help</span>
+                                        <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded">Alt + ?</kbd>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="document.getElementById('keyboardHelpModal').classList.add('hidden')" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script src="/static/js/common.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

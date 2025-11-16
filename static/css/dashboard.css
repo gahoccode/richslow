@@ -1,0 +1,183 @@
+/* Dashboard Custom Styles */
+
+:root {
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+    --color-info: #3b82f6;
+    --color-primary: #2563eb;
+    --transition-fast: 150ms;
+    --transition-normal: 300ms;
+    --transition-slow: 500ms;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-normal) ease-out;
+}
+
+/* Skeleton loading animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Card animations */
+.card-hover {
+    transition: transform var(--transition-fast) ease, box-shadow var(--transition-normal) ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Chart containers */
+.gauge-container {
+    position: relative;
+    height: 200px;
+}
+
+/* Tab animations */
+.statement-tab, .ratio-tab {
+    transition: all 0.2s ease-in-out;
+}
+
+.statement-tab:hover, .ratio-tab:hover {
+    transform: translateY(-2px);
+}
+
+.statement-tab.active, .ratio-tab.active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* Card hover effects */
+.bg-white {
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.bg-white:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Metric cards */
+#metricPE, #metricROE, #metricDE, #metricCurrent {
+    transition: color 0.2s ease-in-out;
+}
+
+/* Loading spinner */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Tooltip styles */
+.chart-tooltip {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    position: absolute;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+/* Progress bars */
+.progress-bar {
+    transition: width 0.6s ease-in-out;
+}
+
+/* News feed scrollbar */
+#newsFeed::-webkit-scrollbar,
+#eventsTimeline::-webkit-scrollbar {
+    width: 6px;
+}
+
+#newsFeed::-webkit-scrollbar-track,
+#eventsTimeline::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#newsFeed::-webkit-scrollbar-thumb,
+#eventsTimeline::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+#newsFeed::-webkit-scrollbar-thumb:hover,
+#eventsTimeline::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .gauge-container {
+        height: 150px;
+    }
+}
+
+/* Accessibility improvements */
+button:focus, a:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    nav, button {
+        display: none !important;
+    }
+
+    .bg-white {
+        box-shadow: none;
+        border: 1px solid #e5e7eb;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .bg-white {
+        border: 2px solid #000;
+    }
+
+    .text-gray-500 {
+        color: #000 !important;
+    }
+}
