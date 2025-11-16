@@ -32,11 +32,10 @@ class ExchangeRate(BaseModel):
     currency_code: str = Field(..., description="Currency code")
     currency_name: str = Field(..., description="Currency name")
     buy_cash: float | None = Field(
-        None, alias="buy _cash", description="Buy cash rate (None if not available)"
+        None, description="Buy cash rate (None if not available)"
     )
     buy_transfer: float | None = Field(
         None,
-        alias="buy _transfer",
         description="Buy transfer rate (None if not available)",
     )
     sell: float = Field(..., description="Sell price")

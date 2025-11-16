@@ -77,7 +77,7 @@ async def fetch_exchange_rates(
         None,
         description="Date in YYYY-MM-DD format (defaults to today)",
         examples=["2024-05-10"],
-    )
+    ),
 ):
     """
     Fetch VCB (Vietcombank) exchange rates for major currencies.

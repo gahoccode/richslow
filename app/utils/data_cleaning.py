@@ -26,7 +26,11 @@ def clean_price_string(value: str | None) -> float | None:
         >>> clean_price_string(None)
         None
     """
-    if value is None or value == "-" or (isinstance(value, str) and value.strip() == ""):
+    if (
+        value is None
+        or value == "-"
+        or (isinstance(value, str) and value.strip() == "")
+    ):
         return None
     return float(str(value).replace(",", ""))
 
@@ -50,7 +54,11 @@ def clean_price_int(value: str | None) -> int | None:
         >>> clean_price_int(None)
         None
     """
-    if value is None or value == "-" or (isinstance(value, str) and value.strip() == ""):
+    if (
+        value is None
+        or value == "-"
+        or (isinstance(value, str) and value.strip() == "")
+    ):
         return None
     return int(str(value).replace(",", ""))
 

@@ -1,8 +1,6 @@
 """Pytest configuration and shared fixtures."""
 
-import json
-from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -99,7 +97,7 @@ def sample_vnstock_ratios_data() -> pd.DataFrame:
 
 
 @pytest.fixture
-def expected_frontend_fields() -> Dict[str, str]:
+def expected_frontend_fields() -> dict[str, str]:
     """Expected frontend field mappings from statements.js."""
     return {
         # Valuation Ratios
@@ -136,7 +134,7 @@ def expected_frontend_fields() -> Dict[str, str]:
 
 
 @pytest.fixture
-def sample_api_response() -> Dict[str, Any]:
+def sample_api_response() -> dict[str, Any]:
     """Sample API response structure for testing."""
     return {
         "ticker": "FPT",

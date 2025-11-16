@@ -143,7 +143,9 @@ def main() -> None:
         )
 
         # Fetch button
-        fetch_button = st.button("🔍 Fetch Financial Data", type="primary", use_container_width=True)
+        fetch_button = st.button(
+            "🔍 Fetch Financial Data", type="primary", use_container_width=True
+        )
 
         # Validation
         if ticker and len(ticker.strip()) == 0:
