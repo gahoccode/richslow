@@ -2,31 +2,29 @@
 
 import json
 from datetime import datetime
-from typing import Any, Dict
 
 import pytest
 from pydantic import ValidationError
 
+from app.schemas.schema_common import PeriodType
+from app.schemas.schema_company import (
+    CompanyEventsTCBS,
+    CompanyInsiderDeals,
+    CompanyNews,
+    CompanyOfficer,
+    CompanyOverviewTCBS,
+    CompanyProfile,
+    CompanyShareholders,
+    CompanySubsidiaries,
+    DividendHistory,
+)
 from app.schemas.schema_statements import (
     BalanceSheetData,
     CashFlowData,
     FinancialRatiosData,
     FinancialStatementsResponse,
-    FinancialStatement,
     IncomeStatementData,
     StatementsRequest,
-)
-from app.schemas.schema_common import PeriodType
-from app.schemas.schema_company import (
-    DividendHistory,
-    CompanyOverviewTCBS,
-    CompanyProfile,
-    CompanyShareholders,
-    CompanyOfficer,
-    CompanySubsidiaries,
-    CompanyInsiderDeals,
-    CompanyEventsTCBS,
-    CompanyNews,
 )
 
 
@@ -532,7 +530,7 @@ class TestHistoricalPricesSchemas:
 
     def test_data_cleaning_edge_cases(self):
         """Test data cleaning utilities with edge cases."""
-        from app.utils.data_cleaning import clean_price_string, clean_price_int
+        from app.utils.data_cleaning import clean_price_int, clean_price_string
 
         # Empty strings
         assert clean_price_string("") is None

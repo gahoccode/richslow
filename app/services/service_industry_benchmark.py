@@ -1,13 +1,13 @@
 """Industry benchmark service for financial ratio comparison."""
 
-from typing import Dict, List, Any
+from typing import Any
+
 import pandas as pd
-from vnstock import Vnstock, Listing
+from vnstock import Listing, Vnstock
 from vnstock.core.utils.transform import flatten_hierarchical_index
+
 from app.utils.transform import (
     safe_get_float,
-    safe_get_int,
-    safe_get_str,
 )
 
 
@@ -15,7 +15,7 @@ def get_industry_benchmark_ratios(
     industry_id: int | None = None,
     industry_name: str | None = None,
     min_companies: int = 5,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Calculate industry benchmark financial ratios for comparison.
 
@@ -65,7 +65,7 @@ def get_industry_benchmark_ratios(
             else [],
         }
 
-    except ValueError as e:
+    except ValueError:
         raise
     except Exception as e:
         raise Exception(f"Failed to retrieve industry benchmark data: {str(e)}") from e
@@ -73,7 +73,7 @@ def get_industry_benchmark_ratios(
 
 def _get_industry_companies(
     industry_id: int | None, industry_name: str | None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get list of companies in the specified industry."""
     try:
         # Initialize vnstock listing
@@ -87,7 +87,7 @@ def _get_industry_companies(
             if not industries_df.empty:
                 for _, row in industries_df.iterrows():
                     industries_dict[row.get("icb_code", "")] = row.get("icb_name", "")
-        except:
+        except Exception:
             industries_dict = {}
 
         # Determine industry name if we have industry_id
@@ -155,7 +155,7 @@ def _get_industry_companies(
         raise Exception(f"Failed to get industry companies: {str(e)}") from e
 
 
-def _calculate_industry_benchmarks(companies: List[str]) -> Dict[str, Any]:
+def _calculate_industry_benchmarks(companies: list[str]) -> dict[str, Any]:
     """Calculate benchmark ratios for the list of companies."""
 
     # Vietnamese to English ratio field mapping
@@ -237,7 +237,7 @@ def _calculate_industry_benchmarks(companies: List[str]) -> Dict[str, Any]:
     return {"companies_analyzed": len(companies_analyzed), "benchmarks": benchmarks}
 
 
-def get_industry_classification_map() -> Dict[str, str]:
+def get_industry_classification_map() -> dict[str, str]:
     """
     Get mapping of industry ID to industry names.
 

@@ -1,4 +1,3 @@
-from typing import Any
 
 import pandas as pd
 from vnstock import Vnstock
@@ -20,7 +19,6 @@ from app.schemas.schema_statements import (
 )
 from app.utils.transform import (
     apply_field_mapping,
-    safe_get_float,
     safe_get_int,
     safe_get_str,
 )

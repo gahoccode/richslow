@@ -3,7 +3,6 @@
 import json
 import re
 from pathlib import Path
-from typing import Dict, Set
 
 import pytest
 
@@ -67,7 +66,7 @@ class TestFrontendBackendContract:
             pytest.skip("Frontend JavaScript file not found")
 
         # Read the JavaScript file
-        with open(statements_js_path, "r", encoding="utf-8") as f:
+        with open(statements_js_path, encoding="utf-8") as f:
             js_content = f.read()
 
         # Extract ratioMetrics array using regex

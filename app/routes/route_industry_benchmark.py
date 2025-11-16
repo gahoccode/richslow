@@ -1,15 +1,14 @@
 """API routes for industry benchmark data."""
 
-from fastapi import APIRouter, HTTPException, Path, Query
-from typing import Optional
 
+from fastapi import APIRouter, HTTPException, Path, Query
+
+from app.schemas.schema_industry_benchmark import (
+    IndustryBenchmark,
+)
 from app.services.service_industry_benchmark import (
     get_industry_benchmark_ratios,
     get_industry_classification_map,
-)
-from app.schemas.schema_industry_benchmark import (
-    IndustryBenchmark,
-    IndustryBenchmarkRequest,
 )
 
 router = APIRouter(prefix="/api/industry", tags=["industry-benchmark"])
@@ -98,8 +97,7 @@ async def get_industry_classifications() -> dict[str, str]:
         Dictionary mapping industry codes to industry names for reference
     """
     try:
-        classification_map = get_industry_classification_map()
-        return classification_map
+        return get_industry_classification_map()
 
     except Exception as e:
         raise HTTPException(

@@ -5,9 +5,9 @@ from fastapi.staticfiles import StaticFiles
 
 from app.routes.route_company import router as company_router
 from app.routes.route_historical_prices import router as historical_router
-from app.routes.route_statements import router as statements_router
 from app.routes.route_industry_benchmark import router as industry_benchmark_router
 from app.routes.route_quarterly_ratios import router as quarterly_ratios_router
+from app.routes.route_statements import router as statements_router
 
 app = FastAPI(
     title="RichSlow Financial Analysis API",

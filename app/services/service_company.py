@@ -5,10 +5,7 @@ company information from vnstock API, with proper data validation
 and transformation using Pydantic models.
 """
 
-from typing import Any
 
-import pandas as pd
-from vnstock import Vnstock
 from vnstock.explorer.tcbs import Company as TCBSCompany
 from vnstock.explorer.vci import Company as VCICompany
 
@@ -27,7 +24,6 @@ from app.schemas.schema_company import (
     TradingStatsVCI,
 )
 from app.utils.transform import (
-    safe_convert_float,
     safe_get_float,
     safe_get_int,
     safe_get_str,
@@ -77,7 +73,7 @@ def get_company_overview(ticker: str) -> CompanyOverviewTCBS:
             industry_id_v2=safe_get_str(row, "industry_id_v2") or "",
         )
 
-    except ValueError as e:
+    except ValueError:
         raise  # Re-raise ValueError to be caught by route handler
     except Exception as e:
         raise Exception(
@@ -117,7 +113,7 @@ def get_company_profile(ticker: str) -> CompanyProfile:
             business_strategies=safe_get_str(row, "business_strategies") or "",
         )
 
-    except ValueError as e:
+    except ValueError:
         raise  # Re-raise ValueError to be caught by route handler
     except Exception as e:
         raise Exception(
@@ -574,7 +570,7 @@ def get_company_trading_stats_vci(ticker: str) -> TradingStatsVCI:
             max_holding_ratio=safe_get_float(row, "max_holding_ratio") or 0.0,
         )
 
-    except ValueError as e:
+    except ValueError:
         raise  # Re-raise ValueError to be caught by route handler
     except Exception as e:
         raise Exception(

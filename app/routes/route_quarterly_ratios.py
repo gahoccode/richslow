@@ -1,8 +1,9 @@
 """API routes for quarterly financial ratios."""
 
 from fastapi import APIRouter, HTTPException, Path
-from app.services.service_statements import get_financial_statements
+
 from app.schemas.schema_statements import StatementsRequest
+from app.services.service_statements import get_financial_statements
 
 router = APIRouter(prefix="/api/quarterly", tags=["quarterly-ratios"])
 
@@ -34,8 +35,7 @@ async def get_quarterly_ratios(
             end_date="2025-12-31",
         )
 
-        statements_data = get_financial_statements(request)
-        return statements_data
+        return get_financial_statements(request)
 
     except Exception as e:
         raise HTTPException(

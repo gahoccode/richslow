@@ -12,20 +12,6 @@ from fastapi.testclient import TestClient
 from pandas import DataFrame
 
 from app.main import app
-from app.schemas.schema_company import (
-    CompanyEventsTCBS,
-    CompanyInsiderDeals,
-    CompanyNews,
-    CompanyOfficer,
-    CompanyOverviewTCBS,
-    CompanyProfile,
-    CompanyRatioVCI,
-    CompanyReportsVCI,
-    CompanyShareholders,
-    CompanySubsidiaries,
-    DividendHistory,
-    TradingStatsVCI,
-)
 
 client = TestClient(app)
 

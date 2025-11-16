@@ -1,10 +1,8 @@
 """Test backend code reusability for other applications."""
 
-import sys
 from unittest.mock import Mock, patch
 
 import pandas as pd
-import pytest
 
 from app.schemas.schema_statements import (
     FinancialRatiosData,
@@ -342,8 +340,8 @@ class TestModularImportPatterns:
         assert hasattr(service_module, "safe_get_float")
 
         # Should be functional
-        RatiosClass = getattr(schema_module, "FinancialRatiosData")
-        safe_get_func = getattr(service_module, "safe_get_float")
+        RatiosClass = schema_module.FinancialRatiosData
+        safe_get_func = service_module.safe_get_float
 
         ratio_instance = RatiosClass(year_report=2023)
         assert ratio_instance.year_report == 2023
@@ -364,9 +362,9 @@ class TestExternalApplicationIntegration:
             """Example wrapper for external application."""
 
             def __init__(self):
+                from app.schemas.schema_statements import FinancialRatiosData
                 from app.services.service_statements import _process_ratios
                 from app.utils.transform import safe_get_float
-                from app.schemas.schema_statements import FinancialRatiosData
 
                 self.safe_get_float = safe_get_float
                 self._process_ratios = _process_ratios
@@ -404,8 +402,8 @@ class TestExternalApplicationIntegration:
         def load_financial_plugin():
             """Load financial processing plugin."""
             try:
-                from app.services.service_statements import _process_ratios
                 from app.schemas.schema_statements import FinancialRatiosData
+                from app.services.service_statements import _process_ratios
 
                 return {
                     "name": "richslow_financial",
@@ -433,8 +431,8 @@ class TestExternalApplicationIntegration:
             """Example microservice using our backend logic."""
 
             def __init__(self):
-                from app.services.service_statements import _process_ratios
                 from app.schemas.schema_statements import FinancialRatiosData
+                from app.services.service_statements import _process_ratios
 
                 self.processor = _process_ratios
                 self.schema = FinancialRatiosData

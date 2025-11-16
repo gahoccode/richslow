@@ -1,6 +1,5 @@
 """Integration and end-to-end tests for the financial statements API."""
 
-import json
 from unittest.mock import Mock, patch
 
 import pandas as pd

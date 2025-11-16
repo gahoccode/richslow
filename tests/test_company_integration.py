@@ -4,7 +4,6 @@ These tests focus on end-to-end API behavior, error handling,
 and realistic usage scenarios with proper mocking.
 """
 
-import json
 from unittest.mock import Mock, patch
 
 import pytest

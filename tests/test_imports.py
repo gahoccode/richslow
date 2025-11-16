@@ -3,7 +3,6 @@
 import importlib
 import sys
 from pathlib import Path
-from typing import List
 
 import pytest
 
@@ -23,7 +22,7 @@ class TestImports:
     def test_schemas_import(self):
         """Test that all schema modules import successfully."""
         try:
-            from app.schemas import schema_statements, schema_common
+            from app.schemas import schema_common, schema_statements
 
             # Verify key classes are available
             assert hasattr(schema_statements, "FinancialStatementsResponse")
@@ -63,11 +62,11 @@ class TestImports:
         try:
             # This tests that schemas can be imported by external applications
             from app.schemas.schema_statements import (
-                FinancialStatementsResponse,
-                FinancialRatiosData,
-                IncomeStatementData,
                 BalanceSheetData,
                 CashFlowData,
+                FinancialRatiosData,
+                FinancialStatementsResponse,
+                IncomeStatementData,
                 StatementsRequest,
             )
 
@@ -83,13 +82,13 @@ class TestImports:
         try:
             # This tests that services can be imported by external applications
             from app.services.service_statements import (
-                get_financial_statements,
                 _process_ratios,
+                get_financial_statements,
             )
             from app.utils.transform import (
                 safe_get_float,
-                safe_get_str,
                 safe_get_int,
+                safe_get_str,
             )
 
             # Verify functions are callable
@@ -232,10 +231,10 @@ class TestModularityForReuse:
     def test_service_functions_standalone(self):
         """Test that service utility functions work standalone."""
         try:
-            from app.utils.transform import safe_get_float, safe_get_str, safe_get_int
-
             # Test with sample data
             import pandas as pd
+
+            from app.utils.transform import safe_get_float, safe_get_int, safe_get_str
 
             test_row = pd.Series({"value": 123.45, "text": "hello", "number": "789"})
 
