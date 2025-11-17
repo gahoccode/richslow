@@ -13,69 +13,86 @@ import { ChartRadialStacked } from "@/components/charts/ChartRadialStacked";
 import { ChartRadarMultiple } from "@/components/charts/ChartRadarMultiple";
 import { ChartBarNegative } from "@/components/charts/ChartBarNegative";
 import { ChartDividendTimeline } from "@/components/charts/ChartDividendTimeline";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
   const { ticker, startDate, endDate, period } = useTicker();
-  const { data, loading, error } = useStockData(ticker, startDate, endDate, period);
+  const { data, loading, criticalLoading, secondaryLoading, deferredLoading, error } = useStockData(ticker, startDate, endDate, period);
 
-  // Transform API data for charts
-  const profitabilityData = data.statements?.income_statements?.map((stmt) => ({
-    period: stmt.year_report?.toString() || 'N/A',
-    revenue: stmt.revenue || 0,
-    grossProfit: stmt.gross_profit || 0,
-    operatingProfit: stmt.operating_profit || 0,
-    netProfit: stmt.net_profit || 0,
-  })) || [];
+  // Transform API data for charts - memoized to prevent recalculation on every render
+  const profitabilityData = React.useMemo(() =>
+    data.statements?.income_statements?.map((stmt) => ({
+      period: stmt.year_report?.toString() || 'N/A',
+      revenue: stmt.revenue || 0,
+      grossProfit: stmt.gross_profit || 0,
+      operatingProfit: stmt.operating_profit || 0,
+      netProfit: stmt.net_profit || 0,
+    })) || [],
+    [data.statements?.income_statements]
+  );
 
-  const priceData = data.prices?.map((price) => ({
-    time: price.time || '',
-    close: price.close || 0,
-    open: price.open || 0,
-    high: price.high || 0,
-    low: price.low || 0,
-    volume: price.volume || 0,
-  })) || [];
+  const priceData = React.useMemo(() =>
+    data.prices?.map((price) => ({
+      time: price.time || '',
+      close: price.close || 0,
+      open: price.open || 0,
+      high: price.high || 0,
+      low: price.low || 0,
+      volume: price.volume || 0,
+    })) || [],
+    [data.prices]
+  );
 
   // Quarterly revenue data for ChartBarDefault
-  const quarterlyRevenueData = data.statements?.income_statements?.map((stmt) => ({
-    period: stmt.year_report?.toString() || 'N/A',
-    revenue: stmt.revenue || 0,
-  })) || [];
+  const quarterlyRevenueData = React.useMemo(() =>
+    data.statements?.income_statements?.map((stmt) => ({
+      period: stmt.year_report?.toString() || 'N/A',
+      revenue: stmt.revenue || 0,
+    })) || [],
+    [data.statements?.income_statements]
+  );
 
   // Valuation ratios for ChartRadarMultiple (4 metrics with industry benchmark)
-  const valuationRadarData = data.ratios ? [
-    {
-      metric: "P/E",
-      company: data.ratios.pe || 0,
-      industry: data.industryBenchmark?.benchmarks?.pe_ratio?.median,
-      fullName: "Price to Earning"
-    },
-    {
-      metric: "P/B",
-      company: data.ratios.pb || 0,
-      industry: data.industryBenchmark?.benchmarks?.pb_ratio?.median,
-      fullName: "Price to Book"
-    },
-    {
-      metric: "P/S",
-      company: data.ratios.ps || 0,
-      industry: data.industryBenchmark?.benchmarks?.ps_ratio?.median,
-      fullName: "Price to Sales"
-    },
-    {
-      metric: "EV/EBITDA",
-      company: data.ratios.ev_per_ebitda || 0,
-      industry: data.industryBenchmark?.benchmarks?.ev_ebitda?.median,
-      fullName: "Enterprise Value to EBITDA"
-    },
-  ] : [];
+  const valuationRadarData = React.useMemo(() =>
+    data.ratios ? [
+      {
+        metric: "P/E",
+        company: data.ratios.pe || 0,
+        industry: data.industryBenchmark?.benchmarks?.pe_ratio?.median,
+        fullName: "Price to Earning"
+      },
+      {
+        metric: "P/B",
+        company: data.ratios.pb || 0,
+        industry: data.industryBenchmark?.benchmarks?.pb_ratio?.median,
+        fullName: "Price to Book"
+      },
+      {
+        metric: "P/S",
+        company: data.ratios.ps || 0,
+        industry: data.industryBenchmark?.benchmarks?.ps_ratio?.median,
+        fullName: "Price to Sales"
+      },
+      {
+        metric: "EV/EBITDA",
+        company: data.ratios.ev_per_ebitda || 0,
+        industry: data.industryBenchmark?.benchmarks?.ev_ebitda?.median,
+        fullName: "Enterprise Value to EBITDA"
+      },
+    ] : [],
+    [data.ratios, data.industryBenchmark]
+  );
 
   // Profitability gauges for ChartRadialStacked
-  const profitabilityGauges = data.ratios ? {
-    roe: data.ratios.roe || 0,
-    roa: data.ratios.roa || 0,
-    roic: data.ratios.roic || 0,
-  } : undefined;
+  const profitabilityGauges = React.useMemo(() =>
+    data.ratios ? {
+      roe: data.ratios.roe || 0,
+      roa: data.ratios.roa || 0,
+      roic: data.ratios.roic || 0,
+    } : undefined,
+    [data.ratios]
+  );
 
   // Insider trading data for ChartBarNegative - aggregate by month
   const insiderData = React.useMemo(() => {
@@ -103,6 +120,25 @@ export default function Home() {
 
     return Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
   }, [data.insiderDeals]);
+
+  // Skeleton chart component for loading states
+  const SkeletonChart = ({ title, description }: { title: string; description: string }) => (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <Skeleton className="h-[250px] w-full" />
+          <div className="flex gap-4">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,88 +179,137 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <MetricCard
             title="P/E Ratio"
-            value={data.ratios?.pe}
+            value={data.ratios?.pe as number | undefined}
             unit="x"
-            loading={loading}
+            loading={criticalLoading}
             description="Price to Earnings"
           />
           <MetricCard
             title="ROE"
-            value={data.ratios?.roe ? data.ratios.roe / 100 : null}
+            value={data.ratios?.roe ? (data.ratios.roe as number) / 100 : null}
             unit="%"
-            loading={loading}
+            loading={criticalLoading}
             description="Return on Equity"
           />
           <MetricCard
             title="D/E Ratio"
-            value={data.ratios?.de}
+            value={data.ratios?.de as number | undefined}
             unit="x"
-            loading={loading}
+            loading={criticalLoading}
             description="Debt to Equity"
             invertColors={true}
           />
           <MetricCard
             title="Current Ratio"
-            value={data.ratios?.current_ratio}
+            value={data.ratios?.current_ratio as number | undefined}
             unit="x"
-            loading={loading}
+            loading={criticalLoading}
             description="Liquidity Ratio"
           />
         </div>
 
-        {/* Charts Grid */}
+        {/* Charts Grid - Progressive Loading */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Revenue & Profitability Trend */}
-          <ChartAreaGradient
-            data={profitabilityData}
-            title="Revenue & Profitability"
-            description={`Financial performance from ${startDate} to ${endDate}`}
-          />
+          {/* STAGE 1: Critical Charts (Load First) */}
+          {criticalLoading ? (
+            <>
+              <SkeletonChart
+                title="Revenue & Profitability"
+                description={`Financial performance from ${startDate} to ${endDate}`}
+              />
+              <SkeletonChart
+                title="Stock Price & Volume"
+                description="Price trends with trading volume"
+              />
+              <SkeletonChart
+                title="Quarterly Revenue"
+                description="Revenue comparison by reporting period"
+              />
+              <SkeletonChart
+                title="Profitability Metrics"
+                description="ROE, ROA, and ROIC performance"
+              />
+            </>
+          ) : (
+            <>
+              {/* Revenue & Profitability Trend */}
+              <ChartAreaGradient
+                data={profitabilityData}
+                title="Revenue & Profitability"
+                description={`Financial performance from ${startDate} to ${endDate}`}
+              />
 
-          {/* Stock Price Movement */}
-          <ChartStockPriceVolume
-            data={priceData}
-            ticker={ticker}
-            title="Stock Price & Volume"
-            description="Price trends with trading volume"
-          />
+              {/* Stock Price Movement */}
+              <ChartStockPriceVolume
+                data={priceData}
+                ticker={ticker}
+                title="Stock Price & Volume"
+                description="Price trends with trading volume"
+              />
 
-          {/* Quarterly Revenue Comparison */}
-          <ChartBarDefault
-            data={quarterlyRevenueData}
-            title="Quarterly Revenue"
-            description="Revenue comparison by reporting period"
-          />
+              {/* Quarterly Revenue Comparison */}
+              <ChartBarDefault
+                data={quarterlyRevenueData}
+                title="Quarterly Revenue"
+                description="Revenue comparison by reporting period"
+              />
 
-          {/* Profitability Gauges */}
-          <ChartRadialStacked
-            data={profitabilityGauges}
-            title="Profitability Metrics"
-            description="ROE, ROA, and ROIC performance"
-          />
+              {/* Profitability Gauges */}
+              <ChartRadialStacked
+                data={profitabilityGauges}
+                title="Profitability Metrics"
+                description="ROE, ROA, and ROIC performance"
+              />
+            </>
+          )}
 
-          {/* Valuation Ratios Radar */}
-          <ChartRadarMultiple
-            data={valuationRadarData}
-            variant="valuation"
-            industryName={data.industryBenchmark?.industry_name}
-            title="Valuation Metrics"
-            description="Key valuation ratios vs industry benchmark"
-          />
+          {/* STAGE 2: Secondary Charts (Load After Critical) */}
+          {secondaryLoading ? (
+            <>
+              <SkeletonChart
+                title="Insider Trading"
+                description="Buy and sell transactions by company insiders"
+              />
+              {data.dividends && data.dividends.length > 0 && (
+                <SkeletonChart
+                  title="Dividend History"
+                  description="Historical dividend payment timeline"
+                />
+              )}
+            </>
+          ) : (
+            <>
+              {/* Insider Trading Activity */}
+              <ChartBarNegative
+                data={insiderData}
+                title="Insider Trading"
+                description="Buy and sell transactions by company insiders"
+              />
 
-          {/* Insider Trading Activity */}
-          <ChartBarNegative
-            data={insiderData}
-            title="Insider Trading"
-            description="Buy and sell transactions by company insiders"
-          />
+              {/* Dividend Timeline */}
+              {data.dividends && data.dividends.length > 0 && (
+                <ChartDividendTimeline
+                  data={data.dividends}
+                  title="Dividend History"
+                  description="Historical dividend payment timeline"
+                />
+              )}
+            </>
+          )}
 
-          {/* Dividend Timeline */}
-          {data.dividends && data.dividends.length > 0 && (
-            <ChartDividendTimeline
-              data={data.dividends}
-              title="Dividend History"
-              description="Historical dividend payment timeline"
+          {/* STAGE 3: Deferred Charts (Load Last - Heavy Industry Benchmark) */}
+          {deferredLoading ? (
+            <SkeletonChart
+              title="Valuation Metrics"
+              description="Key valuation ratios vs industry benchmark"
+            />
+          ) : (
+            <ChartRadarMultiple
+              data={valuationRadarData}
+              variant="valuation"
+              industryName={data.industryBenchmark?.industry_name}
+              title="Valuation Metrics"
+              description="Key valuation ratios vs industry benchmark"
             />
           )}
         </div>
