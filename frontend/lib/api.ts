@@ -118,6 +118,14 @@ export interface CorporateEvent {
   eventCode?: string;
   eventName?: string;
   eventTitle?: string;
+  // Backend API fields (snake_case)
+  event_name?: string;
+  event_code?: string;
+  exer_date?: string;
+  event_desc?: string;
+  notify_date?: string;
+  reg_final_date?: string;
+  exer_right_date?: string;
   [key: string]: unknown;
 }
 
