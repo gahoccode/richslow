@@ -3,12 +3,16 @@
 import React from "react";
 import { useTicker } from "@/contexts/TickerContext";
 import { useStockData } from "@/hooks/useStockData";
+import { TickerSelector } from "@/components/TickerSelector";
+import { DateRangePicker } from "@/components/DateRangePicker";
+import { MetricCard } from "@/components/MetricCard";
 import { ChartAreaGradient } from "@/components/charts/ChartAreaGradient";
 import { ChartBarDefault } from "@/components/charts/ChartBarDefault";
 import { ChartStockPriceVolume } from "@/components/charts/ChartStockPriceVolume";
 import { ChartRadialStacked } from "@/components/charts/ChartRadialStacked";
 import { ChartRadarMultiple } from "@/components/charts/ChartRadarMultiple";
 import { ChartBarNegative } from "@/components/charts/ChartBarNegative";
+import { ChartDividendTimeline } from "@/components/charts/ChartDividendTimeline";
 
 export default function Home() {
   const { ticker, startDate, endDate, period } = useTicker();
@@ -107,20 +111,20 @@ export default function Home() {
         <div className="container flex h-16 items-center px-4">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold">RichSlow</h1>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-muted-foreground hidden md:block">
               Vietnamese Stock Market Analysis
             </span>
           </div>
           <div className="ml-auto flex items-center gap-4">
-            <div className="text-sm">
-              <span className="text-muted-foreground">Ticker:</span>{" "}
-              <span className="font-mono font-semibold">{ticker}</span>
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+              <TickerSelector />
+              <DateRangePicker />
             </div>
             {loading && (
-              <div className="text-sm text-muted-foreground">Loading...</div>
+              <div className="text-sm text-muted-foreground hidden lg:block">Loading...</div>
             )}
             {error && (
-              <div className="text-sm text-destructive">Error loading data</div>
+              <div className="text-sm text-destructive hidden lg:block">Error loading data</div>
             )}
           </div>
         </div>
@@ -133,6 +137,39 @@ export default function Home() {
           <p className="text-muted-foreground">
             Financial analysis and market data visualization for {ticker}
           </p>
+        </div>
+
+        {/* Metric Cards Overview Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <MetricCard
+            title="P/E Ratio"
+            value={data.ratios?.pe}
+            unit="x"
+            loading={loading}
+            description="Price to Earnings"
+          />
+          <MetricCard
+            title="ROE"
+            value={data.ratios?.roe ? data.ratios.roe / 100 : null}
+            unit="%"
+            loading={loading}
+            description="Return on Equity"
+          />
+          <MetricCard
+            title="D/E Ratio"
+            value={data.ratios?.de}
+            unit="x"
+            loading={loading}
+            description="Debt to Equity"
+            invertColors={true}
+          />
+          <MetricCard
+            title="Current Ratio"
+            value={data.ratios?.current_ratio}
+            unit="x"
+            loading={loading}
+            description="Liquidity Ratio"
+          />
         </div>
 
         {/* Charts Grid */}
@@ -181,6 +218,15 @@ export default function Home() {
             title="Insider Trading"
             description="Buy and sell transactions by company insiders"
           />
+
+          {/* Dividend Timeline */}
+          {data.dividends && data.dividends.length > 0 && (
+            <ChartDividendTimeline
+              data={data.dividends}
+              title="Dividend History"
+              description="Historical dividend payment timeline"
+            />
+          )}
         </div>
 
         {/* Data Summary */}
