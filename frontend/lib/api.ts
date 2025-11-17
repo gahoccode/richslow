@@ -143,7 +143,9 @@ export interface CompanyRatioVCI {
   roa: number;
   pe: number;
   pb: number;
+  ps: number;
   eps: number;
+  ev_per_ebitda: number;
   current_ratio: number;
   cash_ratio: number;
   quick_ratio: number;

@@ -38,14 +38,32 @@ export default function Home() {
     revenue: stmt.revenue || 0,
   })) || [];
 
-  // Financial ratios for ChartRadarMultiple
-  const ratioRadarData = data.ratios ? [
-    { metric: "P/E", value: data.ratios.pe || 0, fullName: "Price to Earning" },
-    { metric: "P/B", value: data.ratios.pb || 0, fullName: "Price to Book" },
-    { metric: "EPS", value: data.ratios.eps || 0, fullName: "Earnings Per Share" },
-    { metric: "ROE", value: (data.ratios.roe || 0) * 100, fullName: "Return on Equity (%)" },
-    { metric: "ROA", value: (data.ratios.roa || 0) * 100, fullName: "Return on Assets (%)" },
-    { metric: "ROIC", value: data.ratios.roic || 0, fullName: "Return on Invested Capital" },
+  // Valuation ratios for ChartRadarMultiple (4 metrics with industry benchmark)
+  const valuationRadarData = data.ratios ? [
+    {
+      metric: "P/E",
+      company: data.ratios.pe || 0,
+      industry: data.industryBenchmark?.benchmarks?.pe_ratio?.median,
+      fullName: "Price to Earning"
+    },
+    {
+      metric: "P/B",
+      company: data.ratios.pb || 0,
+      industry: data.industryBenchmark?.benchmarks?.pb_ratio?.median,
+      fullName: "Price to Book"
+    },
+    {
+      metric: "P/S",
+      company: data.ratios.ps || 0,
+      industry: data.industryBenchmark?.benchmarks?.ps_ratio?.median,
+      fullName: "Price to Sales"
+    },
+    {
+      metric: "EV/EBITDA",
+      company: data.ratios.ev_per_ebitda || 0,
+      industry: data.industryBenchmark?.benchmarks?.ev_ebitda?.median,
+      fullName: "Enterprise Value to EBITDA"
+    },
   ] : [];
 
   // Profitability gauges for ChartRadialStacked
@@ -148,11 +166,13 @@ export default function Home() {
             description="ROE, ROA, and ROIC performance"
           />
 
-          {/* Financial Ratios Radar */}
+          {/* Valuation Ratios Radar */}
           <ChartRadarMultiple
-            data={ratioRadarData}
-            title="Financial Ratios"
-            description="Key valuation and profitability metrics"
+            data={valuationRadarData}
+            variant="valuation"
+            industryName={data.industryBenchmark?.industry_name}
+            title="Valuation Metrics"
+            description="Key valuation ratios vs industry benchmark"
           />
 
           {/* Insider Trading Activity */}
