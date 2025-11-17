@@ -9,10 +9,9 @@ import { MetricCard } from "@/components/MetricCard";
 import { ChartAreaGradient } from "@/components/charts/ChartAreaGradient";
 import { ChartBarDefault } from "@/components/charts/ChartBarDefault";
 import { ChartStockPriceVolume } from "@/components/charts/ChartStockPriceVolume";
-import { ChartRadialStacked } from "@/components/charts/ChartRadialStacked";
-import { ChartRadarMultiple } from "@/components/charts/ChartRadarMultiple";
 import { ChartBarNegative } from "@/components/charts/ChartBarNegative";
 import { ChartDividendTimeline } from "@/components/charts/ChartDividendTimeline";
+import { FinancialRatiosDashboard } from "@/components/FinancialRatiosDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -51,47 +50,6 @@ export default function Home() {
       revenue: stmt.revenue || 0,
     })) || [],
     [data.statements?.income_statements]
-  );
-
-  // Valuation ratios for ChartRadarMultiple (4 metrics with industry benchmark)
-  const valuationRadarData = React.useMemo(() =>
-    data.ratios ? [
-      {
-        metric: "P/E",
-        company: data.ratios.pe || 0,
-        industry: data.industryBenchmark?.benchmarks?.pe_ratio?.median,
-        fullName: "Price to Earning"
-      },
-      {
-        metric: "P/B",
-        company: data.ratios.pb || 0,
-        industry: data.industryBenchmark?.benchmarks?.pb_ratio?.median,
-        fullName: "Price to Book"
-      },
-      {
-        metric: "P/S",
-        company: data.ratios.ps || 0,
-        industry: data.industryBenchmark?.benchmarks?.ps_ratio?.median,
-        fullName: "Price to Sales"
-      },
-      {
-        metric: "EV/EBITDA",
-        company: data.ratios.ev_per_ebitda || 0,
-        industry: data.industryBenchmark?.benchmarks?.ev_ebitda?.median,
-        fullName: "Enterprise Value to EBITDA"
-      },
-    ] : [],
-    [data.ratios, data.industryBenchmark]
-  );
-
-  // Profitability gauges for ChartRadialStacked
-  const profitabilityGauges = React.useMemo(() =>
-    data.ratios ? {
-      roe: data.ratios.roe || 0,
-      roa: data.ratios.roa || 0,
-      roic: data.ratios.roic || 0,
-    } : undefined,
-    [data.ratios]
   );
 
   // Insider trading data for ChartBarNegative - aggregate by month
@@ -225,10 +183,6 @@ export default function Home() {
                 title="Quarterly Revenue"
                 description="Revenue comparison by reporting period"
               />
-              <SkeletonChart
-                title="Profitability Metrics"
-                description="ROE, ROA, and ROIC performance"
-              />
             </>
           ) : (
             <>
@@ -252,13 +206,6 @@ export default function Home() {
                 data={quarterlyRevenueData}
                 title="Quarterly Revenue"
                 description="Revenue comparison by reporting period"
-              />
-
-              {/* Profitability Gauges */}
-              <ChartRadialStacked
-                data={profitabilityGauges}
-                title="Profitability Metrics"
-                description="ROE, ROA, and ROIC performance"
               />
             </>
           )}
@@ -297,19 +244,26 @@ export default function Home() {
             </>
           )}
 
-          {/* STAGE 3: Deferred Charts (Load Last - Heavy Industry Benchmark) */}
+        </div>
+
+        {/* Financial Ratios Dashboard - Full Width Section */}
+        <div className="mt-8">
           {deferredLoading ? (
-            <SkeletonChart
-              title="Valuation Metrics"
-              description="Key valuation ratios vs industry benchmark"
-            />
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-64" />
+                <Skeleton className="h-4 w-96" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-[500px] w-full" />
+              </CardContent>
+            </Card>
           ) : (
-            <ChartRadarMultiple
-              data={valuationRadarData}
-              variant="valuation"
-              industryName={data.industryBenchmark?.industry_name}
-              title="Valuation Metrics"
-              description="Key valuation ratios vs industry benchmark"
+            <FinancialRatiosDashboard
+              ratios={data.ratios || undefined}
+              industryBenchmark={data.industryBenchmark || undefined}
+              statements={data.statements || undefined}
+              loading={deferredLoading}
             />
           )}
         </div>
