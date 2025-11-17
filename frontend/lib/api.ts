@@ -73,7 +73,8 @@ export interface CompanyProfile {
 }
 
 export interface ShareholderInfo {
-  // Add fields based on actual API response
+  share_holder: string;
+  share_own_percent: number;
   [key: string]: unknown;
 }
 
@@ -88,6 +89,8 @@ export interface Subsidiary {
   organName?: string;
   organShortName?: string;
   ownPercent?: number;
+  sub_company_name?: string;
+  sub_own_percent?: number;
   [key: string]: unknown;
 }
 
@@ -338,13 +341,20 @@ export interface ExchangeRate {
   [key: string]: unknown;
 }
 
-export interface GoldPrice {
-  brand?: string;
-  type?: string;
-  buy?: number;
-  sell?: number;
-  date?: string;
-  [key: string]: unknown;
+export interface GoldSJC {
+  name: string;
+  buy_price: number;
+  sell_price: number;
+}
+
+export interface GoldBTMC {
+  name: string;
+  karat: string;
+  gold_content: string;
+  buy_price: number;
+  sell_price: number;
+  world_price: number;
+  time: string;
 }
 
 export const pricesAPI = {
@@ -379,16 +389,16 @@ export const pricesAPI = {
   /**
    * Get SJC gold prices
    */
-  getGoldSJC: (date?: string): Promise<GoldPrice[]> => {
+  getGoldSJC: (date?: string): Promise<GoldSJC[]> => {
     const queryParams = date ? `?date=${date}` : '';
-    return apiFetch<GoldPrice[]>(`/api/gold/sjc${queryParams}`);
+    return apiFetch<GoldSJC[]>(`/api/gold/sjc${queryParams}`);
   },
 
   /**
    * Get BTMC gold prices
    */
-  getGoldBTMC: (): Promise<GoldPrice[]> => {
-    return apiFetch<GoldPrice[]>('/api/gold/btmc');
+  getGoldBTMC: (): Promise<GoldBTMC[]> => {
+    return apiFetch<GoldBTMC[]>('/api/gold/btmc');
   },
 };
 

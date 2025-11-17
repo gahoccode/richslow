@@ -120,3 +120,43 @@ export function formatCompact(num: number | null | undefined): string {
 export function formatMonthShort(monthString: string): string {
   return monthString.slice(0, 3);
 }
+
+/**
+ * Format exchange rate values with 2 decimal places
+ */
+export function formatVNDRate(num: number | null | undefined): string {
+  if (num === null || num === undefined || isNaN(num)) return 'N/A';
+  return num.toLocaleString('vi-VN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+/**
+ * Format VND in abbreviated form (e.g., "80.5M", "23.5K")
+ */
+export function formatVNDShort(num: number | null | undefined): string {
+  if (num === null || num === undefined || isNaN(num)) return 'N/A';
+
+  const absNum = Math.abs(num);
+  const sign = num < 0 ? '-' : '';
+
+  if (absNum >= 1e6) {
+    return sign + (absNum / 1e6).toFixed(1) + 'M';
+  } else if (absNum >= 1e3) {
+    return sign + (absNum / 1e3).toFixed(1) + 'K';
+  }
+
+  return formatNumber(num);
+}
+
+/**
+ * Format gold prices (typically large VND values)
+ */
+export function formatGoldPrice(num: number | null | undefined): string {
+  if (num === null || num === undefined || isNaN(num)) return 'N/A';
+  return num.toLocaleString('vi-VN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }) + ' VND';
+}

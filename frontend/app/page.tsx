@@ -12,12 +12,20 @@ import { ChartStockPriceVolume } from "@/components/charts/ChartStockPriceVolume
 import { ChartBarNegative } from "@/components/charts/ChartBarNegative";
 import { ChartDividendTimeline } from "@/components/charts/ChartDividendTimeline";
 import { FinancialRatiosDashboard } from "@/components/FinancialRatiosDashboard";
+import { FinancialStatementsTabs } from "@/components/FinancialStatementsTabs";
+import { FloatingNav } from "@/components/FloatingNav";
+import { CompanyOverviewCard } from "@/components/company/CompanyOverviewCard";
+import { NewsFeed } from "@/components/company/NewsFeed";
+import { CorporateEventsTimeline } from "@/components/company/CorporateEventsTimeline";
+import { OwnershipStructure } from "@/components/company/OwnershipStructure";
+import { useCompanyData } from "@/hooks/useCompanyData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
   const { ticker, startDate, endDate, period } = useTicker();
   const { data, loading, criticalLoading, secondaryLoading, deferredLoading, error } = useStockData(ticker, startDate, endDate, period);
+  const { data: companyData, loading: companyLoading } = useCompanyData(ticker);
 
   // Transform API data for charts - memoized to prevent recalculation on every render
   const profitabilityData = React.useMemo(() =>
@@ -246,6 +254,27 @@ export default function Home() {
 
         </div>
 
+        {/* Financial Statements Section - Full Width Tabs */}
+        <div className="mt-8">
+          {criticalLoading ? (
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-64" />
+                <Skeleton className="h-4 w-96" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-[400px] w-full" />
+              </CardContent>
+            </Card>
+          ) : (
+            <FinancialStatementsTabs
+              statements={data.statements || undefined}
+              ratios={data.ratios ? [data.ratios] : undefined}
+              loading={criticalLoading}
+            />
+          )}
+        </div>
+
         {/* Financial Ratios Dashboard - Full Width Section */}
         <div className="mt-8">
           {deferredLoading ? (
@@ -266,6 +295,54 @@ export default function Home() {
               loading={deferredLoading}
             />
           )}
+        </div>
+
+        {/* Company Information Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-6">Company Information</h2>
+
+          {/* Company Overview - Full Width */}
+          <div className="mb-6">
+            {companyLoading ? (
+              <Card>
+                <CardHeader>
+                  <Skeleton className="h-6 w-64" />
+                  <Skeleton className="h-4 w-96" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-[300px] w-full" />
+                </CardContent>
+              </Card>
+            ) : (
+              <CompanyOverviewCard
+                overview={companyData.overview}
+                profile={companyData.profile}
+                loading={companyLoading}
+              />
+            )}
+          </div>
+
+          {/* News, Events, and Ownership - 2-Column Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* News Feed */}
+            <NewsFeed
+              news={companyData.news}
+              loading={companyLoading}
+            />
+
+            {/* Corporate Events Timeline */}
+            <CorporateEventsTimeline
+              events={companyData.events}
+              loading={companyLoading}
+            />
+          </div>
+
+          {/* Ownership Structure - Full Width */}
+          <OwnershipStructure
+            shareholders={companyData.shareholders}
+            subsidiaries={companyData.subsidiaries}
+            loading={companyLoading}
+          />
         </div>
 
         {/* Data Summary */}
@@ -297,6 +374,7 @@ export default function Home() {
           </div>
         )}
       </main>
+      <FloatingNav />
     </div>
   );
 }
