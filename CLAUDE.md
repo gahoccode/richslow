@@ -247,3 +247,4 @@ The test suite is organized into comprehensive categories to ensure reliability 
 - when version bump: update both @pyproject.toml and @main.py
 - All company endpoints need the /api/company/ prefix.
 - Study the fastapi endpoints and inspect schemas to build full understanding of the API capabilities
+- backend uses snake case for field names

@@ -145,29 +145,12 @@ export function OwnershipStructure({
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex-1">
                           <h4 className="font-semibold text-sm">
-                            {subsidiary.sub_company_name || subsidiary.organName || subsidiary.organShortName || `Subsidiary ${index + 1}`}
+                            {subsidiary.sub_company_name || `Subsidiary ${index + 1}`}
                           </h4>
-                          {subsidiary.organShortName && subsidiary.organName !== subsidiary.organShortName && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {subsidiary.organShortName}
-                            </p>
-                          )}
                         </div>
-                        {(subsidiary.sub_own_percent !== undefined || subsidiary.ownPercent !== undefined) && (
+                        {subsidiary.sub_own_percent !== undefined && (
                           <Badge variant="default" className="flex-shrink-0">
-                            {formatPercentage(subsidiary.sub_own_percent ?? subsidiary.ownPercent!)}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {subsidiary.ticker && (
-                          <Badge variant="outline" className="text-xs font-mono">
-                            {subsidiary.ticker}
-                          </Badge>
-                        )}
-                        {subsidiary.organCode && (
-                          <Badge variant="secondary" className="text-xs font-mono">
-                            {subsidiary.organCode}
+                            {formatPercentage(subsidiary.sub_own_percent)}
                           </Badge>
                         )}
                       </div>

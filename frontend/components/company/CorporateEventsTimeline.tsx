@@ -69,8 +69,8 @@ export function CorporateEventsTimeline({
 
   // Sort events by date (newest first)
   const sortedEvents = [...events].sort((a, b) => {
-    const dateA = a.exer_date || a.exerciseDate;
-    const dateB = b.exer_date || b.exerciseDate;
+    const dateA = a.exer_date;
+    const dateB = b.exer_date;
     if (!dateA || !dateB) return 0;
     return new Date(dateB).getTime() - new Date(dateA).getTime();
   });
@@ -110,7 +110,7 @@ export function CorporateEventsTimeline({
                 {/* Timeline dot */}
                 <Circle
                   className="absolute left-[-23px] top-1 h-4 w-4"
-                  style={{ color: getEventColor(event.event_code || event.eventCode) }}
+                  style={{ color: getEventColor(event.event_code) }}
                   fill="currentColor"
                 />
 
@@ -119,38 +119,33 @@ export function CorporateEventsTimeline({
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex-1">
                       <h4 className="font-semibold text-sm leading-tight">
-                        {event.event_desc || event.event_name || event.eventTitle || event.eventName || 'Untitled Event'}
+                        {event.event_desc || event.event_name || 'Untitled Event'}
                       </h4>
                     </div>
-                    {(event.exer_date || event.exerciseDate) && (
+                    {event.exer_date && (
                       <Badge variant="outline" className="flex-shrink-0 text-xs">
-                        {formatDate(event.exer_date || event.exerciseDate)}
+                        {formatDate(event.exer_date)}
                       </Badge>
                     )}
                   </div>
 
-                  {(event.event_name || event.eventName) && (event.event_name || event.eventName) !== (event.event_desc || event.eventTitle) && (
+                  {event.event_name && event.event_name !== event.event_desc && (
                     <p className="text-sm text-muted-foreground mb-2">
-                      {event.event_name || event.eventName}
+                      {event.event_name}
                     </p>
                   )}
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {(event.event_code || event.eventCode) && (
+                    {event.event_code && (
                       <Badge
                         variant="secondary"
                         className="text-xs font-mono"
                         style={{
-                          backgroundColor: getEventColor(event.event_code || event.eventCode) + '20',
-                          borderColor: getEventColor(event.event_code || event.eventCode)
+                          backgroundColor: getEventColor(event.event_code) + '20',
+                          borderColor: getEventColor(event.event_code)
                         }}
                       >
-                        {event.event_code || event.eventCode}
-                      </Badge>
-                    )}
-                    {event.ticker && (
-                      <Badge variant="outline" className="text-xs font-mono">
-                        {event.ticker}
+                        {event.event_code}
                       </Badge>
                     )}
                   </div>
