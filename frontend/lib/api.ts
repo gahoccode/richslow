@@ -92,11 +92,10 @@ export interface Subsidiary {
 }
 
 export interface DividendEvent {
-  ticker?: string;
-  exerciseDate?: string;
-  exerciseRatio?: number;
-  issueMethod?: string;
-  rightOffPrice?: number;
+  exercise_date: string;
+  cash_year: number;
+  cash_dividend_percentage: number;
+  issue_method: string;
   [key: string]: unknown;
 }
 

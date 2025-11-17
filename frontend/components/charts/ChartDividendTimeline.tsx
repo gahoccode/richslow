@@ -14,16 +14,10 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts"
-
-interface DividendHistory {
-  exercise_date: string
-  cash_year: number
-  cash_dividend_percentage: number
-  issue_method: string
-}
+import { DividendEvent } from "@/lib/api"
 
 interface ChartDividendTimelineProps {
-  data: DividendHistory[]
+  data: DividendEvent[]
   title?: string
   description?: string
 }
@@ -117,12 +111,12 @@ export function ChartDividendTimeline({
                     formatter={(value, name, item) => {
                       const method = item.payload.method || 'N/A'
                       return [
-                        <>
+                        <span key="dividend-value">
                           <span className="font-medium">{value}%</span>
                           <span className="text-xs text-muted-foreground ml-2">
                             ({method})
                           </span>
-                        </>,
+                        </span>,
                         'Dividend'
                       ]
                     }}
@@ -133,9 +127,9 @@ export function ChartDividendTimeline({
               <Line
                 type="monotone"
                 dataKey="dividend"
-                stroke="var(--color-cashDividend)"
+                stroke="var(--color-dividend)"
                 strokeWidth={2}
-                dot={{ fill: "var(--color-cashDividend)", r: 4 }}
+                dot={{ fill: "var(--color-dividend)", r: 4 }}
                 activeDot={{ r: 6 }}
                 name="Dividend %"
               />
