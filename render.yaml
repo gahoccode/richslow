@@ -15,6 +15,7 @@ services:
         - app/**
         - pyproject.toml
         - uv.lock
+        - render.yaml
       ignoredPaths:
         - frontend/**
         - static/**
@@ -32,7 +33,7 @@ services:
       - key: UV_SYSTEM_PYTHON
         value: "1"
       - key: FRONTEND_URL
-        value: https://richslow-frontend.onrender.com
+        value: https://richslow-frontend-2be8.onrender.com
     autoDeploy: true
 
   # Frontend Service - Next.js with Bun
@@ -49,6 +50,8 @@ services:
     buildFilter:
       paths:
         - frontend/**
+        - bun.lock
+        - render.yaml
       ignoredPaths:
         - frontend/node_modules/**
         - "*.md"
@@ -60,7 +63,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        value: https://richslow-api.onrender.com
+        value: https://richslow-api-2be8.onrender.com/
     autoDeploy: true
 
 version: "1"
