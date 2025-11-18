@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { IncomeStatementData } from "@/lib/api"
 import { formatBillionVND, formatYoY } from "@/lib/formatters"
@@ -16,8 +17,8 @@ export function IncomeStatementTable({ data, years }: IncomeStatementTableProps)
     data.map(stmt => [stmt.year_report, stmt])
   );
 
-  const renderSection = (sectionKey: string, section: { label: string; fields: Record<string, { label: string; format: string; bold?: boolean }> }) => (
-    <>
+  const renderSection = (key: string, sectionKey: string, section: { label: string; fields: Record<string, { label: string; format: string; bold?: boolean }> }) => (
+    <React.Fragment key={key}>
       {/* Section Header */}
       <TableRow className="bg-muted/50">
         <TableCell colSpan={years.length + 1} className="font-bold uppercase text-xs">
@@ -51,7 +52,7 @@ export function IncomeStatementTable({ data, years }: IncomeStatementTableProps)
           })}
         </TableRow>
       ))}
-    </>
+    </React.Fragment>
   );
 
   return (
@@ -68,7 +69,7 @@ export function IncomeStatementTable({ data, years }: IncomeStatementTableProps)
       </TableHeader>
       <TableBody>
         {Object.entries(INCOME_STATEMENT_FIELDS).map(([key, section]) =>
-          renderSection(key, section)
+          renderSection(key, key, section)
         )}
       </TableBody>
     </Table>
