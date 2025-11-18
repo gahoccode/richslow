@@ -93,6 +93,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Data-Driven Decision Making**: Users can now visualize dividend history and corporate structure alongside financial metrics
 - **Professional Chart Implementation**: Industry-standard visualizations with proper error handling and fallback states
 
+## [1.5.0] - 2025-11-18
+
+### Added
+- **Next.js Shadcn Frontend with Complete Chart Integration**: Modern React-based frontend with comprehensive Vietnamese stock market data visualization
+  - **Framework**: Next.js 16 with App Router, TypeScript, and Tailwind CSS
+  - **UI Components**: Complete shadcn/ui component library with customized theme
+  - **Charting**: 30+ Recharts-based financial visualizations with interactive features
+  - **Hybrid Architecture**: Users can choose between static vanilla JS or modern Next.js frontend
+  - **State Management**: TickerContext for global state and SWR for optimized data fetching
+  - **Type Safety**: Comprehensive TypeScript interfaces for all data structures
+  - **Performance**: Lazy loading, optimized data fetching, and responsive design
+
+### New Frontend Components (77 files)
+- **Pages**: Home, Market, Statement analysis pages with modern layouts
+- **Charts**: 30+ specialized financial visualizations (Area, Line, Bar, Radar, Sunburst, etc.)
+- **Company Components**: Overview cards, ownership visualization, news feeds, corporate events
+- **Market Components**: Exchange rates, gold prices, heatmaps with real-time data
+- **Statement Tables**: Interactive tables for Income Statement, Balance Sheet, Cash Flow
+- **UI Components**: Complete shadcn/ui component library with custom styling
+- **Hooks & Context**: Reusable data fetching hooks and global ticker context
+- **Utilities**: API clients, formatters, and configuration files
+
+### Enhanced Features
+- **Industry Benchmark Overlays**: Competitive analysis with industry median comparisons
+- **Dividend Timeline**: Stock price visualization with dividend event markers
+- **Ownership Structure**: Interactive D3.js hierarchical sunburst charts
+- **Quarterly Drill-Down**: Cash conversion cycle with yearly/quarterly toggle
+- **Vietnamese Data Formatting**: Custom formatters for VND currency and financial ratios
+- **Error Handling**: Graceful fallbacks and loading states for all components
+
+### Technical Improvements
+- **Documentation**: Comprehensive IMPLEMENTATION_STATUS.md and API documentation
+- **Configuration**: Next.js, TypeScript, ESLint, and Tailwind CSS configuration
+- **Build System**: Optimized build process with Bun package manager
+- **Development Server**: Runs on port 3001, separate from backend API
+
 ## [1.4.0] - 2025-11-14
 
 ### Added
@@ -358,7 +394,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Figure scaling to display in original scale
 - Data processing pipeline for Vietnamese financial statements
 
-[Unreleased]: https://github.com/gahoccode/richslow/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/gahoccode/richslow/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/gahoccode/richslow/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/gahoccode/richslow/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/gahoccode/richslow/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/gahoccode/richslow/compare/v1.0.0...v1.2.0
