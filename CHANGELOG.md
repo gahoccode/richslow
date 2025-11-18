@@ -128,7 +128,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Configuration**: Next.js, TypeScript, ESLint, and Tailwind CSS configuration
 - **Build System**: Optimized build process with Bun package manager
 - **Development Server**: Runs on port 3001, separate from backend API
-
 ## [1.4.0] - 2025-11-14
 
 ### Added
