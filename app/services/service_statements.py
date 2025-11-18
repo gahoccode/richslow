@@ -19,6 +19,8 @@ from app.schemas.schema_statements import (
 )
 from app.utils.transform import (
     apply_field_mapping,
+    safe_convert_float,
+    safe_get_float,
     safe_get_int,
     safe_get_str,
 )

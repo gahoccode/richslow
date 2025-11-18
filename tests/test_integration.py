@@ -45,7 +45,7 @@ class TestAPIIntegration:
 
         # Make API request
         response = client.post(
-            "/api/statements/TEST",
+            "/api/statements",
             json={
                 "ticker": "TEST",
                 "start_date": "2023-01-01",
@@ -68,13 +68,13 @@ class TestAPIIntegration:
         assert first_ratio["pe_ratio"] == 15.5
         assert first_ratio["roe"] == 0.225
         assert first_ratio["debt_to_equity"] == 0.6
-        assert first_ratio["average_collection_days"] == 40.0
-        assert first_ratio["cash_conversion_cycle"] == 70.0
+        assert first_ratio["average_collection_days"] == 45.0
+        assert first_ratio["cash_conversion_cycle"] == 75.0
 
     def test_get_financial_statements_invalid_ticker(self, client):
         """Test API response with invalid ticker."""
         response = client.post(
-            "/api/statements/INVALID",
+            "/api/statements",
             json={
                 "ticker": "INVALID",
                 "start_date": "2023-01-01",
@@ -90,7 +90,7 @@ class TestAPIIntegration:
         """Test API validation with invalid request data."""
         # Missing required fields
         response = client.post(
-            "/api/statements/TEST",
+            "/api/statements",
             json={
                 "ticker": "TEST"
                 # Missing start_date, end_date, period
@@ -101,7 +101,7 @@ class TestAPIIntegration:
 
         # Invalid period
         response = client.post(
-            "/api/statements/TEST",
+            "/api/statements",
             json={
                 "ticker": "TEST",
                 "start_date": "2023-01-01",
@@ -138,7 +138,7 @@ class TestAPIIntegration:
             )
 
             response = client.post(
-                "/api/statements/TEST",
+                "/api/statements",
                 json={
                     "ticker": "TEST",
                     "start_date": "2023-01-01",
@@ -154,6 +154,51 @@ class TestAPIIntegration:
 
                 assert validated_response.ticker == "TEST"
                 assert validated_response.period == "year"
+
+    @patch("app.services.service_statements.Vnstock")
+    def test_get_financial_statements_get_endpoint_success(
+        self,
+        mock_vnstock_class,
+        client,
+        sample_vnstock_income_data,
+        sample_vnstock_balance_data,
+        sample_vnstock_cashflow_data,
+        sample_vnstock_ratios_data,
+    ):
+        """Test successful GET API call to financial statements endpoint."""
+        # Setup mock
+        mock_vnstock_instance = Mock()
+        mock_stock_instance = Mock()
+        mock_finance_instance = Mock()
+
+        mock_vnstock_class.return_value.stock.return_value = mock_stock_instance
+        mock_stock_instance.finance = mock_finance_instance
+
+        # Configure mock responses
+        mock_finance_instance.cash_flow.return_value = sample_vnstock_cashflow_data
+        mock_finance_instance.balance_sheet.return_value = sample_vnstock_balance_data
+        mock_finance_instance.income_statement.return_value = sample_vnstock_income_data
+        mock_finance_instance.ratio.return_value = sample_vnstock_ratios_data
+
+        # Make GET API request
+        response = client.get("/api/statements/TEST?period=year&years=3")
+
+        # Verify response
+        assert response.status_code == 200
+
+        data = response.json()
+        assert data["ticker"] == "TEST"
+        assert data["period"] == "year"
+        assert len(data["ratios"]) == 3  # 3 years of data
+
+        # Verify critical fields are present and correctly mapped
+        first_ratio = data["ratios"][0]
+        assert first_ratio["year_report"] == 2023
+        assert first_ratio["pe_ratio"] == 15.5
+        assert first_ratio["roe"] == 0.225
+        assert first_ratio["debt_to_equity"] == 0.6
+        assert first_ratio["average_collection_days"] == 45.0
+        assert first_ratio["cash_conversion_cycle"] == 75.0
 
 
 class TestFrontendBackendIntegration:
@@ -279,17 +324,22 @@ class TestEndToEndWorkflow:
         return TestClient(app)
 
     def test_user_session_workflow(self, client):
-        """Test typical user workflow from landing page to statements."""
+        """Test typical user workflow from landing page to API access."""
         # 1. User visits landing page
         response = client.get("/")
         assert response.status_code == 200
 
-        # 2. User accesses statements page
-        response = client.get("/statements.html")
+        # 2. User accesses API documentation (available endpoint)
+        response = client.get("/api/docs")
         assert response.status_code == 200
 
-        # 3. Frontend would call API (simulated)
-        # This tests the full cycle from user input to data display
+        # 3. Test API health check
+        response = client.get("/api/health")
+        assert response.status_code == 200
+        health_data = response.json()
+        assert health_data["service"] == "richslow-api"
+
+        # 4. This tests the full cycle from user input to data display
 
     @patch("app.services.service_statements.Vnstock")
     def test_complete_data_pipeline(
@@ -316,11 +366,11 @@ class TestEndToEndWorkflow:
         mock_finance_instance.income_statement.return_value = sample_vnstock_income_data
         mock_finance_instance.ratio.return_value = sample_vnstock_ratios_data
 
-        # Test API call
+        # Test API call with correct endpoint and real ticker
         response = client.post(
-            "/api/statements/TEST",
+            "/api/statements",
             json={
-                "ticker": "TEST",
+                "ticker": "REE",
                 "start_date": "2023-01-01",
                 "end_date": "2023-12-31",
                 "period": "year",

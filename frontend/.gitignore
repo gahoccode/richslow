@@ -11,8 +11,6 @@
 !.yarn/versions
 
 # bun
-/bun.lock
-/bun.lockb
 
 # testing
 /coverage
