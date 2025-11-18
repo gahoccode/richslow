@@ -8,19 +8,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Development server (port 3001)
-npm run dev
+bun run dev
 
 # Production build
-npm run build
+bun run build
 
 # Production server (port 3001)
-npm run start
+bun run next start -p 3001
 
 # Code linting
-npm run lint
+bun run lint
+```
+
+### Package Management
+
+```bash
+# Add new dependencies
+bun add <package>          # Production dependency
+bun add <package> --dev     # Development dependency
+
+# Remove dependencies
+bun remove <package>
+
+# Update dependencies
+bun update
 ```
 
 ### Backend Integration
@@ -47,7 +61,7 @@ export NEXT_PUBLIC_API_URL=http://localhost:8000
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 # Terminal 2: Frontend (port 3001)
-npm run dev
+bun run dev
 ```
 
 ## Architecture Overview
@@ -273,7 +287,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 #### Adding New shadcn/ui Components
 
 ```bash
-npx shadcn@latest add [component-name]
+bunx shadcn@latest add [component-name]
 ```
 
 Available components: button, card, chart, tabs, progress, sonner, and more.
