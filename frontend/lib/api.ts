@@ -5,6 +5,9 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Remove trailing slash if present to avoid double slashes
+const cleanApiBaseUrl = API_BASE_URL.replace(/\/$/, '');
+
 /**
  * Base fetch wrapper with error handling
  */
@@ -12,7 +15,7 @@ async function apiFetch<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${cleanApiBaseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
   try {
     const response = await fetch(url, {

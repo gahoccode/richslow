@@ -63,7 +63,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        value: https://richslow-api-2be8.onrender.com/
+        value: https://richslow-api-2be8.onrender.com
     autoDeploy: true
 
 version: "1"

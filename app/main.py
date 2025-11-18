@@ -25,7 +25,8 @@ app.add_middleware(
     allow_origins=[
         frontend_url,
         "http://localhost:3001",  # Local development
-        "https://richslow-frontend.onrender.com"  # Render deployment
+        "https://richslow-frontend.onrender.com",  # Render deployment (without suffix)
+        "https://richslow-frontend-2be8.onrender.com",  # Actual Render deployment URL
     ],
     allow_credentials=True,
     allow_methods=["*"],
