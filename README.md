@@ -1,6 +1,6 @@
 # RichSlow
 
-A comprehensive Vietnamese stock market financial analysis web application built with FastAPI and vanilla JavaScript. Analyze financial statements, ratios, and metrics for Vietnamese public companies using real-time data from vnstock.
+A comprehensive Vietnamese stock market financial analysis web application built with FastAPI and Next.js. Analyze financial statements, ratios, and metrics for Vietnamese public companies using real-time data from vnstock.
 
 **[Live Demo](https://richslow.onrender.com)** | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/gahoccode/richslow)
 
@@ -19,6 +19,7 @@ A comprehensive Vietnamese stock market financial analysis web application built
 
 - Python 3.11+
 - [uv](https://github.com/astral-sh/uv) package manager
+- Node.js 18+ and npm (for Next.js frontend)
 
 ### Installation
 
@@ -28,18 +29,35 @@ git clone <repository-url>
 cd richslow
 ```
 
-2. Install dependencies:
+2. Install backend dependencies:
 ```bash
 uv sync
 ```
 
-3. Start the development server:
+3. Install frontend dependencies:
+```bash
+cd frontend
+npm install
+cd ..
+```
+
+### Running the Application
+
+**Backend** (Terminal 1):
 ```bash
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-4. Access the application:
-- **Frontend**: http://localhost:8000
+**Frontend** (Terminal 2):
+```bash
+cd frontend
+npm run dev
+```
+
+### Access Points
+
+- **Next.js Frontend**: http://localhost:3001
+- **Static Frontend** (legacy): http://localhost:8000
 - **API Documentation**: http://localhost:8000/api/docs
 - **Alternative API Docs**: http://localhost:8000/api/redoc
 
@@ -170,12 +188,40 @@ uv add <package> --dev
 - **`app/schemas/`** - Pydantic models defining API contracts (single source of truth)
 - **`app/services/`** - Business logic layer with data processing functions
 
-### Frontend (Static HTML/JS)
+### Frontend (Next.js)
+
+The modern Next.js frontend provides a type-safe, component-based architecture:
+
+- **`frontend/app/`** - Next.js App Router pages and layouts
+- **`frontend/components/`** - Reusable React components
+  - **`ui/`** - shadcn/ui component library (Card, Chart, Tabs, Button, etc.)
+  - **`charts/`** - Chart visualization components (Recharts, D3.js)
+- **`frontend/contexts/`** - React Context for global state (TickerContext)
+- **`frontend/hooks/`** - Custom React hooks (useStockData for API calls)
+- **`frontend/lib/`** - Utility libraries
+  - **`api.ts`** - Type-safe API client with 20+ endpoint wrappers
+  - **`formatters.ts`** - Data formatting utilities (currency, numbers, dates)
+  - **`utils.ts`** - shadcn/ui utilities
+
+**Tech Stack:**
+- Next.js 16 with App Router
+- TypeScript for type safety
+- Tailwind CSS v4 for styling
+- shadcn/ui for UI components
+- Recharts for charts
+- React Context API for state management
+
+See [frontend/README.md](frontend/README.md) for detailed documentation.
+
+### Legacy Frontend (Static HTML/JS)
+
+The static frontend is preserved for reference:
 
 - **`static/index.html`** - Landing page with ticker input form
+- **`static/dashboard.html`** - Main analytics dashboard
 - **`static/statements.html`** - Financial statements display interface
 - **`static/js/common.js`** - Shared utilities and session storage
-- **`static/js/statements.js`** - Data rendering and API integration
+- **`static/js/dashboard.js`** - Dashboard logic with Chart.js/D3.js
 
 ### Key Integration Points
 
@@ -341,6 +387,7 @@ For questions or issues:
 
 ## Roadmap
 
-- [ ] React frontend migration
+- [x] Next.js frontend migration (v1.5.0)
+- [ ] Complete dashboard feature parity (charts, ratios, company info)
 - [ ] Portfolio analysis features
-- [ ] Historical data visualization
+- [ ] Advanced data visualization
