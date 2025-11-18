@@ -9,16 +9,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 ```bash
 # Install dependencies
 bun install
+```
 
+```bash
 # Development server (port 3001)
 bun run dev
+```
 
+```bash
 # Production build
 bun run build
+```
 
+```bash
 # Production server (port 3001)
-bun run next start -p 3001
+bun run start             # Uses package.json script
+# bun run next start -p 3001  # Direct Next.js command (alternative)
+```
 
+```bash
 # Code linting
 bun run lint
 ```
