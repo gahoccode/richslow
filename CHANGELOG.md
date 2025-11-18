@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-11-18
+
+### Added
+- **Branch Consolidation**: Successfully merged all development branches into unified main branch
+  - **Complete Feature Integration**: All features from feature/shadcn and dev branches now available in main
+  - **Next.js Frontend**: Modern React-based frontend with comprehensive Vietnamese stock market visualization
+  - **Industry Benchmark Overlays**: Competitive analysis with industry median comparisons
+  - **Dividend Timeline Chart**: Stock price visualization with dividend event markers
+  - **Ownership Structure Sunburst**: Interactive D3.js hierarchical ownership visualization
+  - **Cash Conversion Cycle Analysis**: Quarterly drill-down with operational insights
+  - **Test Coverage Improvements**: Enhanced test suite with comprehensive coverage
+  - **Code Quality Enhancements**: Refactored service layer and improved data processing
+
+### Changed
+- **Architecture**: Unified codebase with hybrid frontend options (static + Next.js)
+- **Performance**: Optimized build process with Bun package manager
+- **Documentation**: Comprehensive API docs and implementation status tracking
+- **Version**: Major version bump to v2.0.0 reflecting complete Next.js integration
+
+### Technical Improvements
+- **Merge Strategy**: Preserved complete development history with --no-ff merges
+- **Dependency Management**: Updated lock files and package configurations
+- **Error Handling**: Enhanced error handling across all API endpoints
+- **Type Safety**: Full TypeScript coverage with comprehensive interfaces
+
 ## [Unreleased]
 
 ### Added
