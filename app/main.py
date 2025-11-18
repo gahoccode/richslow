@@ -1,7 +1,6 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 from app.routes.route_company import router as company_router
 from app.routes.route_historical_prices import router as historical_router
@@ -11,16 +10,23 @@ from app.routes.route_statements import router as statements_router
 
 app = FastAPI(
     title="RichSlow Financial Analysis API",
-    description="Vietnamese stock market financial analysis platform",
+    description="Vietnamese stock market financial analysis platform - Backend API Service",
     version="2.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )
 
-# Add CORS middleware
+# Get frontend URL from environment variable
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3001")
+
+# Add CORS middleware with specific frontend URL
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=[
+        frontend_url,
+        "http://localhost:3001",  # Local development
+        "https://richslow-frontend.onrender.com"  # Render deployment
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,40 +39,16 @@ app.include_router(company_router)
 app.include_router(industry_benchmark_router)
 app.include_router(quarterly_ratios_router)
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
-# Serve frontend pages
-@app.get("/")
-async def serve_index():
-    """Serve the main landing page."""
-    return FileResponse("static/index.html")
-
-
-@app.get("/statements")
-async def serve_statements():
-    """Serve the financial statements page."""
-    return FileResponse("static/statements.html")
-
-
-@app.get("/dashboard")
-async def serve_dashboard():
-    """Serve the interactive dashboard page."""
-    return FileResponse("static/dashboard.html")
-
-
-@app.get("/market")
-async def serve_market():
-    """Serve the market data page."""
-    return FileResponse("static/market.html")
-
-
-# Health check at root level
+# Health check endpoint for monitoring
 @app.get("/health")
-async def root_health():
-    """Root health check."""
-    return {"status": "healthy", "message": "RichSlow API is running"}
+async def health_check():
+    """Health check endpoint for monitoring and load balancers."""
+    return {
+        "status": "healthy",
+        "service": "richslow-api",
+        "version": "2.0.0",
+        "frontend_url": frontend_url
+    }
 
 
 if __name__ == "__main__":

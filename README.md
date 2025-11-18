@@ -13,13 +13,69 @@ A comprehensive Vietnamese stock market financial analysis web application built
 - **Clean API Design**: RESTful API with comprehensive OpenAPI documentation
 - **Reusable Backend**: Modular design allows backend services to be used in other applications
 
+## Deployment Options
+
+RichSlow offers two deployment architectures to suit different needs:
+
+### Option 1: Monolithic Deployment (Simple)
+- **Branch**: `main`
+- **Architecture**: Single FastAPI service with built-in static frontend
+- **URL**: https://richslow.onrender.com
+- **Configuration**: `render.yaml`
+- **Benefits**:
+  - Simple deployment and management
+  - Single service to monitor
+  - Built-in frontend with no CORS complexity
+  - Easy maintenance and updates
+
+### Option 2: Dual-Service Deployment (Advanced)
+- **Branch**: `feature/nextjs-deployment`
+- **Architecture**: Separate backend API and Next.js frontend services
+- **URLs**:
+  - API: https://richslow-api.onrender.com
+  - Frontend: https://richslow-frontend.onrender.com
+- **Configuration**: `render-nextjs.yaml`
+- **Benefits**:
+  - Independent scaling of frontend and backend
+  - Modern Next.js architecture with TypeScript
+  - Better separation of concerns
+  - Suitable for team development
+  - Backend API can be used by other applications
+
+### Choosing Between Options
+
+| Factor | Monolithic (main) | Dual-Service (feature/nextjs-deployment) |
+|--------|-------------------|-------------------------------------------|
+| **Complexity** | Low | Moderate |
+| **Scalability** | Limited | High |
+| **Development** | Simple | Team-friendly |
+| **Performance** | Good | Optimized |
+| **Maintenance** | Easy | Moderate |
+| **Use Case** | Simple deployment | Production applications |
+
+### Quick Deploy with Render Blueprint
+
+1. **Monolithic Deployment**:
+   ```bash
+   git checkout main
+   # Deploy repository using render.yaml
+   ```
+
+2. **Dual-Service Deployment**:
+   ```bash
+   git checkout feature/nextjs-deployment
+   # Deploy repository using render-nextjs.yaml
+   ```
+
+Both options provide one-click deployment through Render's Blueprint feature.
+
 ## Quick Start
 
 ### Prerequisites
 
 - Python 3.11+
 - [uv](https://github.com/astral-sh/uv) package manager
-- Node.js 18+ and npm (for Next.js frontend)
+- Node.js 18+ and npm or [Bun](https://bun.sh) (for Next.js frontend)
 
 ### Installation
 
@@ -34,10 +90,19 @@ cd richslow
 uv sync
 ```
 
-3. Install frontend dependencies:
+3. Install frontend dependencies (choose one):
+
+**Using npm:**
 ```bash
 cd frontend
 npm install
+cd ..
+```
+
+**Using Bun (faster):**
+```bash
+cd frontend
+bun install
 cd ..
 ```
 
@@ -48,10 +113,18 @@ cd ..
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**Frontend** (Terminal 2):
+**Frontend** (Terminal 2 - choose one):
+
+**Using npm:**
 ```bash
 cd frontend
 npm run dev
+```
+
+**Using Bun (faster):**
+```bash
+cd frontend
+bun run dev
 ```
 
 ### Access Points
