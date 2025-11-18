@@ -277,6 +277,33 @@ export interface IncomeStatementData {
   operating_profit?: number | null;
   net_profit?: number | null;
   profit_before_tax?: number | null;
+  // Revenue & Sales
+  sales?: number | null;
+  sales_deductions?: number | null;
+  net_sales?: number | null;
+  // Costs & Expenses
+  cost_of_sales?: number | null;
+  selling_expenses?: number | null;
+  general_admin_expenses?: number | null;
+  // Attributable Profits
+  attributable_to_parent?: number | null;
+  attributable_to_parent_vnd?: number | null;
+  attributable_to_parent_yoy?: number | null;
+  minority_interest?: number | null;
+  // Financial Income/Expenses
+  financial_income?: number | null;
+  financial_expenses?: number | null;
+  interest_expenses?: number | null;
+  // Tax
+  business_tax_current?: number | null;
+  business_tax_deferred?: number | null;
+  // Other Income
+  other_income?: number | null;
+  other_income_expenses?: number | null;
+  net_other_income?: number | null;
+  // Investment Related
+  gain_loss_joint_ventures?: number | null;
+  net_income_associated_companies?: number | null;
   [key: string]: unknown;
 }
 
@@ -286,12 +313,91 @@ export interface BalanceSheetData {
   total_assets?: number | null;
   total_liabilities?: number | null;
   owners_equity?: number | null;
+  // Current Assets
+  current_assets?: number | null;
+  cash_and_equivalents?: number | null;
+  short_term_investments?: number | null;
+  accounts_receivable?: number | null;
+  short_term_loans_receivable?: number | null;
+  inventories_net?: number | null;
+  net_inventories?: number | null;
+  prepayments_to_suppliers?: number | null;
+  other_current_assets?: number | null;
+  // Long-term Assets
+  long_term_assets?: number | null;
+  fixed_assets?: number | null;
+  long_term_investments?: number | null;
+  investment_properties?: number | null;
+  long_term_loans_receivable?: number | null;
+  long_term_trade_receivables?: number | null;
+  long_term_prepayments?: number | null;
+  goodwill?: number | null;
+  goodwill_alt?: number | null;
+  other_non_current_assets?: number | null;
+  other_long_term_assets?: number | null;
+  // Total Resources
+  total_resources?: number | null;
+  // Liabilities
+  current_liabilities?: number | null;
+  short_term_borrowings?: number | null;
+  advances_from_customers?: number | null;
+  long_term_liabilities?: number | null;
+  long_term_borrowings?: number | null;
+  convertible_bonds?: number | null;
+  // Equity
+  capital_and_reserves?: number | null;
+  paid_in_capital?: number | null;
+  common_shares?: number | null;
+  investment_development_funds?: number | null;
+  other_reserves?: number | null;
+  undistributed_earnings?: number | null;
+  minority_interests?: number | null;
   [key: string]: unknown;
 }
 
 export interface CashFlowData {
   ticker?: string | null;
   year_report?: number | null;
+  // Starting Items
+  profit_before_tax?: number | null;
+  depreciation_amortisation?: number | null;
+  provision_credit_losses?: number | null;
+  unrealized_fx_gain_loss?: number | null;
+  profit_loss_investing?: number | null;
+  interest_expense?: number | null;
+  // Working Capital Changes
+  increase_decrease_receivables?: number | null;
+  increase_decrease_inventories?: number | null;
+  increase_decrease_payables?: number | null;
+  increase_decrease_prepaid?: number | null;
+  // Operating Cash Flow
+  interest_paid?: number | null;
+  business_tax_paid?: number | null;
+  other_receipts_operating?: number | null;
+  other_payments_operating?: number | null;
+  operating_cash_flow?: number | null;
+  // Investing Activities
+  purchase_fixed_assets?: number | null;
+  proceeds_disposal_assets?: number | null;
+  loans_granted?: number | null;
+  collection_loans?: number | null;
+  investment_other_entities?: number | null;
+  proceeds_divestment?: number | null;
+  dividends_received?: number | null;
+  interest_income_dividends?: number | null;
+  investing_cash_flow?: number | null;
+  // Financing Activities
+  increase_charter_capital?: number | null;
+  proceeds_borrowings?: number | null;
+  repayment_borrowings?: number | null;
+  dividends_paid?: number | null;
+  finance_lease_principal_payments?: number | null;
+  financing_cash_flow?: number | null;
+  // Net Cash Flow
+  net_change_in_cash?: number | null;
+  cash_beginning?: number | null;
+  fx_adjustment?: number | null;
+  cash_end_period?: number | null;
   [key: string]: unknown;
 }
 
@@ -308,15 +414,13 @@ export const statementsAPI = {
   getStatements: (
     ticker: string,
     params?: {
-      startDate?: string;
-      endDate?: string;
       period?: 'quarter' | 'year';
+      years?: number;
     }
   ): Promise<FinancialStatements> => {
     const queryParams = new URLSearchParams();
-    if (params?.startDate) queryParams.append('start_date', params.startDate);
-    if (params?.endDate) queryParams.append('end_date', params.endDate);
     if (params?.period) queryParams.append('period', params.period);
+    if (params?.years) queryParams.append('years', params.years.toString());
 
     const queryString = queryParams.toString();
     const endpoint = `/api/statements/${ticker}${queryString ? `?${queryString}` : ''}`;

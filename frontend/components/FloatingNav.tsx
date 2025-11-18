@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { BarChart3, TrendingUp } from "lucide-react"
+import { BarChart3, TrendingUp, FileText } from "lucide-react"
 
 export function FloatingNav() {
   const pathname = usePathname()
@@ -20,6 +20,12 @@ export function FloatingNav() {
       href: "/market",
       icon: TrendingUp,
       active: pathname === "/market",
+    },
+    {
+      name: "Statements",
+      href: "/statement",
+      icon: FileText,
+      active: pathname === "/statement",
     },
   ]
 

@@ -54,15 +54,17 @@ export interface UseStockDataReturn {
  * - Graceful error handling
  *
  * @param ticker - Stock ticker symbol (e.g., "VNM", "VCB")
- * @param startDate - Start date for historical data (YYYY-MM-DD)
- * @param endDate - End date for historical data (YYYY-MM-DD)
+ * @param startDate - Start date for historical price data (YYYY-MM-DD)
+ * @param endDate - End date for historical price data (YYYY-MM-DD)
  * @param period - Reporting period ('quarter' | 'year')
+ * @param years - Number of years for financial statements (default: 5)
  */
 export function useStockData(
   ticker: string,
   startDate?: string,
   endDate?: string,
-  period?: 'quarter' | 'year'
+  period?: 'quarter' | 'year',
+  years: number = 5
 ): UseStockDataReturn {
   // STAGE 1: Critical Data (Financial data - 5 min cache)
   // These are essential for the main UI and should load first
@@ -74,8 +76,8 @@ export function useStockData(
   );
 
   const { data: statements, error: statementsError, isLoading: statementsLoading } = useSWR(
-    getCacheKey('/api/statements', ticker, { startDate, endDate, period }),
-    ticker ? () => api.statements.getStatements(ticker, { startDate, endDate, period }) : null,
+    getCacheKey('/api/statements', ticker, { period, years: years.toString() }),
+    ticker ? () => api.statements.getStatements(ticker, { period, years }) : null,
     financialDataConfig // 5 min cache for financial statements
   );
 

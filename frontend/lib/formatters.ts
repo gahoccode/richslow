@@ -160,3 +160,48 @@ export function formatGoldPrice(num: number | null | undefined): string {
     maximumFractionDigits: 0
   }) + ' VND';
 }
+
+/**
+ * Format number as Vietnamese billions
+ * Example: 1234567890000 → "1,234.57 B"
+ */
+export function formatBillionVND(value: number | null | undefined): string {
+  if (value === null || value === undefined || isNaN(value)) return 'N/A';
+  const billions = value / 1_000_000_000;
+  return billions.toLocaleString('vi-VN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }) + ' B';
+}
+
+/**
+ * Format YoY percentage with color
+ * Example: 0.1522 → { text: "15.22%", color: "success" }
+ */
+export function formatYoY(value: number | null | undefined): {
+  text: string;
+  color: 'success' | 'destructive' | 'muted';
+} {
+  if (value === null || value === undefined || isNaN(value)) {
+    return { text: 'N/A', color: 'muted' };
+  }
+  const percentage = value * 100;
+  return {
+    text: percentage.toFixed(2) + '%',
+    color: percentage >= 0 ? 'success' : 'destructive'
+  };
+}
+
+/**
+ * Smart formatter based on field key
+ */
+export function formatStatementValue(
+  value: number | null | undefined,
+  fieldKey: string
+): string {
+  if (fieldKey.includes('yoy') || fieldKey.includes('_percent')) {
+    const result = formatYoY(value);
+    return result.text;
+  }
+  return formatBillionVND(value);
+}
