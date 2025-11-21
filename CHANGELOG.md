@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+(No unreleased changes yet)
+
+## [2.1.0] - 2025-11-21
+
 ### Changed
 - **Frontend API Integration**: Migrated from manual API client to OpenAPI-generated facade layer
   - **Automated Type Generation**: Frontend types now auto-sync with backend Pydantic schemas
@@ -53,6 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 1 legacy file deleted (`frontend/lib/api.ts` - 607 lines)
 - **Breaking Changes**: None - property names changed from `camelCase` to `snake_case` (backend alignment)
 - **Architecture Decision**: See `docs/architecture/adr/007-openapi-code-generation.md` for full rationale
+
+### Frontend Version
+- **Version**: 0.2.0 (independent frontend versioning)
+- **Backend Version**: 2.1.0 (OpenAPI spec provider)
+
+## [2.0.0] - 2025-11-18
 
 ### Added
 - **Next.js Frontend with Complete Chart Integration**: Modern React-based frontend with all 6 PRD charts displaying real Vietnamese stock market data
@@ -440,7 +450,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Figure scaling to display in original scale
 - Data processing pipeline for Vietnamese financial statements
 
-[Unreleased]: https://github.com/gahoccode/richslow/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/gahoccode/richslow/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/gahoccode/richslow/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/gahoccode/richslow/compare/v1.5.0...v2.0.0
 [1.5.0]: https://github.com/gahoccode/richslow/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/gahoccode/richslow/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/gahoccode/richslow/compare/v1.2.0...v1.3.0
