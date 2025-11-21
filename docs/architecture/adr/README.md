@@ -23,9 +23,10 @@ Each ADR follows this format:
 | 001 | Technology Stack Selection | Accepted | 2024-01-01 |
 | 002 | Data Model Design | Accepted | 2024-01-01 |
 | 003 | Stateless Architecture | Accepted | 2024-01-01 |
-| 004 | Frontend Architecture | Accepted | 2024-01-01 |
+| 004 | Frontend Architecture | Superseded | 2024-01-01 |
 | 005 | Error Handling Strategy | Accepted | 2024-01-01 |
 | 006 | vnstock v3+ Compatibility | Accepted | 2024-09-13 |
+| 007 | OpenAPI Code Generation for Frontend | Accepted | 2025-11-21 |
 
 ## How to Create a New ADR
 

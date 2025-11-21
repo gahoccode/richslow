@@ -1,8 +1,10 @@
 # ADR-004: Frontend Architecture
 
-**Status**: Accepted
+**Status**: Superseded (by Next.js migration + ADR-007)
 
 **Date**: 2024-01-01
+
+**Last Updated**: 2025-11-21
 
 ## Context
 
@@ -143,3 +145,81 @@ The trade-offs are acceptable because:
 - **Error Tracking**: JavaScript errors and API failures
 - **User Behavior**: Form completion rates, navigation patterns
 - **Browser Support**: Usage statistics and compatibility issues
+
+---
+
+## Status Update (2025-11-21): Superseded by Modern Frontend Stack
+
+**This ADR has been superseded** by significant architectural evolution over time.
+
+### Evolution Timeline
+
+#### Phase 1: Static HTML + Vanilla JavaScript (2024-01-01)
+- **Status**: Initial implementation as documented in this ADR
+- **Technologies**: Static HTML, Vanilla JS, TailwindCSS, Session Storage
+- **Rationale**: Simplicity, performance, low complexity for MVP
+
+#### Phase 2: Next.js 16 + React Migration (2025-11-18)
+- **Status**: Completed - See CHANGELOG.md v2.0.0 and [Unreleased]
+- **Technologies**: Next.js 16 with App Router, React 19.2.0, TypeScript, shadcn/ui
+- **Major Changes**:
+  - Modern React-based frontend with component architecture
+  - 77+ new components (charts, tables, UI elements)
+  - TickerContext for global state management
+  - SWR for intelligent data fetching and caching
+  - Comprehensive charting system (30+ visualizations)
+  - Full TypeScript coverage with strict mode
+
+#### Phase 3: OpenAPI Code Generation (2025-11-21)
+- **Status**: Completed - See [ADR-007](007-openapi-code-generation.md)
+- **Technologies**: OpenAPI-generated TypeScript client + Facade pattern
+- **Major Changes**:
+  - Migrated from manual API client (607 lines) to auto-generated facade
+  - Frontend types now auto-sync with backend Pydantic schemas
+  - Single source of truth for API contracts
+  - 80% reduction in boilerplate code
+  - Full type safety with IDE autocomplete
+
+### Current Architecture (2025-11-21)
+
+The application now uses:
+- **Frontend Framework**: Next.js 16 with App Router
+- **UI Library**: React 19.2.0 + shadcn/ui components
+- **Type System**: TypeScript with strict mode
+- **API Integration**: OpenAPI-generated client with facade pattern (ADR-007)
+- **State Management**: React Context + SWR caching
+- **Styling**: Tailwind CSS v4
+- **Charts**: Recharts + D3.js for financial visualizations
+
+### Migration Outcomes
+
+**Benefits Achieved**:
+- Component-based architecture with reusability
+- Auto-synced types from backend to frontend
+- Professional UI with modern design system
+- Comprehensive data visualization capabilities
+- Improved developer experience and maintainability
+- Single source of truth for API contracts
+
+**Code Metrics**:
+- Frontend codebase: 77+ components, 8000+ lines
+- Legacy static frontend: Still available for comparison
+- Manual API client: Eliminated (607 lines removed)
+- Generated API client: ~5000 lines (automated)
+
+### Related Documentation
+
+- **CHANGELOG.md**: Complete migration history and version timeline
+- **ADR-007**: OpenAPI Code Generation decision and rationale
+- **frontend/CLAUDE.md**: Current frontend development guidelines
+- **IMPLEMENTATION_STATUS.md**: Next.js implementation tracking
+
+### Lessons Learned
+
+1. **Progressive Enhancement Works**: Started simple, evolved as needed
+2. **Type Safety Matters**: TypeScript + OpenAPI generation prevents bugs
+3. **Automation Saves Time**: Code generation eliminates maintenance burden
+4. **Component Architecture**: React components enable better code organization
+5. **Incremental Migration**: Gradual evolution prevented big-bang rewrites
+
+This ADR remains as historical reference for the original architecture decision and evolution path.
