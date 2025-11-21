@@ -27,12 +27,12 @@ import type {
   CompanyReportsVCI,
   TradingStatsVCI,
   FinancialStatementsResponse,
+  FinancialRatiosData,
   PeriodType,
   StockOHLCV,
   ExchangeRate,
   GoldSJC,
   GoldBTMC,
-  CompanyRatioVCI as QuarterlyRatio,
   IndustryBenchmark,
 } from './client';
 
@@ -61,7 +61,7 @@ export type {
   ExchangeRate,
   GoldSJC,
   GoldBTMC,
-  QuarterlyRatio,
+  FinancialRatiosData as QuarterlyRatio,
   IndustryBenchmark,
   PeriodType,
 };

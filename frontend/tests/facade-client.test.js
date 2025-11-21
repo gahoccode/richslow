@@ -1,16 +1,22 @@
 /**
- * Test Script for API Facade Layer
+ * Test Script for API Facade Layer (Fast Tests)
  *
  * This script validates that the facade layer correctly wraps the generated
  * OpenAPI client and provides a clean, backward-compatible API surface.
  *
+ * ⚡ Fast Tests: This suite runs ~18 tests in ~16 seconds
+ *
+ * Rate-limited endpoints (Industry Benchmark) have been moved to a separate
+ * test file to avoid slowing down the main test suite. Run separately:
+ *   bun run frontend/tests/facade-rate-limited.test.js
+ *
  * Run this test with the backend server running:
  * Backend: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
- * Test: bun run frontend/test-facade-client.js
+ * Test: bun run frontend/tests/facade-client.test.js
  */
 
 // Import facade API
-import { api } from './lib/api/facade.ts';
+import { api } from '../lib/api/facade.ts';
 
 // Test configuration
 const TEST_TICKER = 'VCB'; // Use VCB (Vietcombank) as test ticker
@@ -254,17 +260,8 @@ const tests = [
   },
 
   // Industry API Tests
-  {
-    name: 'Company Industry Benchmark API',
-    test: async () => {
-      const data = await api.industry.getCompanyBenchmark(TEST_TICKER);
-      if (!data) throw new Error('No data returned');
-      if (!data.industry_name) throw new Error('Missing industry_name field');
-      log('info', `Industry: ${data.industry_name}`);
-      log('info', `Companies analyzed: ${data.companies_analyzed || 0}`);
-      return data;
-    },
-  },
+  // Note: Company Industry Benchmark API moved to facade-rate-limited.test.js
+  // due to vnstock rate limiting (takes 30-60 seconds)
   {
     name: 'Industry Classifications API',
     test: async () => {

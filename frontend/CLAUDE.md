@@ -46,6 +46,28 @@ bun remove <package>
 bun update
 ```
 
+### Testing Facade Layer
+
+```bash
+# Fast integration tests (~16 seconds, 18 endpoints)
+bun run test:facade
+
+# Rate-limited tests (~60-180 seconds, 3 endpoints)
+bun run test:facade:rate-limited
+
+# All tests including rate-limited
+bun run test:facade:all
+```
+
+**Prerequisites**: Backend server must be running on port 8000
+
+**Coverage**:
+- Company APIs (10 endpoints)
+- Financial Statements (2 variations)
+- Stock Prices & Market Data (4 endpoints)
+- Quarterly Ratios (1 endpoint)
+- Industry Classifications (1 endpoint)
+
 ### Backend Integration
 
 ```bash

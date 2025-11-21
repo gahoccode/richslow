@@ -27,6 +27,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `uv run pytest -k "test_contract"` - Run tests matching pattern
 - `uv run pytest tests/test_integration.py -v` - Run integration tests
 
+### Frontend Facade Layer Testing
+
+- `cd frontend && bun run test:facade` - Fast integration tests (~16 seconds, 18 endpoints)
+- `cd frontend && bun run test:facade:rate-limited` - Rate-limited tests (~60-180 seconds)
+- Backend must be running on port 8000 for facade tests
+
 ### Dependency Management
 
 - `uv sync` - Install/update dependencies from pyproject.toml
