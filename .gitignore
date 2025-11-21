@@ -6,3 +6,13 @@ __pycache__/
 .claude/
 prd/
 .mcp.json
+MIGRATION_PLAN.md
+.gitignore
+.gitignore
+.gitignore
+frontend/FACADE_MIGRATION_GUIDE.md
+frontend/API_CLIENT.md
+TEST_RESULTS.md
+OPENAPI_FACADE_IMPLEMENTATION.md
+.gitignore
+MIGRATION_SUMMARY.md
