@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from 'swr';
-import { api } from '@/lib/api';
+import api from '@/lib/api/facade';
 import {
   getCacheKey,
   financialDataConfig,
@@ -19,7 +19,7 @@ import type {
   Subsidiary,
   CompanyRatioVCI,
   IndustryBenchmark,
-} from '@/lib/api';
+} from '@/lib/api/facade';
 
 export interface StockData {
   overview: CompanyOverview | null;
@@ -83,7 +83,7 @@ export function useStockData(
 
   const { data: prices, error: pricesError, isLoading: pricesLoading } = useSWR(
     getCacheKey('/api/stock-prices', ticker, { startDate, endDate }),
-    ticker ? () => api.prices.getStockPrices(ticker, { startDate, endDate }) : null,
+    ticker && startDate && endDate ? () => api.prices.getStockPrices(ticker, startDate, endDate) : null,
     financialDataConfig // 5 min cache for stock prices
   );
 

@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR from 'swr';
-import api, { ExchangeRate, GoldSJC, GoldBTMC } from '@/lib/api';
+import api, { ExchangeRate, GoldSJC, GoldBTMC } from '@/lib/api/facade';
 import { referenceDataConfig } from '@/lib/swr-config';
 
 /**
