@@ -1,6 +1,6 @@
 "use client"
 
-import { GoldSJC, GoldBTMC } from "@/lib/api"
+import { GoldSJC, GoldBTMC } from "@/lib/api/facade"
 import { ChartGoldSJC } from "@/components/charts/ChartGoldSJC"
 import { BTMCGoldList } from "./BTMCGoldList"
 

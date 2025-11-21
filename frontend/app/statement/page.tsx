@@ -10,7 +10,7 @@ import { IncomeStatementTable } from "@/components/statements/IncomeStatementTab
 import { BalanceSheetTable } from "@/components/statements/BalanceSheetTable"
 import { CashFlowStatementTable } from "@/components/statements/CashFlowStatementTable"
 import { StatementTableWrapper } from "@/components/statements/StatementTableWrapper"
-import api from "@/lib/api"
+import api from "@/lib/api/facade"
 
 const YEAR_OPTIONS = [
   { label: 'Last 3 years', value: 3 },

@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { CashFlowData } from "@/lib/api"
+import { CashFlowData } from "@/lib/api/facade"
 import { formatBillionVND } from "@/lib/formatters"
 import { CASH_FLOW_FIELDS } from "@/lib/statement-fields"
 

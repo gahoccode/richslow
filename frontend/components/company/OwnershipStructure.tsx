@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { ShareholderInfo, Subsidiary } from "@/lib/api"
+import { ShareholderInfo, Subsidiary } from "@/lib/api/facade"
 import { formatPercentage } from "@/lib/formatters"
 import { Building2, Users, TrendingDown } from "lucide-react"
 

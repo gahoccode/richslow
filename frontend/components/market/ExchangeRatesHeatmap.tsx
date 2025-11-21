@@ -1,6 +1,6 @@
 "use client"
 
-import { ExchangeRate } from "@/lib/api"
+import { ExchangeRate } from "@/lib/api/facade"
 import { formatVNDShort, formatVNDRate } from "@/lib/formatters"
 
 interface ExchangeRatesHeatmapProps {
