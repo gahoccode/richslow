@@ -12,6 +12,10 @@ export type BalanceSheetData = {
      */
     year_report?: (number | null);
     /**
+     * Period identifier (e.g., '2024-Q1' for quarterly, None for annual)
+     */
+    period_id?: (string | null);
+    /**
      * Total current assets
      */
     current_assets?: (number | null);

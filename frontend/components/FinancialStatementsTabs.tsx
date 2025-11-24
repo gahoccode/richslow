@@ -23,7 +23,7 @@ interface FinancialStatementsTabsProps {
       financing_cash_flow?: number | null;
       net_change_in_cash?: number | null;
     }>;
-    years?: number[];
+    years?: (string | number)[];
   } | null;
   ratios?: Array<{
     year_report?: number;

@@ -8,13 +8,17 @@ import { CASH_FLOW_FIELDS } from "@/lib/statement-fields"
 
 interface CashFlowStatementTableProps {
   data: CashFlowData[];
-  years: number[];
+  years: (string | number)[]; // Can be years (2024) for annual or period IDs (2024-Q1) for quarterly
 }
 
 export function CashFlowStatementTable({ data, years }: CashFlowStatementTableProps) {
-  // Create year-to-data mapping
+  // Create period-to-data mapping (supports both annual and quarterly data)
   const dataByYear = new Map(
-    data.map(stmt => [stmt.year_report, stmt])
+    data.map(stmt => {
+      // For quarterly data, use period_id; for annual data, use year_report
+      const periodKey = stmt.period_id || stmt.year_report?.toString();
+      return [periodKey, stmt];
+    })
   );
 
   const renderSection = (key: string, sectionKey: string, section: { label: string; fields: Record<string, { label: string; format: string; bold?: boolean }> }) => (
@@ -33,7 +37,8 @@ export function CashFlowStatementTable({ data, years }: CashFlowStatementTablePr
             {fieldMeta.label}
           </TableCell>
           {years.map(year => {
-            const stmt = dataByYear.get(year);
+            const periodKey = typeof year === 'number' ? year.toString() : year;
+            const stmt = dataByYear.get(periodKey);
             const value = stmt?.[fieldKey as keyof CashFlowData] as number | null;
             const formattedValue = formatBillionVND(value);
 

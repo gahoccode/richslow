@@ -19,6 +19,7 @@ class IncomeStatementData(BaseModel):
     # Meta fields
     ticker: str | None = Field(None, description="Stock ticker symbol")
     year_report: int | None = Field(None, description="Report year")
+    period_id: str | None = Field(None, description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)")
 
     # Revenue and Sales
     revenue: float | None = Field(None, description="Total revenue in billions VND")
@@ -89,6 +90,7 @@ class BalanceSheetData(BaseModel):
     # Meta fields
     ticker: str | None = Field(None, description="Stock ticker symbol")
     year_report: int | None = Field(None, description="Report year")
+    period_id: str | None = Field(None, description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)")
 
     # Assets - Current
     current_assets: float | None = Field(None, description="Total current assets")
@@ -185,6 +187,7 @@ class CashFlowData(BaseModel):
     # Meta fields
     ticker: str | None = Field(None, description="Stock ticker symbol")
     year_report: int | None = Field(None, description="Report year")
+    period_id: str | None = Field(None, description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)")
 
     # Starting Cash Flow Items
     profit_before_tax: float | None = Field(
@@ -388,7 +391,7 @@ class FinancialStatementsResponse(BaseModel):
     ratios: list[FinancialRatiosData] = Field(
         ..., description="Financial ratios data by year"
     )
-    years: list[int] = Field(..., description="Available years")
+    years: list[int | str] = Field(..., description="Available years (for annual) or period IDs (for quarterly, e.g., '2024-Q1')")
     raw_data: dict[str, list[dict[str, Any]]] | None = Field(
         None, description="Raw financial data"
     )

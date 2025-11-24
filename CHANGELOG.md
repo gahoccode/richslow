@@ -58,6 +58,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Benefits**: Compile-time type safety, self-documenting code, improved developer experience
   - **Architecture Preserved**: Maintained unified backend schema design while fixing frontend type safety
 
+- **Financial Statements Period Display and Type Safety**: Resolved runtime errors, TypeScript compilation issues, and N/A data display for quarterly period support
+  - **Problem 1 - Runtime TypeError**: Frontend crashed with `years[0]?.includes is not a function` when displaying annual financial statements
+    - Root Cause: Backend returns `years: list[int | str]` (integers for annual: `[2024, 2023]`, strings for quarterly: `['2024-Q1']`)
+    - Error: Frontend code `years[0]?.includes('Q')` failed when `years[0]` was a number type
+  - **Problem 2 - TypeScript Errors**: Compilation failed with `Property 'period_id' does not exist` on all statement data types
+    - Root Cause: Backend Pydantic schemas added `period_id` field but frontend TypeScript types were stale (generated Nov 21)
+    - Error: TypeScript didn't recognize `period_id?: (string | null)` field that backend was sending at runtime
+  - **Problem 3 - N/A Values**: Annual period financial data displayed as "N/A" in all statement tables
+    - Root Cause: Map lookup failed due to type mismatch between `years` array (numbers) and periodKey (strings)
+    - Error: `dataByYear.get(year)` returned undefined when year was number but Map used string keys
+  - **Frontend Fixes** (10 files modified):
+    - **StatementTableWrapper.tsx**: Added `period: 'quarter' | 'year'` prop to use source of truth from TickerContext instead of data inspection; updated `years` type to `(string | number)[]`
+    - **StatementPage (app/statement/page.tsx)**: Pass `period={period}` prop to all three StatementTableWrapper instances
+    - **Statement Table Components** (3 files): Updated `years` type to `(string | number)[]` and added periodKey conversion (`typeof year === 'number' ? year.toString() : year`) for proper Map lookups
+    - **FinancialStatementsTabs.tsx**: Updated `years` type in props interface to `(string | number)[]` for type compatibility
+    - **OpenAPI Generated Types** (3 model files): Regenerated TypeScript interfaces from backend OpenAPI schema to include `period_id?: (string | null)` field
+  - **Type Regeneration**: Ran `bun run generate:api` to sync frontend types with current backend Pydantic schemas
+  - **Scope of Impact**: 10 frontend files (5 components + 5 type definitions), zero backend changes
+  - **Benefits**:
+    - Runtime errors eliminated for both annual and quarterly periods
+    - TypeScript compilation successful with full type safety
+    - All financial data displays correctly (no N/A values)
+    - Source of truth architecture: Uses explicit `period` state instead of data inspection
+    - Type-safe Map lookups handle both number and string period keys
+  - **Testing**: Verified quarterly period displays quarters ("2024-Q1") and annual period displays years (2024) with correct data in all three statement tables
+
 - **Chart Timeline Ordering**: Fixed dashboard charts to display data in ascending chronological order (oldest→newest) for proper time series analysis
   - **Affected Components**:
     - Revenue & Profitability chart (`ChartAreaGradient`)

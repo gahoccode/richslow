@@ -88,6 +88,7 @@ export default function StatementPage() {
             title="Income Statement"
             description="Revenue, expenses, and profitability"
             years={years}
+            period={period}
             loading={isLoading}
           >
             {data?.income_statements && (
@@ -104,6 +105,7 @@ export default function StatementPage() {
             title="Balance Sheet"
             description="Assets, liabilities, and equity"
             years={years}
+            period={period}
             loading={isLoading}
           >
             {data?.balance_sheets && (
@@ -120,6 +122,7 @@ export default function StatementPage() {
             title="Cash Flow Statement"
             description="Operating, investing, and financing activities"
             years={years}
+            period={period}
             loading={isLoading}
           >
             {data?.cash_flows && (

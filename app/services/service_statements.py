@@ -84,8 +84,29 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
             )
             print(f"DEBUG - After flattening, columns: {list(ratio_df.columns)}")
 
-        # Process income statements
-        income_statements = _process_income_statements(income_statement_df)
+        # Get available periods (years for annual, year-quarter for quarterly)
+        if request.period.value == "quarter":
+            # Create quarterly period IDs (e.g., "2025-Q1", "2025-Q2")
+            quarter_mapping = {1: "Q1", 2: "Q2", 3: "Q3", 4: "Q4"}
+            income_statement_df["period_id"] = (
+                income_statement_df["yearReport"].astype(str) + "-" +
+                income_statement_df["lengthReport"].map(quarter_mapping)
+            )
+            years = sorted(
+                income_statement_df["period_id"].unique().tolist(), reverse=True
+            )
+        else:
+            # For annual data, use years as before
+            years = sorted(
+                income_statement_df["yearReport"].unique().tolist(), reverse=True
+            )
+
+        # Process income statements with period transformation for quarterly data
+        if request.period.value == "quarter":
+            # Transform quarterly data to wide format with period IDs as keys
+            income_statements = _process_quarterly_statements(income_statement_df, years)
+        else:
+            income_statements = _process_income_statements(income_statement_df)
 
         # Process balance sheets
         balance_sheets = _process_balance_sheets(balance_sheet_df)
@@ -95,11 +116,6 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
 
         # Process financial ratios
         ratios = _process_ratios(ratio_df) if not ratio_df.empty else []
-
-        # Get available years
-        years = sorted(
-            income_statement_df["yearReport"].unique().tolist(), reverse=True
-        )
 
         # Prepare raw data for frontend
         raw_data = {
@@ -124,6 +140,188 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
         raise ValueError(
             f"Failed to fetch financial data for {request.ticker}: {str(e)}"
         ) from e
+
+
+def _process_quarterly_statements(df: pd.DataFrame, period_ids: list[str]) -> list[IncomeStatementData]:
+    """
+    Process quarterly data and transform to wide format where metrics are period-based.
+
+    This function converts quarterly data from long format to wide format,
+    with each period (e.g., "2024-Q1") as a separate column for each metric.
+
+    Args:
+        df: Raw DataFrame from vnstock with quarterly data
+        period_ids: List of period IDs in chronological order (newest first)
+
+    Returns:
+        List of IncomeStatementData with metrics as period-based fields
+
+    Side Effects:
+        None
+
+    Business Rules:
+        - Transforms quarterly data from long to wide format
+        - Each period ID becomes a field key containing the metric value
+        - Maintains compatibility with existing frontend table structure
+    """
+    try:
+        # Create quarter mapping
+        quarter_mapping = {1: "Q1", 2: "Q2", 3: "Q3", 4: "Q4"}
+        df = df.copy()
+
+        # Create period_id for grouping
+        df["period_id"] = (
+            df["yearReport"].astype(str) + "-" +
+            df["lengthReport"].map(quarter_mapping)
+        )
+
+        # Get all metrics (exclude metadata columns)
+        metric_columns = [
+            col for col in df.columns
+            if col not in ["ticker", "yearReport", "lengthReport", "period_id"]
+        ]
+
+        # Create wide format data
+        quarterly_statements = []
+
+        for period_id in period_ids:
+            period_data = df[df["period_id"] == period_id]
+
+            if period_data.empty:
+                continue
+
+            # Take the most recent entry for this period
+            latest_period = period_data.iloc[0]
+
+            # Create statement object with period-based fields
+            statement_data = {}
+
+            # Add metadata
+            statement_data["ticker"] = latest_period.get("ticker")
+            statement_data["year_report"] = latest_period.get("yearReport")
+            statement_data["period_id"] = period_id  # Add period_id for quarterly data
+
+            # Add all metrics as period-specific fields
+            for metric in metric_columns:
+                value = latest_period.get(metric)
+                statement_data[metric] = value
+
+            quarterly_statements.append(statement_data)
+
+        return [_process_single_statement(stmt) for stmt in quarterly_statements]
+
+    except Exception as e:
+        raise ValueError(f"Failed to process quarterly statements: {str(e)}") from e
+
+
+def _process_single_statement(raw_data: dict) -> IncomeStatementData:
+    """
+    Process a single statement dictionary through field mapping.
+
+    This is a helper function for quarterly processing to ensure
+    field mapping consistency with the original _process_income_statements function.
+
+    Args:
+        raw_data: Raw statement data dictionary
+
+    Returns:
+        Validated IncomeStatementData instance
+    """
+    # Use the same field mapping as the original function
+    return IncomeStatementData(
+        # Meta fields
+        ticker=safe_get_str(raw_data, INCOME_STATEMENT_MAPPINGS["ticker"]),
+        year_report=safe_get_int(raw_data, INCOME_STATEMENT_MAPPINGS["year_report"]),
+        period_id=safe_get_str(raw_data, "period_id"),  # Add period_id extraction
+
+        # Revenue and Sales
+        revenue=apply_field_mapping(raw_data, "revenue", INCOME_STATEMENT_MAPPINGS),
+        revenue_yoy=apply_field_mapping(
+            raw_data, "revenue_yoy", INCOME_STATEMENT_MAPPINGS
+        ),
+        sales=apply_field_mapping(raw_data, "sales", INCOME_STATEMENT_MAPPINGS),
+        sales_deductions=apply_field_mapping(
+            raw_data, "sales_deductions", INCOME_STATEMENT_MAPPINGS
+        ),
+        net_sales=apply_field_mapping(raw_data, "net_sales", INCOME_STATEMENT_MAPPINGS),
+
+        # Costs and Expenses
+        cost_of_sales=apply_field_mapping(
+            raw_data, "cost_of_sales", INCOME_STATEMENT_MAPPINGS
+        ),
+        selling_expenses=apply_field_mapping(
+            raw_data, "selling_expenses", INCOME_STATEMENT_MAPPINGS
+        ),
+        general_admin_expenses=apply_field_mapping(
+            raw_data, "general_admin_expenses", INCOME_STATEMENT_MAPPINGS
+        ),
+
+        # Profit Metrics
+        gross_profit=apply_field_mapping(
+            raw_data, "gross_profit", INCOME_STATEMENT_MAPPINGS
+        ),
+        operating_profit=apply_field_mapping(
+            raw_data, "operating_profit", INCOME_STATEMENT_MAPPINGS
+        ),
+        profit_before_tax=apply_field_mapping(
+            raw_data, "profit_before_tax", INCOME_STATEMENT_MAPPINGS
+        ),
+        net_profit=apply_field_mapping(
+            raw_data, "net_profit", INCOME_STATEMENT_MAPPINGS
+        ),
+
+        # Attributable Profits
+        attributable_to_parent=apply_field_mapping(
+            raw_data, "attributable_to_parent", INCOME_STATEMENT_MAPPINGS
+        ),
+        attributable_to_parent_vnd=apply_field_mapping(
+            raw_data, "attributable_to_parent_vnd", INCOME_STATEMENT_MAPPINGS
+        ),
+        attributable_to_parent_yoy=apply_field_mapping(
+            raw_data, "attributable_to_parent_yoy", INCOME_STATEMENT_MAPPINGS
+        ),
+        minority_interest=apply_field_mapping(
+            raw_data, "minority_interest", INCOME_STATEMENT_MAPPINGS
+        ),
+
+        # Financial Income/Expenses
+        financial_income=apply_field_mapping(
+            raw_data, "financial_income", INCOME_STATEMENT_MAPPINGS
+        ),
+        financial_expenses=apply_field_mapping(
+            raw_data, "financial_expenses", INCOME_STATEMENT_MAPPINGS
+        ),
+        interest_expenses=apply_field_mapping(
+            raw_data, "interest_expenses", INCOME_STATEMENT_MAPPINGS
+        ),
+
+        # Tax
+        business_tax_current=apply_field_mapping(
+            raw_data, "business_tax_current", INCOME_STATEMENT_MAPPINGS
+        ),
+        business_tax_deferred=apply_field_mapping(
+            raw_data, "business_tax_deferred", INCOME_STATEMENT_MAPPINGS
+        ),
+
+        # Other Income
+        other_income=apply_field_mapping(
+            raw_data, "other_income", INCOME_STATEMENT_MAPPINGS
+        ),
+        other_income_expenses=apply_field_mapping(
+            raw_data, "other_income_expenses", INCOME_STATEMENT_MAPPINGS
+        ),
+        net_other_income=apply_field_mapping(
+            raw_data, "net_other_income", INCOME_STATEMENT_MAPPINGS
+        ),
+
+        # Investment Related
+        gain_loss_joint_ventures=apply_field_mapping(
+            raw_data, "gain_loss_joint_ventures", INCOME_STATEMENT_MAPPINGS
+        ),
+        net_income_associated_companies=apply_field_mapping(
+            raw_data, "net_income_associated_companies", INCOME_STATEMENT_MAPPINGS
+        ),
+    )
 
 
 def _process_income_statements(df: pd.DataFrame) -> list[IncomeStatementData]:
@@ -258,8 +456,20 @@ def _process_balance_sheets(df: pd.DataFrame) -> list[BalanceSheetData]:
         - Uses centralized field mappings from BALANCE_SHEET_MAPPINGS
         - Safely extracts all fields with null handling
         - Validates data through Pydantic schema
+        - Creates period_id for quarterly data if yearReport and lengthReport columns exist
     """
     sheets = []
+
+    # Create period_id for quarterly data only (lengthReport 1-4 = Q1-Q4)
+    df = df.copy()
+    if "yearReport" in df.columns and "lengthReport" in df.columns:
+        # Only create period_id for quarterly data
+        quarterly_mask = df["lengthReport"].isin([1, 2, 3, 4])
+        quarter_mapping = {1: "Q1", 2: "Q2", 3: "Q3", 4: "Q4"}
+        df.loc[quarterly_mask, "period_id"] = (
+            df.loc[quarterly_mask, "yearReport"].astype(str) + "-" +
+            df.loc[quarterly_mask, "lengthReport"].map(quarter_mapping)
+        )
 
     for _, row in df.iterrows():
         # Use centralized field mappings for data extraction
@@ -268,6 +478,7 @@ def _process_balance_sheets(df: pd.DataFrame) -> list[BalanceSheetData]:
                 # Meta fields
                 ticker=safe_get_str(row, BALANCE_SHEET_MAPPINGS["ticker"]),
                 year_report=safe_get_int(row, BALANCE_SHEET_MAPPINGS["year_report"]),
+                period_id=safe_get_str(row, "period_id"),  # Add period_id extraction
                 # Assets - Current
                 current_assets=apply_field_mapping(
                     row, "current_assets", BALANCE_SHEET_MAPPINGS
@@ -414,8 +625,20 @@ def _process_cash_flows(df: pd.DataFrame) -> list[CashFlowData]:
         - Uses centralized field mappings from CASH_FLOW_MAPPINGS
         - Safely extracts all fields with null handling
         - Validates data through Pydantic schema
+        - Creates period_id for quarterly data if yearReport and lengthReport columns exist
     """
     flows = []
+
+    # Create period_id for quarterly data only (lengthReport 1-4 = Q1-Q4)
+    df = df.copy()
+    if "yearReport" in df.columns and "lengthReport" in df.columns:
+        # Only create period_id for quarterly data
+        quarterly_mask = df["lengthReport"].isin([1, 2, 3, 4])
+        quarter_mapping = {1: "Q1", 2: "Q2", 3: "Q3", 4: "Q4"}
+        df.loc[quarterly_mask, "period_id"] = (
+            df.loc[quarterly_mask, "yearReport"].astype(str) + "-" +
+            df.loc[quarterly_mask, "lengthReport"].map(quarter_mapping)
+        )
 
     for _, row in df.iterrows():
         # Use centralized field mappings for data extraction
@@ -424,6 +647,7 @@ def _process_cash_flows(df: pd.DataFrame) -> list[CashFlowData]:
                 # Meta fields
                 ticker=safe_get_str(row, CASH_FLOW_MAPPINGS["ticker"]),
                 year_report=safe_get_int(row, CASH_FLOW_MAPPINGS["year_report"]),
+                period_id=safe_get_str(row, "period_id"),  # Add period_id extraction
                 # Starting Cash Flow Items
                 profit_before_tax=apply_field_mapping(
                     row, "profit_before_tax", CASH_FLOW_MAPPINGS

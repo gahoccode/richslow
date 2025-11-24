@@ -7,7 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 interface StatementTableWrapperProps {
   title: string;
   description: string;
-  years: number[];
+  years: (string | number)[]; // Can be years (2024) for annual or period IDs (2024-Q1) for quarterly
+  period: 'quarter' | 'year'; // Period type from TickerContext
   loading?: boolean;
   children: React.ReactNode;
 }
@@ -16,6 +17,7 @@ export function StatementTableWrapper({
   title,
   description,
   years,
+  period,
   loading = false,
   children
 }: StatementTableWrapperProps) {
@@ -38,7 +40,7 @@ export function StatementTableWrapper({
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>
-          {description} • Showing {years.length} years: {years[years.length - 1]} - {years[0]}
+          {description} • Showing {years.length} {period === 'quarter' ? 'quarters' : 'years'}: {years[years.length - 1]} - {years[0]}
         </CardDescription>
       </CardHeader>
       <CardContent>

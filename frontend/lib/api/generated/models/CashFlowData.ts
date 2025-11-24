@@ -12,6 +12,10 @@ export type CashFlowData = {
      */
     year_report?: (number | null);
     /**
+     * Period identifier (e.g., '2024-Q1' for quarterly, None for annual)
+     */
+    period_id?: (string | null);
+    /**
      * Net profit/loss before tax
      */
     profit_before_tax?: (number | null);

@@ -32,9 +32,9 @@ export type FinancialStatementsResponse = {
      */
     ratios: Array<FinancialRatiosData>;
     /**
-     * Available years
+     * Available years (for annual) or period IDs (for quarterly, e.g., '2024-Q1')
      */
-    years: Array<number>;
+    years: Array<(number | string)>;
     /**
      * Raw financial data
      */
