@@ -21,21 +21,7 @@ import { OwnershipStructure } from "@/components/company/OwnershipStructure";
 import { useCompanyData } from "@/hooks/useCompanyData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-/**
- * Sorts financial statement data by year in ascending order (oldest → newest)
- * for proper timeline visualization in charts.
- *
- * @param data Array of statement data with period field
- * @returns Sorted array in ascending chronological order
- */
-const sortByPeriodAscending = <T extends { period: string }>(data: T[]): T[] => {
-  return [...data].sort((a, b) => {
-    const yearA = parseInt(a.period) || 0;
-    const yearB = parseInt(b.period) || 0;
-    return yearA - yearB; // Ascending: oldest → newest
-  });
-};
+import { sortByPeriodAscending } from "@/lib/utils";
 
 export default function Home() {
   const { ticker, startDate, endDate, period } = useTicker();

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { sortByPeriodAscending } from "@/lib/utils";
 
 import type { FinancialStatements } from "@/lib/api/facade";
 
@@ -90,9 +91,10 @@ export function ChartEfficiencyMetrics({ ratios, statements, loading }: ChartEff
         dso: Math.round(dso),
         dpo: Math.round(dpo),
       };
-    }).filter(Boolean);
+    }).filter(Boolean) as Array<{ period: string; ccc: number; dso: number; dpo: number }>;
 
-    return data;
+    // Sort ascending for proper timeline visualization
+    return sortByPeriodAscending(data);
   }, [statements, ratios]);
 
   return (
