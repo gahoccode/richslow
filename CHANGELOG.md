@@ -32,7 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-(No unreleased changes yet)
+### Fixed
+- **Chart Timeline Ordering**: Fixed dashboard charts to display data in ascending chronological order (oldest→newest) for proper time series analysis
+  - **Affected Components**: Revenue & Profitability chart (`ChartAreaGradient`), Quarterly Revenue chart (`ChartBarDefault`)
+  - **Implementation**: Added `sortByPeriodAscending()` helper function in `frontend/app/page.tsx`
+  - **Scope**: Frontend-only fix - transforms chart data while preserving statement table display order (newest-first)
+  - **Impact**: Charts now show proper left-to-right timeline progression, improving temporal analysis and trend visualization
+  - **Preservation**: Financial statement tables on `/statement` page maintain standard reverse chronological order (newest year first)
 
 ## [2.1.0] - 2025-11-21
 

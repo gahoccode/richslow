@@ -22,22 +22,39 @@ import { useCompanyData } from "@/hooks/useCompanyData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+/**
+ * Sorts financial statement data by year in ascending order (oldest → newest)
+ * for proper timeline visualization in charts.
+ *
+ * @param data Array of statement data with period field
+ * @returns Sorted array in ascending chronological order
+ */
+const sortByPeriodAscending = <T extends { period: string }>(data: T[]): T[] => {
+  return [...data].sort((a, b) => {
+    const yearA = parseInt(a.period) || 0;
+    const yearB = parseInt(b.period) || 0;
+    return yearA - yearB; // Ascending: oldest → newest
+  });
+};
+
 export default function Home() {
   const { ticker, startDate, endDate, period } = useTicker();
   const { data, loading, criticalLoading, secondaryLoading, deferredLoading, error } = useStockData(ticker, startDate, endDate, period);
   const { data: companyData, loading: companyLoading } = useCompanyData(ticker);
 
   // Transform API data for charts - memoized to prevent recalculation on every render
-  const profitabilityData = React.useMemo(() =>
-    data.statements?.income_statements?.map((stmt) => ({
+  const profitabilityData = React.useMemo(() => {
+    const mapped = data.statements?.income_statements?.map((stmt) => ({
       period: stmt.year_report?.toString() || 'N/A',
       revenue: stmt.revenue || 0,
       grossProfit: stmt.gross_profit || 0,
       operatingProfit: stmt.operating_profit || 0,
       netProfit: stmt.net_profit || 0,
-    })) || [],
-    [data.statements?.income_statements]
-  );
+    })) || [];
+
+    // Sort ascending for proper timeline visualization
+    return sortByPeriodAscending(mapped);
+  }, [data.statements?.income_statements]);
 
   const priceData = React.useMemo(() =>
     data.prices?.map((price) => ({
@@ -52,13 +69,15 @@ export default function Home() {
   );
 
   // Quarterly revenue data for ChartBarDefault
-  const quarterlyRevenueData = React.useMemo(() =>
-    data.statements?.income_statements?.map((stmt) => ({
+  const quarterlyRevenueData = React.useMemo(() => {
+    const mapped = data.statements?.income_statements?.map((stmt) => ({
       period: stmt.year_report?.toString() || 'N/A',
       revenue: stmt.revenue || 0,
-    })) || [],
-    [data.statements?.income_statements]
-  );
+    })) || [];
+
+    // Sort ascending for proper timeline visualization
+    return sortByPeriodAscending(mapped);
+  }, [data.statements?.income_statements]);
 
   // Insider trading data for ChartBarNegative - aggregate by month
   const insiderData = React.useMemo(() => {
