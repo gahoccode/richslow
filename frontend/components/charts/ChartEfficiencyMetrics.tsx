@@ -6,6 +6,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { sortByPeriodAscending } from "@/lib/utils";
+import { formatPeriod } from "@/lib/utils/period-utils";
 
 import type { FinancialStatements } from "@/lib/api/facade";
 
@@ -86,7 +87,8 @@ export function ChartEfficiencyMetrics({ ratios, statements, loading }: ChartEff
       const ccc = dso + dio - dpo;
 
       return {
-        period: income.year_report?.toString() || 'N/A',
+        // Use period_id if available (e.g., "2024-Q1"), otherwise fallback to "YEAR-Annual"
+        period: income.period_id || (income.year_report ? `${income.year_report}-Annual` : 'N/A'),
         ccc: Math.round(ccc),
         dso: Math.round(dso),
         dpo: Math.round(dpo),
@@ -197,6 +199,7 @@ export function ChartEfficiencyMetrics({ ratios, statements, loading }: ChartEff
                 <XAxis
                   dataKey="period"
                   className="text-xs"
+                  tickFormatter={(value) => formatPeriod(value, 'short')}
                 />
                 <YAxis
                   className="text-xs"
@@ -208,7 +211,7 @@ export function ChartEfficiencyMetrics({ ratios, statements, loading }: ChartEff
                     const data = payload[0].payload;
                     return (
                       <div className="bg-background border rounded-lg p-3 shadow-lg">
-                        <p className="font-semibold text-sm mb-2">Period: {data.period}</p>
+                        <p className="font-semibold text-sm mb-2">Period: {formatPeriod(data.period, 'short')}</p>
                         <div className="space-y-1 text-xs">
                           <p className="flex justify-between gap-4">
                             <span className="text-muted-foreground">CCC:</span>

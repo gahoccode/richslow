@@ -32,7 +32,8 @@ export default function Home() {
   // Transform API data for charts - memoized to prevent recalculation on every render
   const profitabilityData = React.useMemo(() => {
     const mapped = data.statements?.income_statements?.map((stmt) => ({
-      period: stmt.year_report?.toString() || 'N/A',
+      // Use period_id if available (e.g., "2024-Q1"), otherwise fallback to "YEAR-Annual"
+      period: stmt.period_id || (stmt.year_report ? `${stmt.year_report}-Annual` : 'N/A'),
       revenue: stmt.revenue || 0,
       grossProfit: stmt.gross_profit || 0,
       operatingProfit: stmt.operating_profit || 0,
@@ -58,7 +59,8 @@ export default function Home() {
   // Quarterly revenue data for ChartBarDefault
   const quarterlyRevenueData = React.useMemo(() => {
     const mapped = data.statements?.income_statements?.map((stmt) => ({
-      period: stmt.year_report?.toString() || 'N/A',
+      // Use period_id if available (e.g., "2024-Q1"), otherwise fallback to "YEAR-Annual"
+      period: stmt.period_id || (stmt.year_report ? `${stmt.year_report}-Annual` : 'N/A'),
       revenue: stmt.revenue || 0,
     })) || [];
 

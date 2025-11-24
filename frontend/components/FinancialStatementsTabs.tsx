@@ -6,11 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ChartAreaGradient } from "@/components/charts/ChartAreaGradient"
 import { ChartProfitabilityMargins } from "@/components/charts/ChartProfitabilityMargins"
 import { ChartCashFlowWaterfall } from "@/components/charts/ChartCashFlowWaterfall"
+import { formatPeriod } from "@/lib/utils/period-utils"
 
 interface FinancialStatementsTabsProps {
   statements?: {
     income_statements?: Array<{
       year_report?: number | null;
+      period_id?: string | null;
       revenue?: number | null;
       gross_profit?: number | null;
       operating_profit?: number | null;
@@ -18,6 +20,7 @@ interface FinancialStatementsTabsProps {
     }>;
     cash_flows?: Array<{
       year_report?: number | null;
+      period_id?: string | null;
       operating_cash_flow?: number | null;
       investing_cash_flow?: number | null;
       financing_cash_flow?: number | null;
@@ -27,6 +30,7 @@ interface FinancialStatementsTabsProps {
   } | null;
   ratios?: Array<{
     year_report?: number;
+    period_id?: string | null;
     gross_margin?: number | null;
     net_profit_margin?: number | null;
     ebit_margin?: number | null;
@@ -51,7 +55,8 @@ export function FinancialStatementsTabs({
 
   // Prepare revenue & profitability data
   const revenueData = statements?.income_statements?.map((stmt) => ({
-    period: stmt.year_report?.toString() || '',
+    // Use period_id if available (e.g., "2024-Q1"), otherwise fallback to "YEAR-Annual"
+    period: stmt.period_id || (stmt.year_report ? `${stmt.year_report}-Annual` : ''),
     revenue: stmt.revenue || 0,
     grossProfit: stmt.gross_profit || 0,
     operatingProfit: stmt.operating_profit || 0,
@@ -60,7 +65,8 @@ export function FinancialStatementsTabs({
 
   // Prepare profitability margins data from ratios
   const marginData = ratios?.map((ratio) => ({
-    period: ratio.year_report?.toString() || '',
+    // Use period_id if available (e.g., "2024-Q1"), otherwise fallback to "YEAR-Annual"
+    period: ratio.period_id || (ratio.year_report ? `${ratio.year_report}-Annual` : ''),
     grossMargin: ratio.gross_margin ? ratio.gross_margin * 100 : null,
     ebitMargin: ratio.ebit_margin ? ratio.ebit_margin * 100 : null,
     netMargin: ratio.net_profit_margin ? ratio.net_profit_margin * 100 : null,
@@ -99,11 +105,11 @@ export function FinancialStatementsTabs({
         <ChartCashFlowWaterfall
           cashFlowData={latestCashFlow || undefined}
           title="Cash Flow Analysis"
-          description={`Cash movements for ${latestCashFlow?.year_report || 'latest reporting period'}`}
+          description={`Cash movements for ${latestCashFlow ? formatPeriod(latestCashFlow.period_id || (latestCashFlow.year_report ? `${latestCashFlow.year_report}-Annual` : ''), 'short') : 'latest reporting period'}`}
         />
         {statements?.cash_flows && statements.cash_flows.length > 1 && (
           <p className="text-sm text-muted-foreground mt-4 text-center">
-            Showing data for {latestCashFlow?.year_report}.
+            Showing data for {latestCashFlow ? formatPeriod(latestCashFlow.period_id || (latestCashFlow.year_report ? `${latestCashFlow.year_report}-Annual` : ''), 'short') : 'latest period'}.
             {statements.cash_flows.length - 1} previous {statements.cash_flows.length - 1 === 1 ? 'period' : 'periods'} available.
           </p>
         )}

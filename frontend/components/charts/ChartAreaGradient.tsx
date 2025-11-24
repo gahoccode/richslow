@@ -18,6 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { formatCompact } from "@/lib/formatters"
+import { formatPeriod } from "@/lib/utils/period-utils"
 
 export const description = "Revenue & profitability trend analysis"
 
@@ -105,11 +106,9 @@ export function ChartAreaGradient({
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => {
-                // Handle both "2023" and "Q1 2023" formats
-                if (value.includes('Q')) {
-                  return value; // Show as-is for quarters
-                }
-                return value.slice(-2); // Show last 2 digits for years
+                // Use formatPeriod to handle both "2024-Q1" and "2024-Annual" formats
+                // For quarterly: "Q1 2024", for annual: "2024"
+                return formatPeriod(value, 'short');
               }}
             />
             <ChartTooltip
@@ -170,7 +169,7 @@ export function ChartAreaGradient({
               <TrendingUp className={`h-4 w-4 ${!trendDirection && 'rotate-180'}`} />
             </div>
             <div className="text-muted-foreground flex items-center gap-2 leading-none">
-              {data[0]?.period} - {data[data.length - 1]?.period}
+              {formatPeriod(data[0]?.period, 'short')} - {formatPeriod(data[data.length - 1]?.period, 'short')}
             </div>
           </div>
         </div>
