@@ -36,7 +36,7 @@ import type {
   ExchangeRate,
   GoldSJC,
   GoldBTMC,
-  QuarterlyRatio,
+  QuarterlyFinancialRatios,
   IndustryBenchmark,
 } from './facade';
 import {
@@ -303,7 +303,7 @@ export function useGoldBTMC() {
  * Cache: 5 minutes (financial data)
  */
 export function useQuarterlyRatios(ticker: string) {
-  return useSWR<QuarterlyRatio[]>(
+  return useSWR<QuarterlyFinancialRatios[]>(
     getCacheKey('/api/ratios', ticker),
     ticker ? () => api.ratios.getQuarterlyRatios(ticker) : null,
     financialDataConfig

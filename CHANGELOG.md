@@ -33,6 +33,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Quarterly vs Annual Schema Type Safety**: Resolved semantic ambiguity in financial ratios data structure
+  - **Problem**: Quarterly and annual data used same schema but `length_report` field had different meanings without type safety
+  - **Backend Documentation**: Enhanced `FinancialRatiosData.length_report` field documentation in `app/schemas/schema_statements.py`
+    - Quarterly data: 1=Q1 (Jan-Mar), 2=Q2 (Apr-Jun), 3=Q3 (Jul-Sep), 4=Q4 (Oct-Dec)
+    - Annual data: 5=12 months period
+    - Used to distinguish quarterly vs annual financial ratios
+  - **Frontend Type Safety**: Eliminated problematic type alias and added discriminated unions
+    - **Removed**: `export type QuarterlyRatio = FinancialRatiosData` (masked semantic differences)
+    - **Added**: `QuarterlyFinancialRatios` and `AnnualFinancialRatios` with literal types for `length_report`
+    - **Type Guards**: `isQuarterlyFinancialRatios()` and `isAnnualFinancialRatios()` for runtime discrimination
+  - **Period Utilities Library**: New `frontend/lib/utils/period-utils.ts` with comprehensive functions:
+    - `isQuarterlyData()`, `isAnnualData()` - Type guard functions for data validation
+    - `getQuarterFromLengthReport()` - Convert numeric values (1-4) to quarter strings (Q1-Q4)
+    - `getPeriodLabel()` - Human-readable labels ("2024 Q1", "2024 Annual")
+    - `createPeriodId()` - Standardized period identifiers ("2024-Q1", "2024-Annual")
+    - `formatPeriod()` - Multiple display formats (short, long, compact)
+    - `getLengthReportDescription()` - Human-readable descriptions for all period values
+  - **API Integration Updates**:
+    - Updated `getQuarterlyRatios()` method to return `QuarterlyFinancialRatios[]` with type filtering
+    - Modified `useQuarterlyRatios()` SWR hook to use discriminated union types
+    - Regenerated OpenAPI client with enhanced field documentation
+  - **Scope of Impact**: 7 files modified (2 backend + 5 frontend), zero breaking changes
+  - **Benefits**: Compile-time type safety, self-documenting code, improved developer experience
+  - **Architecture Preserved**: Maintained unified backend schema design while fixing frontend type safety
+
 - **Chart Timeline Ordering**: Fixed dashboard charts to display data in ascending chronological order (oldest→newest) for proper time series analysis
   - **Affected Components**:
     - Revenue & Profitability chart (`ChartAreaGradient`)

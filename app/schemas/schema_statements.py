@@ -304,7 +304,15 @@ class CashFlowData(BaseModel):
 class FinancialRatiosData(BaseModel):
     ticker: str | None = Field(None, description="Stock ticker symbol")
     year_report: int = Field(..., description="Report year")
-    length_report: int | None = Field(None, description="Report length/period")
+    length_report: int | None = Field(
+        None,
+        description=(
+            "Report period discriminator field. "
+            "Quarterly data: 1=Q1 (Jan-Mar), 2=Q2 (Apr-Jun), 3=Q3 (Jul-Sep), 4=Q4 (Oct-Dec). "
+            "Annual data: 5=12 months period. "
+            "Used to distinguish quarterly vs annual financial ratios."
+        )
+    )
 
     # Valuation Ratios
     pe_ratio: float | None = Field(None, description="Price-to-earnings ratio")

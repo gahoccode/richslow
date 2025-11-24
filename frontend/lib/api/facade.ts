@@ -53,7 +53,33 @@ export type CorporateEvent = CompanyEventsTCBS;
 export type NewsItem = CompanyNews;
 export type FinancialStatements = FinancialStatementsResponse;
 export type StockPrice = StockOHLCV;
-export type QuarterlyRatio = FinancialRatiosData;
+
+// Enhanced discriminated union types for quarterly vs annual data
+export type QuarterlyFinancialRatios = FinancialRatiosData & {
+  length_report: 1 | 2 | 3 | 4; // Quarterly periods only
+};
+
+export type AnnualFinancialRatios = FinancialRatiosData & {
+  length_report: 5; // Annual period only
+};
+
+export type TypedFinancialRatios = QuarterlyFinancialRatios | AnnualFinancialRatios;
+
+// Type guard functions for runtime discrimination
+export function isQuarterlyFinancialRatios(
+  data: FinancialRatiosData
+): data is QuarterlyFinancialRatios {
+  return data.length_report !== null &&
+         data.length_report !== undefined &&
+         data.length_report >= 1 &&
+         data.length_report <= 4;
+}
+
+export function isAnnualFinancialRatios(
+  data: FinancialRatiosData
+): data is AnnualFinancialRatios {
+  return data.length_report === 5;
+}
 
 // Re-export all other types
 export type {
@@ -275,11 +301,14 @@ export const ratiosAPI = {
   /**
    * Get quarterly financial ratios
    * @param ticker - Stock ticker symbol
-   * @returns Array of quarterly financial ratios
+   * @returns Array of quarterly financial ratios with type safety
    */
-  getQuarterlyRatios: async (ticker: string): Promise<QuarterlyRatio[]> => {
+  getQuarterlyRatios: async (ticker: string): Promise<QuarterlyFinancialRatios[]> => {
     const response = await generatedApi.quarterlyRatios.getQuarterlyRatiosApiQuarterlyRatiosTickerGet({ ticker });
-    return response.ratios || [];
+    const ratios = response.ratios || [];
+
+    // Type filtering to ensure only quarterly data is returned
+    return ratios.filter(isQuarterlyFinancialRatios);
   },
 };
 

@@ -12,7 +12,7 @@ export type FinancialRatiosData = {
      */
     year_report: number;
     /**
-     * Report length/period
+     * Report period discriminator field. Quarterly data: 1=Q1 (Jan-Mar), 2=Q2 (Apr-Jun), 3=Q3 (Jul-Sep), 4=Q4 (Oct-Dec). Annual data: 5=12 months period. Used to distinguish quarterly vs annual financial ratios.
      */
     length_report?: (number | null);
     /**

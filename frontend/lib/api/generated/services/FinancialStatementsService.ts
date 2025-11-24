@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { FinancialStatementsResponse } from '../models/FinancialStatementsResponse';
-import { PeriodType } from '../models/PeriodType';
+import type { PeriodType } from '../models/PeriodType';
 import type { StatementsRequest } from '../models/StatementsRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -42,7 +42,7 @@ export class FinancialStatementsService {
      */
     public fetchFinancialStatementsGetApiStatementsTickerGet({
         ticker,
-        period = PeriodType.YEAR,
+        period = 'year',
         years = 5,
     }: {
         ticker: string,
