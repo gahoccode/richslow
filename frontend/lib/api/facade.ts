@@ -28,6 +28,9 @@ import type {
   TradingStatsVCI,
   FinancialStatementsResponse,
   FinancialRatiosData,
+  IncomeStatementData,
+  BalanceSheetData,
+  CashFlowData,
   PeriodType,
   StockOHLCV,
   ExchangeRate,
@@ -50,6 +53,7 @@ export type CorporateEvent = CompanyEventsTCBS;
 export type NewsItem = CompanyNews;
 export type FinancialStatements = FinancialStatementsResponse;
 export type StockPrice = StockOHLCV;
+export type QuarterlyRatio = FinancialRatiosData;
 
 // Re-export all other types
 export type {
@@ -61,9 +65,11 @@ export type {
   ExchangeRate,
   GoldSJC,
   GoldBTMC,
-  FinancialRatiosData as QuarterlyRatio,
   IndustryBenchmark,
   PeriodType,
+  IncomeStatementData,
+  BalanceSheetData,
+  CashFlowData,
 };
 
 // ============================================================================

@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { BalanceSheetData } from "@/lib/api"
+import { BalanceSheetData } from "@/lib/api/facade"
 import { formatBillionVND } from "@/lib/formatters"
 import { BALANCE_SHEET_FIELDS } from "@/lib/statement-fields"
 

@@ -15,7 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { GoldSJC } from "@/lib/api"
+import { GoldSJC } from "@/lib/api/facade"
 import { formatVNDShort } from "@/lib/formatters"
 
 export const description = "SJC gold prices - buy and sell rates"

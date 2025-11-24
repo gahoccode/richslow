@@ -4,7 +4,7 @@
  */
 
 import useSWR from 'swr';
-import { companyAPI, CompanyOverview, CompanyProfile, NewsItem, CorporateEvent, ShareholderInfo, Subsidiary } from '@/lib/api';
+import api, { CompanyOverview, CompanyProfile, NewsItem, CorporateEvent, ShareholderInfo, Subsidiary } from '@/lib/api/facade';
 import { getCacheKey, referenceDataConfig } from '@/lib/swr-config';
 
 interface UseCompanyDataReturn {
@@ -35,7 +35,7 @@ export function useCompanyData(ticker: string): UseCompanyDataReturn {
     mutate: mutateOverview
   } = useSWR(
     getCacheKey('/api/company/overview', ticker),
-    ticker ? () => companyAPI.getOverview(ticker) : null,
+    ticker ? () => api.company.getOverview(ticker) : null,
     referenceDataConfig // 1 hour cache for company data
   );
 
@@ -47,7 +47,7 @@ export function useCompanyData(ticker: string): UseCompanyDataReturn {
     mutate: mutateProfile
   } = useSWR(
     getCacheKey('/api/company/profile', ticker),
-    ticker ? () => companyAPI.getProfile(ticker) : null,
+    ticker ? () => api.company.getProfile(ticker) : null,
     referenceDataConfig
   );
 
@@ -59,7 +59,7 @@ export function useCompanyData(ticker: string): UseCompanyDataReturn {
     mutate: mutateNews
   } = useSWR(
     getCacheKey('/api/company/news', ticker),
-    ticker ? () => companyAPI.getNews(ticker) : null,
+    ticker ? () => api.company.getNews(ticker) : null,
     referenceDataConfig
   );
 
@@ -71,7 +71,7 @@ export function useCompanyData(ticker: string): UseCompanyDataReturn {
     mutate: mutateEvents
   } = useSWR(
     getCacheKey('/api/company/events', ticker),
-    ticker ? () => companyAPI.getEvents(ticker) : null,
+    ticker ? () => api.company.getEvents(ticker) : null,
     referenceDataConfig
   );
 
@@ -83,7 +83,7 @@ export function useCompanyData(ticker: string): UseCompanyDataReturn {
     mutate: mutateShareholders
   } = useSWR(
     getCacheKey('/api/company/shareholders', ticker),
-    ticker ? () => companyAPI.getShareholders(ticker) : null,
+    ticker ? () => api.company.getShareholders(ticker) : null,
     referenceDataConfig
   );
 
@@ -95,7 +95,7 @@ export function useCompanyData(ticker: string): UseCompanyDataReturn {
     mutate: mutateSubsidiaries
   } = useSWR(
     getCacheKey('/api/company/subsidiaries', ticker),
-    ticker ? () => companyAPI.getSubsidiaries(ticker) : null,
+    ticker ? () => api.company.getSubsidiaries(ticker) : null,
     referenceDataConfig
   );
 

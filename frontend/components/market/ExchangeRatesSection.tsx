@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ExchangeRate } from "@/lib/api"
+import { ExchangeRate } from "@/lib/api/facade"
 import { ExchangeRatesTable } from "./ExchangeRatesTable"
 import { ExchangeRatesHeatmap } from "./ExchangeRatesHeatmap"
 

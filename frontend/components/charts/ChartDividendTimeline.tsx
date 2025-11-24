@@ -14,7 +14,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts"
-import { DividendEvent } from "@/lib/api"
+import { DividendEvent } from "@/lib/api/facade"
 
 interface ChartDividendTimelineProps {
   data: DividendEvent[]

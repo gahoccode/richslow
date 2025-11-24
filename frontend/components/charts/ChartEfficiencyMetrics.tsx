@@ -6,7 +6,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-import type { FinancialStatements } from "@/lib/api";
+import type { FinancialStatements } from "@/lib/api/facade";
 
 interface EfficiencyRatios {
   ae?: number;  // Asset efficiency/turnover

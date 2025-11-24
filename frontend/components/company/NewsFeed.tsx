@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { NewsItem } from "@/lib/api"
+import { NewsItem } from "@/lib/api/facade"
 import { ExternalLink, Newspaper, Calendar } from "lucide-react"
 
 interface NewsFeedProps {
@@ -90,17 +90,6 @@ export function NewsFeed({
                       {item.title || 'Untitled'}
                     </h4>
                   </div>
-                  {item.url && (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-shrink-0 text-muted-foreground hover:text-primary transition-colors"
-                      aria-label="Read full article"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -109,16 +98,11 @@ export function NewsFeed({
                       {item.source}
                     </Badge>
                   )}
-                  {item.publishDate && (
+                  {item.publish_date && (
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {formatDate(item.publishDate)}
+                      {formatDate(item.publish_date)}
                     </span>
-                  )}
-                  {item.ticker && (
-                    <Badge variant="secondary" className="text-xs font-mono">
-                      {item.ticker}
-                    </Badge>
                   )}
                 </div>
               </div>

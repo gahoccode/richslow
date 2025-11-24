@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { GoldBTMC } from "@/lib/api"
+import { GoldBTMC } from "@/lib/api/facade"
 import { formatGoldPrice, formatDateTime } from "@/lib/formatters"
 
 interface BTMCGoldListProps {

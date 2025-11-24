@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ExchangeRate } from "@/lib/api"
+import { ExchangeRate } from "@/lib/api/facade"
 import { formatVNDRate, formatDate } from "@/lib/formatters"
 
 interface ExchangeRatesTableProps {

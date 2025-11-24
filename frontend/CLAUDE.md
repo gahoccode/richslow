@@ -143,7 +143,10 @@ frontend/
 │   ├── useMarketData.ts          # Market data fetching
 │   └── useStockData.ts           # Main data fetching hook (9 endpoints)
 ├── lib/                          # Utilities and configurations
-│   ├── api.ts                    # 20+ typed API endpoint wrappers
+│   ├── api/                      # OpenAPI-generated API client
+│   │   ├── facade.ts             # Clean facade layer (20+ typed endpoints)
+│   │   ├── client.ts             # Generated client configuration
+│   │   └── generated/            # Auto-generated OpenAPI client (~35 files)
 │   ├── formatters.ts             # Vietnamese data formatting utilities
 │   ├── statement-fields.ts       # Field mapping utilities
 │   ├── swr-config.ts             # SWR caching configuration
@@ -172,19 +175,26 @@ frontend/
 
 ### API Integration
 
-#### API Client Architecture
+#### API Client Architecture (OpenAPI Facade Layer)
 
-The frontend uses a comprehensive API client (`lib/api.ts`) with 20+ typed endpoint wrappers:
+The frontend uses an **OpenAPI-generated facade layer** (`lib/api/facade.ts`) with 20+ typed endpoint wrappers automatically synced with backend Pydantic schemas:
 
 ```typescript
+import api from '@/lib/api/facade';
+
 export const api = {
-  company: companyAPI,      // 8 endpoints (overview, profile, ratios, etc.)
-  statements: statementsAPI, // 1 endpoint (financial statements)
-  prices: pricesAPI,        // 4 endpoints (stock prices, exchange rates, gold)
-  ratios: ratiosAPI,        // 1 endpoint (quarterly ratios)
-  industry: industryAPI,   // 4 endpoints (industry benchmarks)
+  company: api.company,     // 8 endpoints (overview, profile, ratios, etc.)
+  statements: api.statements, // 1 endpoint (financial statements)
+  prices: api.prices,       // 4 endpoints (stock prices, exchange rates, gold)
+  industry: api.industry,   // 4 endpoints (industry benchmarks)
 };
 ```
+
+**Facade Benefits:**
+- Auto-synced types from backend (no manual type updates)
+- 80% less boilerplate code
+- Single source of truth (backend Pydantic schemas)
+- Type-safe API calls with full IDE autocomplete
 
 #### Data Flow
 
@@ -353,7 +363,7 @@ Available components: button, card, chart, tabs, progress, sonner, and more.
 
 ### Data Fetching Pattern
 
-Use the `useStockData` hook for parallel API calls:
+Use the `useStockData` hook for parallel API calls (uses facade internally):
 
 ```typescript
 import { useStockData } from '@/hooks/useStockData';
@@ -372,6 +382,20 @@ function Component() {
   if (error) return <div>Error: {error.message}</div>;
 
   return <div>{/* Render data */}</div>;
+}
+```
+
+**Direct Facade Usage:**
+
+For custom API calls, import directly from the facade:
+
+```typescript
+import api from '@/lib/api/facade';
+import type { CompanyOverview } from '@/lib/api/facade';
+
+async function fetchCompanyData(ticker: string) {
+  const overview: CompanyOverview = await api.company.getOverview(ticker);
+  return overview;
 }
 ```
 

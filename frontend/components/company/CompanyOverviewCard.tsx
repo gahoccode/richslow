@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CompanyOverview, CompanyProfile } from "@/lib/api"
+import { CompanyOverview, CompanyProfile } from "@/lib/api/facade"
 import { formatNumber, formatPercentage } from "@/lib/formatters"
 import { Building2, Users, Globe, Calendar, TrendingUp, TrendingDown } from "lucide-react"
 
@@ -61,12 +61,12 @@ export function CompanyOverviewCard({ overview, profile, loading = false }: Comp
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-2xl">{profile?.fullname || overview?.shortName || 'Company Overview'}</CardTitle>
-            <CardDescription>{profile?.industry || overview?.industryEn || 'Company information'}</CardDescription>
+            <CardTitle className="text-2xl">{profile?.company_name || overview?.short_name || 'Company Overview'}</CardTitle>
+            <CardDescription>{overview?.industry || 'Company information'}</CardDescription>
           </div>
-          {overview?.stockRating && (
+          {overview?.stock_rating && (
             <Badge variant="outline" className="text-lg px-3 py-1">
-              Rating: {overview.stockRating.toFixed(1)}
+              Rating: {overview.stock_rating.toFixed(1)}
             </Badge>
           )}
         </div>
@@ -80,31 +80,31 @@ export function CompanyOverviewCard({ overview, profile, loading = false }: Comp
               Basic Information
             </h4>
             <div className="space-y-2 text-sm">
-              {profile?.exchange && (
+              {overview?.exchange && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Exchange:</span>
-                  <span className="font-medium">{profile.exchange}</span>
+                  <span className="font-medium">{overview.exchange}</span>
                 </div>
               )}
-              {overview?.companyType && (
+              {overview?.company_type && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Type:</span>
-                  <span className="font-medium">{overview.companyType}</span>
+                  <span className="font-medium">{overview.company_type}</span>
                 </div>
               )}
-              {overview?.establishedYear && (
+              {overview?.established_year && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Established:</span>
                   <span className="font-medium flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {overview.establishedYear}
+                    {overview.established_year}
                   </span>
                 </div>
               )}
-              {overview?.icbCode && (
+              {overview?.industry_id && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">ICB Code:</span>
-                  <span className="font-mono text-xs">{overview.icbCode}</span>
+                  <span className="text-muted-foreground">Industry ID:</span>
+                  <span className="font-mono text-xs">{overview.industry_id}</span>
                 </div>
               )}
             </div>
@@ -117,28 +117,22 @@ export function CompanyOverviewCard({ overview, profile, loading = false }: Comp
               People & Structure
             </h4>
             <div className="space-y-2 text-sm">
-              {overview?.noEmployees !== undefined && (
+              {overview?.no_employees !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Employees:</span>
-                  <span className="font-medium">{formatNumber(overview.noEmployees)}</span>
+                  <span className="font-medium">{formatNumber(overview.no_employees)}</span>
                 </div>
               )}
-              {overview?.noShareholders !== undefined && (
+              {overview?.no_shareholders !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shareholders:</span>
-                  <span className="font-medium">{formatNumber(overview.noShareholders)}</span>
+                  <span className="font-medium">{formatNumber(overview.no_shareholders)}</span>
                 </div>
               )}
-              {overview?.noSubsidiaries !== undefined && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subsidiaries:</span>
-                  <span className="font-medium">{overview.noSubsidiaries}</span>
-                </div>
-              )}
-              {overview?.foreignPercent !== undefined && (
+              {overview?.foreign_percent !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Foreign Own:</span>
-                  <span className="font-medium">{formatPercentage(overview.foreignPercent)}</span>
+                  <span className="font-medium">{formatPercentage(overview.foreign_percent)}</span>
                 </div>
               )}
             </div>
@@ -151,22 +145,16 @@ export function CompanyOverviewCard({ overview, profile, loading = false }: Comp
               Shares & Links
             </h4>
             <div className="space-y-2 text-sm">
-              {overview?.outstandingShare !== undefined && (
+              {overview?.outstanding_share !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Outstanding:</span>
-                  <span className="font-medium">{formatNumber(overview.outstandingShare)}</span>
+                  <span className="font-medium">{formatNumber(overview.outstanding_share)}</span>
                 </div>
               )}
-              {overview?.issueShare !== undefined && (
+              {overview?.issue_share !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Issued:</span>
-                  <span className="font-medium">{formatNumber(overview.issueShare)}</span>
-                </div>
-              )}
-              {overview?.issueddate && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Issue Date:</span>
-                  <span className="font-medium text-xs">{overview.issueddate}</span>
+                  <span className="font-medium">{formatNumber(overview.issue_share)}</span>
                 </div>
               )}
               {overview?.website && (
@@ -187,13 +175,13 @@ export function CompanyOverviewCard({ overview, profile, loading = false }: Comp
         </div>
 
         {/* Performance Badges */}
-        {(overview?.deltaInWeek !== undefined || overview?.deltaInMonth !== undefined || overview?.deltaInYear !== undefined) && (
+        {(overview?.delta_in_week !== undefined || overview?.delta_in_month !== undefined || overview?.delta_in_year !== undefined) && (
           <div className="mt-6 pt-6 border-t">
             <h4 className="font-semibold text-sm text-muted-foreground mb-3">Price Performance</h4>
             <div className="flex flex-wrap gap-3">
-              {getDeltaBadge(overview?.deltaInWeek, '1 Week')}
-              {getDeltaBadge(overview?.deltaInMonth, '1 Month')}
-              {getDeltaBadge(overview?.deltaInYear, '1 Year')}
+              {getDeltaBadge(overview?.delta_in_week, '1 Week')}
+              {getDeltaBadge(overview?.delta_in_month, '1 Month')}
+              {getDeltaBadge(overview?.delta_in_year, '1 Year')}
             </div>
           </div>
         )}

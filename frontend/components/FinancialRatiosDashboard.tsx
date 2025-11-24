@@ -11,7 +11,7 @@ import { ChartLeverageGauge } from "@/components/charts/ChartLeverageGauge";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Import types from API
-import type { CompanyRatioVCI, IndustryBenchmark, FinancialStatements } from "@/lib/api";
+import type { CompanyRatioVCI, IndustryBenchmark, FinancialStatements } from "@/lib/api/facade";
 
 interface CompanyRatios extends Partial<CompanyRatioVCI> {}
 
