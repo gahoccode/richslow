@@ -6,6 +6,7 @@ import { useTicker } from "@/contexts/TickerContext"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TickerSelector } from "@/components/TickerSelector"
+import { PeriodSelector } from "@/components/ui/PeriodSelector"
 import { IncomeStatementTable } from "@/components/statements/IncomeStatementTable"
 import { BalanceSheetTable } from "@/components/statements/BalanceSheetTable"
 import { CashFlowStatementTable } from "@/components/statements/CashFlowStatementTable"
@@ -20,12 +21,12 @@ const YEAR_OPTIONS = [
 ];
 
 export default function StatementPage() {
-  const { ticker } = useTicker();
+  const { ticker, period } = useTicker();
   const [selectedYears, setSelectedYears] = useState(5);
 
   const { data, isLoading, error } = useSWR(
-    `/api/statements/${ticker}?period=year&years=${selectedYears}`,
-    () => api.statements.getStatements(ticker, { period: 'year', years: selectedYears })
+    `/api/statements/${ticker}?period=${period}&years=${selectedYears}`,
+    () => api.statements.getStatements(ticker, { period, years: selectedYears })
   );
 
   const years = data?.years || [];
@@ -36,13 +37,16 @@ export default function StatementPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Financial Statements</h1>
-          <p className="text-muted-foreground">Comprehensive annual financial data</p>
+          <p className="text-muted-foreground">
+            Comprehensive {period === 'quarter' ? 'quarterly' : 'annual'} financial data
+          </p>
         </div>
       </div>
 
       {/* Controls */}
       <div className="flex items-center gap-4">
         <TickerSelector />
+        <PeriodSelector />
 
         <div className="w-[200px]">
           <label className="text-sm font-medium mb-2 block">Time Range</label>

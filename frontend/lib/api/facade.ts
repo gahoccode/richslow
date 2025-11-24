@@ -31,13 +31,13 @@ import type {
   IncomeStatementData,
   BalanceSheetData,
   CashFlowData,
-  PeriodType,
   StockOHLCV,
   ExchangeRate,
   GoldSJC,
   GoldBTMC,
   IndustryBenchmark,
 } from './client';
+import { PeriodType } from './client';
 
 // ============================================================================
 // TYPE ALIASES FOR BACKWARD COMPATIBILITY
@@ -232,9 +232,13 @@ export const statementsAPI = {
       years?: number;
     }
   ): Promise<FinancialStatements> => {
+    // Convert string period to PeriodType enum
+    const periodEnum = params?.period === 'quarter' ? PeriodType.QUARTER :
+                      params?.period === 'year' ? PeriodType.YEAR : undefined;
+
     return generatedApi.financialStatements.fetchFinancialStatementsGetApiStatementsTickerGet({
       ticker,
-      period: params?.period as PeriodType | undefined,
+      period: periodEnum,
       years: params?.years,
     });
   },

@@ -5,6 +5,7 @@ import { useTicker } from "@/contexts/TickerContext";
 import { useStockData } from "@/hooks/useStockData";
 import { TickerSelector } from "@/components/TickerSelector";
 import { DateRangePicker } from "@/components/DateRangePicker";
+import { PeriodSelector } from "@/components/ui/PeriodSelector";
 import { MetricCard } from "@/components/MetricCard";
 import { ChartAreaGradient } from "@/components/charts/ChartAreaGradient";
 import { ChartBarDefault } from "@/components/charts/ChartBarDefault";
@@ -126,6 +127,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
               <TickerSelector />
               <DateRangePicker />
+              <PeriodSelector />
             </div>
             {loading && (
               <div className="text-sm text-muted-foreground hidden lg:block">Loading...</div>
