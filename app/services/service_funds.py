@@ -103,7 +103,7 @@ def get_fund_listing(fund_type: str | None = None) -> list[FundListing]:
                     issue_date=str(row["issue_date"])
                     if pd.notna(row.get("issue_date"))
                     else None,
-                    fund_id=int(row.get("fund_id", 0)),
+                    fund_id=int(row.get("fund_id_fmarket", 0)),
                 )
             )
 
