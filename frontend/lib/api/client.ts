@@ -18,7 +18,7 @@ import { OpenAPI } from "./generated/core/OpenAPI";
 
 // Configure the OpenAPI client
 OpenAPI.BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-OpenAPI.VERSION = "2.0.0";
+OpenAPI.VERSION = "2.1.0";
 OpenAPI.WITH_CREDENTIALS = false;
 
 // Create API client instance with services
