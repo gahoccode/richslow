@@ -5,7 +5,6 @@ company information from vnstock API, with proper data validation
 and transformation using Pydantic models.
 """
 
-
 from vnstock.explorer.tcbs import Company as TCBSCompany
 from vnstock.explorer.vci import Company as VCICompany
 

@@ -32,6 +32,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Funds Endpoint**: Comprehensive Vietnamese mutual fund analysis capabilities
+  - **6 New API Endpoints**: Fund listings, search, NAV reports, holdings, and allocation analysis
+    - `GET /api/funds/listing` - List all funds with optional type filtering (STOCK, BOND, BALANCED)
+    - `GET /api/funds/search?symbol={query}` - Search funds by name or abbreviation
+    - `GET /api/funds/{symbol}/nav-report` - Historical NAV data for performance tracking
+    - `GET /api/funds/{symbol}/top-holdings` - Top 10 portfolio holdings
+    - `GET /api/funds/{symbol}/industry-allocation` - Sector exposure breakdown
+    - `GET /api/funds/{symbol}/asset-allocation` - Asset class distribution
+  - **6 Pydantic Schemas**: Complete data validation for all fund data types
+    - `FundListing` - 21 fields covering NAV, performance metrics, ownership, and fees
+    - `FundSearch`, `FundNavReport`, `FundTopHolding`, `FundIndustryHolding`, `FundAssetHolding`
+  - **vnstock Integration**: Direct integration with vnstock Fund API for real-time fund data
+  - **Comprehensive Test Coverage**: 59 tests with 100% pass rate
+    - 18 schema validation tests
+    - 21 service function tests
+    - 20 route endpoint tests
+  - **Backend Reusability**: All services can be imported and used in external applications
+
 ### Fixed
 - **Quarterly vs Annual Schema Type Safety**: Resolved semantic ambiguity in financial ratios data structure
   - **Problem**: Quarterly and annual data used same schema but `length_report` field had different meanings without type safety

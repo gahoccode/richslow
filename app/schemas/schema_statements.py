@@ -19,7 +19,10 @@ class IncomeStatementData(BaseModel):
     # Meta fields
     ticker: str | None = Field(None, description="Stock ticker symbol")
     year_report: int | None = Field(None, description="Report year")
-    period_id: str | None = Field(None, description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)")
+    period_id: str | None = Field(
+        None,
+        description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)",
+    )
 
     # Revenue and Sales
     revenue: float | None = Field(None, description="Total revenue in billions VND")
@@ -90,7 +93,10 @@ class BalanceSheetData(BaseModel):
     # Meta fields
     ticker: str | None = Field(None, description="Stock ticker symbol")
     year_report: int | None = Field(None, description="Report year")
-    period_id: str | None = Field(None, description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)")
+    period_id: str | None = Field(
+        None,
+        description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)",
+    )
 
     # Assets - Current
     current_assets: float | None = Field(None, description="Total current assets")
@@ -187,7 +193,10 @@ class CashFlowData(BaseModel):
     # Meta fields
     ticker: str | None = Field(None, description="Stock ticker symbol")
     year_report: int | None = Field(None, description="Report year")
-    period_id: str | None = Field(None, description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)")
+    period_id: str | None = Field(
+        None,
+        description="Period identifier (e.g., '2024-Q1' for quarterly, None for annual)",
+    )
 
     # Starting Cash Flow Items
     profit_before_tax: float | None = Field(
@@ -314,7 +323,7 @@ class FinancialRatiosData(BaseModel):
             "Quarterly data: 1=Q1 (Jan-Mar), 2=Q2 (Apr-Jun), 3=Q3 (Jul-Sep), 4=Q4 (Oct-Dec). "
             "Annual data: 5=12 months period. "
             "Used to distinguish quarterly vs annual financial ratios."
-        )
+        ),
     )
 
     # Valuation Ratios
@@ -391,7 +400,10 @@ class FinancialStatementsResponse(BaseModel):
     ratios: list[FinancialRatiosData] = Field(
         ..., description="Financial ratios data by year"
     )
-    years: list[int | str] = Field(..., description="Available years (for annual) or period IDs (for quarterly, e.g., '2024-Q1')")
+    years: list[int | str] = Field(
+        ...,
+        description="Available years (for annual) or period IDs (for quarterly, e.g., '2024-Q1')",
+    )
     raw_data: dict[str, list[dict[str, Any]]] | None = Field(
         None, description="Raw financial data"
     )

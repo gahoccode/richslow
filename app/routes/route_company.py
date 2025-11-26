@@ -6,7 +6,6 @@ Endpoints follow the existing patterns and provide comprehensive
 company data including overview, profile, financials, and market data.
 """
 
-
 from fastapi import APIRouter, HTTPException, Path
 
 from app.schemas.schema_company import (

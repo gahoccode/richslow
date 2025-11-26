@@ -254,3 +254,5 @@ The test suite is organized into comprehensive categories to ensure reliability 
 - All company endpoints need the /api/company/ prefix.
 - Study the fastapi endpoints and inspect schemas to build full understanding of the API capabilities
 - backend uses snake case for field names
+- We have a dual front end approach in this project, 1 is static 1 uses Next.js, focus on the react @frontend/ not @static/
+- Always check if the ports are currently in use before spinning up servers to avoid confusion and conflicts

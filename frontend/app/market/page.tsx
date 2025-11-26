@@ -3,6 +3,7 @@
 import { useMarketData } from "@/hooks/useMarketData";
 import { ExchangeRatesSection } from "@/components/market/ExchangeRatesSection";
 import { GoldPricesSection } from "@/components/market/GoldPricesSection";
+import { FundsSection } from "@/components/market/FundsSection";
 import { FloatingNav } from "@/components/FloatingNav";
 
 export default function MarketPage() {
@@ -33,7 +34,7 @@ export default function MarketPage() {
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Market Data</h2>
           <p className="text-muted-foreground">
-            Real-time exchange rates and gold prices from Vietnamese markets
+            Real-time exchange rates, gold prices, and mutual fund data from Vietnamese markets
           </p>
         </div>
 
@@ -55,6 +56,11 @@ export default function MarketPage() {
           />
         </div>
 
+        {/* Funds Section */}
+        <div className="mt-8">
+          <FundsSection loading={loading} />
+        </div>
+
         {/* Data Summary */}
         {!loading && !error && (
           <div className="mt-8 p-4 border rounded-lg">
@@ -71,6 +77,10 @@ export default function MarketPage() {
               <div>
                 <span className="text-muted-foreground">BTMC Products:</span>{" "}
                 <span className="font-mono">{data.goldBTMC.length}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Funds Listed:</span>{" "}
+                <span className="font-mono">10+</span>
               </div>
             </div>
           </div>

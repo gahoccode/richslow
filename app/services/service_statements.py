@@ -1,4 +1,3 @@
-
 import pandas as pd
 from vnstock import Vnstock
 from vnstock.core.utils.transform import flatten_hierarchical_index
@@ -19,8 +18,6 @@ from app.schemas.schema_statements import (
 )
 from app.utils.transform import (
     apply_field_mapping,
-    safe_convert_float,
-    safe_get_float,
     safe_get_int,
     safe_get_str,
 )
@@ -89,8 +86,9 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
             # Create quarterly period IDs (e.g., "2025-Q1", "2025-Q2")
             quarter_mapping = {1: "Q1", 2: "Q2", 3: "Q3", 4: "Q4"}
             income_statement_df["period_id"] = (
-                income_statement_df["yearReport"].astype(str) + "-" +
-                income_statement_df["lengthReport"].map(quarter_mapping)
+                income_statement_df["yearReport"].astype(str)
+                + "-"
+                + income_statement_df["lengthReport"].map(quarter_mapping)
             )
             years = sorted(
                 income_statement_df["period_id"].unique().tolist(), reverse=True
@@ -104,7 +102,9 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
         # Process income statements with period transformation for quarterly data
         if request.period.value == "quarter":
             # Transform quarterly data to wide format with period IDs as keys
-            income_statements = _process_quarterly_statements(income_statement_df, years)
+            income_statements = _process_quarterly_statements(
+                income_statement_df, years
+            )
         else:
             income_statements = _process_income_statements(income_statement_df)
 
@@ -142,7 +142,9 @@ def get_financial_statements(request: StatementsRequest) -> FinancialStatementsR
         ) from e
 
 
-def _process_quarterly_statements(df: pd.DataFrame, period_ids: list[str]) -> list[IncomeStatementData]:
+def _process_quarterly_statements(
+    df: pd.DataFrame, period_ids: list[str]
+) -> list[IncomeStatementData]:
     """
     Process quarterly data and transform to wide format where metrics are period-based.
 
@@ -171,13 +173,13 @@ def _process_quarterly_statements(df: pd.DataFrame, period_ids: list[str]) -> li
 
         # Create period_id for grouping
         df["period_id"] = (
-            df["yearReport"].astype(str) + "-" +
-            df["lengthReport"].map(quarter_mapping)
+            df["yearReport"].astype(str) + "-" + df["lengthReport"].map(quarter_mapping)
         )
 
         # Get all metrics (exclude metadata columns)
         metric_columns = [
-            col for col in df.columns
+            col
+            for col in df.columns
             if col not in ["ticker", "yearReport", "lengthReport", "period_id"]
         ]
 
@@ -233,7 +235,6 @@ def _process_single_statement(raw_data: dict) -> IncomeStatementData:
         ticker=safe_get_str(raw_data, INCOME_STATEMENT_MAPPINGS["ticker"]),
         year_report=safe_get_int(raw_data, INCOME_STATEMENT_MAPPINGS["year_report"]),
         period_id=safe_get_str(raw_data, "period_id"),  # Add period_id extraction
-
         # Revenue and Sales
         revenue=apply_field_mapping(raw_data, "revenue", INCOME_STATEMENT_MAPPINGS),
         revenue_yoy=apply_field_mapping(
@@ -244,7 +245,6 @@ def _process_single_statement(raw_data: dict) -> IncomeStatementData:
             raw_data, "sales_deductions", INCOME_STATEMENT_MAPPINGS
         ),
         net_sales=apply_field_mapping(raw_data, "net_sales", INCOME_STATEMENT_MAPPINGS),
-
         # Costs and Expenses
         cost_of_sales=apply_field_mapping(
             raw_data, "cost_of_sales", INCOME_STATEMENT_MAPPINGS
@@ -255,7 +255,6 @@ def _process_single_statement(raw_data: dict) -> IncomeStatementData:
         general_admin_expenses=apply_field_mapping(
             raw_data, "general_admin_expenses", INCOME_STATEMENT_MAPPINGS
         ),
-
         # Profit Metrics
         gross_profit=apply_field_mapping(
             raw_data, "gross_profit", INCOME_STATEMENT_MAPPINGS
@@ -269,7 +268,6 @@ def _process_single_statement(raw_data: dict) -> IncomeStatementData:
         net_profit=apply_field_mapping(
             raw_data, "net_profit", INCOME_STATEMENT_MAPPINGS
         ),
-
         # Attributable Profits
         attributable_to_parent=apply_field_mapping(
             raw_data, "attributable_to_parent", INCOME_STATEMENT_MAPPINGS
@@ -283,7 +281,6 @@ def _process_single_statement(raw_data: dict) -> IncomeStatementData:
         minority_interest=apply_field_mapping(
             raw_data, "minority_interest", INCOME_STATEMENT_MAPPINGS
         ),
-
         # Financial Income/Expenses
         financial_income=apply_field_mapping(
             raw_data, "financial_income", INCOME_STATEMENT_MAPPINGS
@@ -294,7 +291,6 @@ def _process_single_statement(raw_data: dict) -> IncomeStatementData:
         interest_expenses=apply_field_mapping(
             raw_data, "interest_expenses", INCOME_STATEMENT_MAPPINGS
         ),
-
         # Tax
         business_tax_current=apply_field_mapping(
             raw_data, "business_tax_current", INCOME_STATEMENT_MAPPINGS
@@ -302,7 +298,6 @@ def _process_single_statement(raw_data: dict) -> IncomeStatementData:
         business_tax_deferred=apply_field_mapping(
             raw_data, "business_tax_deferred", INCOME_STATEMENT_MAPPINGS
         ),
-
         # Other Income
         other_income=apply_field_mapping(
             raw_data, "other_income", INCOME_STATEMENT_MAPPINGS
@@ -313,7 +308,6 @@ def _process_single_statement(raw_data: dict) -> IncomeStatementData:
         net_other_income=apply_field_mapping(
             raw_data, "net_other_income", INCOME_STATEMENT_MAPPINGS
         ),
-
         # Investment Related
         gain_loss_joint_ventures=apply_field_mapping(
             raw_data, "gain_loss_joint_ventures", INCOME_STATEMENT_MAPPINGS
@@ -467,8 +461,9 @@ def _process_balance_sheets(df: pd.DataFrame) -> list[BalanceSheetData]:
         quarterly_mask = df["lengthReport"].isin([1, 2, 3, 4])
         quarter_mapping = {1: "Q1", 2: "Q2", 3: "Q3", 4: "Q4"}
         df.loc[quarterly_mask, "period_id"] = (
-            df.loc[quarterly_mask, "yearReport"].astype(str) + "-" +
-            df.loc[quarterly_mask, "lengthReport"].map(quarter_mapping)
+            df.loc[quarterly_mask, "yearReport"].astype(str)
+            + "-"
+            + df.loc[quarterly_mask, "lengthReport"].map(quarter_mapping)
         )
 
     for _, row in df.iterrows():
@@ -636,8 +631,9 @@ def _process_cash_flows(df: pd.DataFrame) -> list[CashFlowData]:
         quarterly_mask = df["lengthReport"].isin([1, 2, 3, 4])
         quarter_mapping = {1: "Q1", 2: "Q2", 3: "Q3", 4: "Q4"}
         df.loc[quarterly_mask, "period_id"] = (
-            df.loc[quarterly_mask, "yearReport"].astype(str) + "-" +
-            df.loc[quarterly_mask, "lengthReport"].map(quarter_mapping)
+            df.loc[quarterly_mask, "yearReport"].astype(str)
+            + "-"
+            + df.loc[quarterly_mask, "lengthReport"].map(quarter_mapping)
         )
 
     for _, row in df.iterrows():

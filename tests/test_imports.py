@@ -22,7 +22,7 @@ class TestImports:
     def test_schemas_import(self):
         """Test that all schema modules import successfully."""
         try:
-            from app.schemas import schema_common, schema_statements
+            from app.schemas import schema_common, schema_funds, schema_statements
 
             # Verify key classes are available
             assert hasattr(schema_statements, "FinancialStatementsResponse")
@@ -31,17 +31,33 @@ class TestImports:
             assert hasattr(schema_statements, "BalanceSheetData")
             assert hasattr(schema_statements, "CashFlowData")
 
+            # Verify funds schemas are available
+            assert hasattr(schema_funds, "FundListing")
+            assert hasattr(schema_funds, "FundSearch")
+            assert hasattr(schema_funds, "FundNavReport")
+            assert hasattr(schema_funds, "FundTopHolding")
+            assert hasattr(schema_funds, "FundIndustryHolding")
+            assert hasattr(schema_funds, "FundAssetHolding")
+
         except ImportError as e:
             pytest.fail(f"Failed to import schemas: {e}")
 
     def test_services_import(self):
         """Test that service modules import successfully."""
         try:
-            from app.services import service_statements
+            from app.services import service_funds, service_statements
 
             # Verify key functions are available
             assert hasattr(service_statements, "get_financial_statements")
             assert hasattr(service_statements, "_process_ratios")
+
+            # Verify funds service functions are available
+            assert hasattr(service_funds, "get_fund_listing")
+            assert hasattr(service_funds, "search_funds")
+            assert hasattr(service_funds, "get_fund_nav_report")
+            assert hasattr(service_funds, "get_fund_top_holdings")
+            assert hasattr(service_funds, "get_fund_industry_allocation")
+            assert hasattr(service_funds, "get_fund_asset_allocation")
 
         except ImportError as e:
             pytest.fail(f"Failed to import services: {e}")
@@ -49,10 +65,13 @@ class TestImports:
     def test_routes_import(self):
         """Test that route modules import successfully."""
         try:
-            from app.routes import route_statements
+            from app.routes import route_funds, route_statements
 
             # Verify router is available
             assert hasattr(route_statements, "router")
+
+            # Verify funds router is available
+            assert hasattr(route_funds, "router")
 
         except ImportError as e:
             pytest.fail(f"Failed to import routes: {e}")
@@ -105,8 +124,11 @@ class TestImports:
             "app.main",
             "app.schemas.schema_statements",
             "app.schemas.schema_common",
+            "app.schemas.schema_funds",
             "app.services.service_statements",
+            "app.services.service_funds",
             "app.routes.route_statements",
+            "app.routes.route_funds",
         ]
 
         # Clear any previously imported modules

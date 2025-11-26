@@ -1,6 +1,5 @@
 """API routes for industry benchmark data."""
 
-
 from fastapi import APIRouter, HTTPException, Path, Query
 
 from app.schemas.schema_industry_benchmark import (

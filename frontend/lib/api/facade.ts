@@ -36,6 +36,12 @@ import type {
   GoldSJC,
   GoldBTMC,
   IndustryBenchmark,
+  FundListing,
+  FundSearch,
+  FundNavReport,
+  FundTopHolding,
+  FundIndustryHolding,
+  FundAssetHolding,
 } from './client';
 import { PeriodType } from './client';
 
@@ -96,6 +102,12 @@ export type {
   IncomeStatementData,
   BalanceSheetData,
   CashFlowData,
+  FundListing,
+  FundSearch,
+  FundNavReport,
+  FundTopHolding,
+  FundIndustryHolding,
+  FundAssetHolding,
 };
 
 // ============================================================================
@@ -366,6 +378,66 @@ export const industryAPI = {
 };
 
 // ============================================================================
+// FUNDS API FACADE
+// ============================================================================
+
+export const fundsAPI = {
+  /**
+   * Get list of all funds with optional type filtering
+   * @param fundType - Optional filter: 'STOCK', 'BOND', 'BALANCED', or omit for all
+   * @returns Array of fund listings with performance data
+   */
+  getListing: (fundType?: string | null): Promise<FundListing[]> => {
+    return generatedApi.funds.getFundsListingApiFundsListingGet({ fundType });
+  },
+
+  /**
+   * Search for funds by name or abbreviation
+   * @param symbol - Partial name or abbreviation to search (e.g., 'VCBF', 'BCF')
+   * @returns Array of matching funds with fund_id and short_name
+   */
+  searchFunds: (symbol: string): Promise<FundSearch[]> => {
+    return generatedApi.funds.searchFundsEndpointApiFundsSearchGet({ symbol });
+  },
+
+  /**
+   * Get historical NAV data for a fund
+   * @param symbol - Fund abbreviation (e.g., 'VCBF-BCF')
+   * @returns Array of historical NAV data points sorted by date (newest first)
+   */
+  getNavReport: (symbol: string): Promise<FundNavReport[]> => {
+    return generatedApi.funds.getNavReportEndpointApiFundsSymbolNavReportGet({ symbol });
+  },
+
+  /**
+   * Get top 10 holdings of a fund
+   * @param symbol - Fund abbreviation (e.g., 'VCBF-BCF')
+   * @returns Array of top holdings with stock codes and allocation percentages
+   */
+  getTopHoldings: (symbol: string): Promise<FundTopHolding[]> => {
+    return generatedApi.funds.getTopHoldingsEndpointApiFundsSymbolTopHoldingsGet({ symbol });
+  },
+
+  /**
+   * Get industry allocation breakdown
+   * @param symbol - Fund abbreviation (e.g., 'VCBF-BCF')
+   * @returns Array of industry allocations with names and percentages
+   */
+  getIndustryAllocation: (symbol: string): Promise<FundIndustryHolding[]> => {
+    return generatedApi.funds.getIndustryAllocationEndpointApiFundsSymbolIndustryAllocationGet({ symbol });
+  },
+
+  /**
+   * Get asset class allocation
+   * @param symbol - Fund abbreviation (e.g., 'VCBF-BCF')
+   * @returns Array of asset allocations with types and percentages
+   */
+  getAssetAllocation: (symbol: string): Promise<FundAssetHolding[]> => {
+    return generatedApi.funds.getAssetAllocationEndpointApiFundsSymbolAssetAllocationGet({ symbol });
+  },
+};
+
+// ============================================================================
 // UNIFIED API EXPORT
 // ============================================================================
 
@@ -378,6 +450,7 @@ export const industryAPI = {
  *
  * const overview = await api.company.getOverview('VCB');
  * const statements = await api.statements.getStatements('VCB', { period: 'year', years: 5 });
+ * const funds = await api.funds.getListing('STOCK');
  * ```
  */
 export const api = {
@@ -386,6 +459,7 @@ export const api = {
   prices: pricesAPI,
   ratios: ratiosAPI,
   industry: industryAPI,
+  funds: fundsAPI,
 };
 
 export default api;
