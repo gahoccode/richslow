@@ -52,12 +52,9 @@ def get_fund_listing(fund_type: str | None = None) -> list[FundListing]:
                     short_name=str(row.get("short_name", "")),
                     fund_type=str(row.get("fund_type", "")),
                     nav=float(row["nav"]) if pd.notna(row.get("nav")) else None,
-                    nav_change_1d=float(row["nav_change_1d"])
-                    if pd.notna(row.get("nav_change_1d"))
-                    else None,
-                    nav_change_1w=float(row["nav_change_1w"])
-                    if pd.notna(row.get("nav_change_1w"))
-                    else None,
+                    # Daily/weekly changes not available in vnstock fund.listing()
+                    nav_change_1d=None,
+                    nav_change_1w=None,
                     nav_change_1m=float(row["nav_change_1m"])
                     if pd.notna(row.get("nav_change_1m"))
                     else None,
@@ -67,41 +64,27 @@ def get_fund_listing(fund_type: str | None = None) -> list[FundListing]:
                     nav_change_6m=float(row["nav_change_6m"])
                     if pd.notna(row.get("nav_change_6m"))
                     else None,
-                    nav_change_1y=float(row["nav_change_1y"])
-                    if pd.notna(row.get("nav_change_1y"))
-                    else None,
-                    nav_change_2y=float(row["nav_change_2y"])
-                    if pd.notna(row.get("nav_change_2y"))
-                    else None,
-                    nav_change_3y=float(row["nav_change_3y"])
-                    if pd.notna(row.get("nav_change_3y"))
-                    else None,
-                    nav_change_1y_annualized=float(row["nav_change_1y_annualized"])
-                    if pd.notna(row.get("nav_change_1y_annualized"))
-                    else None,
-                    nav_change_2y_annualized=float(row["nav_change_2y_annualized"])
-                    if pd.notna(row.get("nav_change_2y_annualized"))
-                    else None,
-                    nav_change_3y_annualized=float(row["nav_change_3y_annualized"])
-                    if pd.notna(row.get("nav_change_3y_annualized"))
-                    else None,
-                    nav_change_12m_annualized=float(row["nav_change_12m_annualized"])
-                    if pd.notna(row.get("nav_change_12m_annualized"))
-                    else None,
-                    nav_change_24m_annualized=float(row["nav_change_24m_annualized"])
-                    if pd.notna(row.get("nav_change_24m_annualized"))
-                    else None,
+                    # Yearly changes not available in vnstock fund.listing()
+                    nav_change_1y=None,
+                    nav_change_2y=None,
+                    nav_change_3y=None,
+                    # Annualized changes not available except 36m
+                    nav_change_1y_annualized=None,
+                    nav_change_2y_annualized=None,
+                    nav_change_3y_annualized=None,
+                    nav_change_12m_annualized=None,
+                    nav_change_24m_annualized=None,
                     nav_change_36m_annualized=float(row["nav_change_36m_annualized"])
                     if pd.notna(row.get("nav_change_36m_annualized"))
                     else None,
-                    fund_ownership=float(row["fund_ownership"])
-                    if pd.notna(row.get("fund_ownership"))
-                    else None,
+                    # Fund ownership not available in vnstock fund.listing()
+                    fund_ownership=None,
                     management_fee=float(row["management_fee"])
                     if pd.notna(row.get("management_fee"))
                     else None,
-                    issue_date=str(row["issue_date"])
-                    if pd.notna(row.get("issue_date"))
+                    # Use inception_date instead of issue_date
+                    issue_date=str(row["inception_date"])
+                    if pd.notna(row.get("inception_date"))
                     else None,
                     fund_id=int(row.get("fund_id_fmarket", 0)),
                 )
