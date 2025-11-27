@@ -160,19 +160,19 @@ export function ChartRadialStacked({
           <div className="flex flex-col items-center">
             <span className="text-muted-foreground">ROE</span>
             <span className="font-mono font-semibold text-lg">
-              {formatRatio(data.roe)}
+              {formatRatio(data.roe, 'roe (%)')}
             </span>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-muted-foreground">ROA</span>
             <span className="font-mono font-semibold text-lg">
-              {formatRatio(data.roa)}
+              {formatRatio(data.roa, 'roa (%)')}
             </span>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-muted-foreground">ROIC</span>
             <span className="font-mono font-semibold text-lg">
-              {formatRatio(data.roic)}
+              {formatRatio(data.roic, 'roic (%)')}
             </span>
           </div>
         </div>

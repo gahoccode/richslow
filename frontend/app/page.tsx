@@ -161,7 +161,7 @@ export default function Home() {
           />
           <MetricCard
             title="ROE"
-            value={data.ratios?.roe ? (data.ratios.roe as number) / 100 : null}
+            value={data.ratios?.roe as number | undefined}
             unit="%"
             loading={criticalLoading}
             description="Return on Equity"
