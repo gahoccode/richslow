@@ -16,6 +16,10 @@ export type FundIndustryHolding = {
     /**
      * Percentage allocation
      */
-    percent_asset: number;
+    net_asset_percent: number;
+    /**
+     * Fund abbreviation
+     */
+    short_name: string;
 };
 

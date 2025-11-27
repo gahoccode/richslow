@@ -12,7 +12,7 @@ export type FundTopHolding = {
     /**
      * Stock ticker symbol
      */
-    code: string;
+    stock_code: string;
     /**
      * Industry classification
      */
@@ -20,14 +20,22 @@ export type FundTopHolding = {
     /**
      * Percentage of total assets
      */
-    percent_asset: number;
+    net_asset_percent: number;
+    /**
+     * Asset type classification
+     */
+    type_asset: string;
     /**
      * Last update timestamp
      */
-    update_date: string;
+    update_at: string;
     /**
      * Fund identifier
      */
     fund_id: number;
+    /**
+     * Fund abbreviation
+     */
+    short_name: string;
 };
 

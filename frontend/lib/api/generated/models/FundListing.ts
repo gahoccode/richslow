@@ -14,21 +14,41 @@ export type FundListing = {
      */
     short_name: string;
     /**
+     * Full fund name
+     */
+    name: string;
+    /**
      * Fund type: STOCK, BOND, or BALANCED
      */
     fund_type: string;
     /**
+     * Fund management company name
+     */
+    fund_owner_name: string;
+    /**
+     * Annual management fee percentage
+     */
+    management_fee: number;
+    /**
+     * Fund inception date
+     */
+    inception_date?: (string | null);
+    /**
      * Current Net Asset Value
      */
-    nav?: (number | null);
+    nav: number;
     /**
-     * 1-day NAV change
+     * NAV change from previous day
      */
-    nav_change_1d?: (number | null);
+    nav_change_previous: number;
     /**
-     * 1-week NAV change
+     * NAV change from last year
      */
-    nav_change_1w?: (number | null);
+    nav_change_last_year?: (number | null);
+    /**
+     * NAV change since inception
+     */
+    nav_change_inception: number;
     /**
      * 1-month NAV change
      */
@@ -42,56 +62,36 @@ export type FundListing = {
      */
     nav_change_6m?: (number | null);
     /**
-     * 1-year NAV change
+     * 12-month NAV change
      */
-    nav_change_1y?: (number | null);
+    nav_change_12m?: (number | null);
     /**
-     * 2-year NAV change
+     * 24-month NAV change
      */
-    nav_change_2y?: (number | null);
+    nav_change_24m?: (number | null);
     /**
-     * 3-year NAV change
+     * 36-month NAV change
      */
-    nav_change_3y?: (number | null);
-    /**
-     * 1-year annualized return
-     */
-    nav_change_1y_annualized?: (number | null);
-    /**
-     * 2-year annualized return
-     */
-    nav_change_2y_annualized?: (number | null);
-    /**
-     * 3-year annualized return
-     */
-    nav_change_3y_annualized?: (number | null);
-    /**
-     * 12-month annualized return
-     */
-    nav_change_12m_annualized?: (number | null);
-    /**
-     * 24-month annualized return
-     */
-    nav_change_24m_annualized?: (number | null);
+    nav_change_36m?: (number | null);
     /**
      * 36-month annualized return
      */
     nav_change_36m_annualized?: (number | null);
     /**
-     * Fund ownership percentage
+     * Last NAV update timestamp
      */
-    fund_ownership?: (number | null);
+    nav_update_at: string;
     /**
-     * Annual management fee
+     * Unique fund identifier from fmarket
      */
-    management_fee?: (number | null);
+    fund_id_fmarket: number;
     /**
-     * Fund inception date
+     * Official fund code
      */
-    issue_date?: (string | null);
+    fund_code: string;
     /**
-     * Unique fund identifier
+     * VSD fee identifier
      */
-    fund_id: number;
+    vsd_fee_id: string;
 };
 

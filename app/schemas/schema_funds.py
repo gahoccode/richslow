@@ -15,38 +15,32 @@ class FundListing(BaseModel):
     """
 
     short_name: str = Field(..., description="Fund abbreviation (e.g., 'VCBF-BCF')")
+    name: str = Field(..., description="Full fund name")
     fund_type: str = Field(..., description="Fund type: STOCK, BOND, or BALANCED")
-    nav: float | None = Field(None, description="Current Net Asset Value")
-    nav_change_1d: float | None = Field(None, description="1-day NAV change")
-    nav_change_1w: float | None = Field(None, description="1-week NAV change")
+    fund_owner_name: str = Field(..., description="Fund management company name")
+    management_fee: float = Field(..., description="Annual management fee percentage")
+    inception_date: str | None = Field(None, description="Fund inception date")
+    nav: float = Field(..., description="Current Net Asset Value")
+    nav_change_previous: float = Field(..., description="NAV change from previous day")
+    nav_change_last_year: float | None = Field(
+        None, description="NAV change from last year"
+    )
+    nav_change_inception: float = Field(
+        ..., description="NAV change since inception"
+    )
     nav_change_1m: float | None = Field(None, description="1-month NAV change")
     nav_change_3m: float | None = Field(None, description="3-month NAV change")
     nav_change_6m: float | None = Field(None, description="6-month NAV change")
-    nav_change_1y: float | None = Field(None, description="1-year NAV change")
-    nav_change_2y: float | None = Field(None, description="2-year NAV change")
-    nav_change_3y: float | None = Field(None, description="3-year NAV change")
-    nav_change_1y_annualized: float | None = Field(
-        None, description="1-year annualized return"
-    )
-    nav_change_2y_annualized: float | None = Field(
-        None, description="2-year annualized return"
-    )
-    nav_change_3y_annualized: float | None = Field(
-        None, description="3-year annualized return"
-    )
-    nav_change_12m_annualized: float | None = Field(
-        None, description="12-month annualized return"
-    )
-    nav_change_24m_annualized: float | None = Field(
-        None, description="24-month annualized return"
-    )
+    nav_change_12m: float | None = Field(None, description="12-month NAV change")
+    nav_change_24m: float | None = Field(None, description="24-month NAV change")
+    nav_change_36m: float | None = Field(None, description="36-month NAV change")
     nav_change_36m_annualized: float | None = Field(
         None, description="36-month annualized return"
     )
-    fund_ownership: float | None = Field(None, description="Fund ownership percentage")
-    management_fee: float | None = Field(None, description="Annual management fee")
-    issue_date: str | None = Field(None, description="Fund inception date")
-    fund_id: int = Field(..., description="Unique fund identifier")
+    nav_update_at: str = Field(..., description="Last NAV update timestamp")
+    fund_id_fmarket: int = Field(..., description="Unique fund identifier from fmarket")
+    fund_code: str = Field(..., description="Official fund code")
+    vsd_fee_id: str = Field(..., description="VSD fee identifier")
 
 
 class FundSearch(BaseModel):
@@ -56,7 +50,7 @@ class FundSearch(BaseModel):
     for quick search and autocomplete functionality.
     """
 
-    fund_id: int = Field(..., description="Unique fund identifier")
+    id: int = Field(..., description="Unique fund identifier")
     short_name: str = Field(..., description="Fund abbreviation")
 
 
@@ -67,9 +61,9 @@ class FundNavReport(BaseModel):
     Used for performance tracking and charting.
     """
 
-    nav_date: str = Field(..., description="Date in YYYY-MM-DD format")
+    date: str = Field(..., description="Date in YYYY-MM-DD format")
     nav_per_unit: float = Field(..., description="NAV value per unit")
-    fund_id: int = Field(..., description="Fund identifier")
+    short_name: str = Field(..., description="Fund abbreviation")
 
 
 class FundTopHolding(BaseModel):
@@ -79,11 +73,13 @@ class FundTopHolding(BaseModel):
     vnstock fund.details.top_holding() API.
     """
 
-    code: str = Field(..., description="Stock ticker symbol")
+    stock_code: str = Field(..., description="Stock ticker symbol")
     industry: str = Field(..., description="Industry classification")
-    percent_asset: float = Field(..., description="Percentage of total assets")
-    update_date: str = Field(..., description="Last update timestamp")
+    net_asset_percent: float = Field(..., description="Percentage of total assets")
+    type_asset: str = Field(..., description="Asset type classification")
+    update_at: str = Field(..., description="Last update timestamp")
     fund_id: int = Field(..., description="Fund identifier")
+    short_name: str = Field(..., description="Fund abbreviation")
 
 
 class FundIndustryHolding(BaseModel):
@@ -94,7 +90,8 @@ class FundIndustryHolding(BaseModel):
     """
 
     industry: str = Field(..., description="Industry name")
-    percent_asset: float = Field(..., description="Percentage allocation")
+    net_asset_percent: float = Field(..., description="Percentage allocation")
+    short_name: str = Field(..., description="Fund abbreviation")
 
 
 class FundAssetHolding(BaseModel):
@@ -104,5 +101,6 @@ class FundAssetHolding(BaseModel):
     Shows allocation across stocks, bonds, cash equivalents, etc.
     """
 
+    asset_percent: float = Field(..., description="Percentage allocation")
     asset_type: str = Field(..., description="Asset class type")
-    percent_asset: float = Field(..., description="Percentage allocation")
+    short_name: str = Field(..., description="Fund abbreviation")

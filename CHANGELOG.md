@@ -52,6 +52,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Backend Reusability**: All services can be imported and used in external applications
 
 ### Fixed
+- **Fund API Field Alignment with vnstock**: Corrected hallucinated and missing fields across all 6 fund endpoints to match actual vnstock API data structure
+  - **Problem**: Fund endpoints contained ~15 hallucinated fields and were missing 12+ actual vnstock fields
+    - Hallucinated fields: `nav_change_1d`, `nav_change_1w`, `nav_change_1y`, `nav_change_2y`, `nav_change_3y`, multiple non-existent annualized fields, `fund_ownership`, `issue_date`
+    - Missing fields: `name`, `fund_owner_name`, `nav_change_previous`, `nav_change_last_year`, `nav_change_inception`, `nav_change_12m/24m/36m`, `nav_update_at`, `fund_code`, `vsd_fee_id`, `short_name` in detail endpoints
+  - **Schema Updates** (`app/schemas/schema_funds.py`):
+    - **FundListing**: Completely rewritten with 21 correct fields matching fund.listing() API response
+    - **FundSearch**: Changed `fund_id` → `id` to match actual filter() response
+    - **FundNavReport**: Changed `nav_date` → `date`, removed hallucinated `fund_id`, added `short_name`
+    - **FundTopHolding**: Updated field names (`code` → `stock_code`, `percent_asset` → `net_asset_percent`, `update_date` → `update_at`), added `type_asset` and `short_name`, fixed `fund_id` mapping
+    - **FundIndustryHolding**: Changed `percent_asset` → `net_asset_percent`, added `short_name`
+    - **FundAssetHolding**: Reordered fields to match API, added `short_name`
+  - **Service Layer Updates** (`app/services/service_funds.py`):
+    - Updated all 6 service functions to correctly map vnstock DataFrame columns to schema fields
+    - Replaced hardcoded 0 values with actual field mappings (e.g., `fundId` in top_holding())
+    - Fixed field extraction to use correct column names from actual API responses
+  - **Test Suite Updates** (`tests/test_schema_funds.py`):
+    - Completely rewrote 18 schema validation tests to match new field structure
+    - Updated test data to include all required fields
+    - All tests passing (18/18)
+  - **Frontend Type Regeneration**: OpenAPI TypeScript types regenerated with correct field mappings
+  - **Verification**: All fund files pass linting, test suite passes, OpenAPI client successfully regenerated
+  - **Impact**: Fund API now returns actual vnstock data with correct field names across all 6 endpoints
 - **Quarterly vs Annual Schema Type Safety**: Resolved semantic ambiguity in financial ratios data structure
   - **Problem**: Quarterly and annual data used same schema but `length_report` field had different meanings without type safety
   - **Backend Documentation**: Enhanced `FinancialRatiosData.length_report` field documentation in `app/schemas/schema_statements.py`

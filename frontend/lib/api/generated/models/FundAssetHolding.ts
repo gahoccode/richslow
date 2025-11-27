@@ -10,12 +10,16 @@
  */
 export type FundAssetHolding = {
     /**
+     * Percentage allocation
+     */
+    asset_percent: number;
+    /**
      * Asset class type
      */
     asset_type: string;
     /**
-     * Percentage allocation
+     * Fund abbreviation
      */
-    percent_asset: number;
+    short_name: string;
 };
 

@@ -12,14 +12,14 @@ export type FundNavReport = {
     /**
      * Date in YYYY-MM-DD format
      */
-    nav_date: string;
+    date: string;
     /**
      * NAV value per unit
      */
     nav_per_unit: number;
     /**
-     * Fund identifier
+     * Fund abbreviation
      */
-    fund_id: number;
+    short_name: string;
 };
 

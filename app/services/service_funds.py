@@ -50,11 +50,19 @@ def get_fund_listing(fund_type: str | None = None) -> list[FundListing]:
             results.append(
                 FundListing(
                     short_name=str(row.get("short_name", "")),
+                    name=str(row.get("name", "")),
                     fund_type=str(row.get("fund_type", "")),
-                    nav=float(row["nav"]) if pd.notna(row.get("nav")) else None,
-                    # Daily/weekly changes not available in vnstock fund.listing()
-                    nav_change_1d=None,
-                    nav_change_1w=None,
+                    fund_owner_name=str(row.get("fund_owner_name", "")),
+                    management_fee=float(row.get("management_fee", 0.0)),
+                    inception_date=str(row["inception_date"])
+                    if pd.notna(row.get("inception_date"))
+                    else None,
+                    nav=float(row.get("nav", 0.0)),
+                    nav_change_previous=float(row.get("nav_change_previous", 0.0)),
+                    nav_change_last_year=float(row["nav_change_last_year"])
+                    if pd.notna(row.get("nav_change_last_year"))
+                    else None,
+                    nav_change_inception=float(row.get("nav_change_inception", 0.0)),
                     nav_change_1m=float(row["nav_change_1m"])
                     if pd.notna(row.get("nav_change_1m"))
                     else None,
@@ -64,29 +72,22 @@ def get_fund_listing(fund_type: str | None = None) -> list[FundListing]:
                     nav_change_6m=float(row["nav_change_6m"])
                     if pd.notna(row.get("nav_change_6m"))
                     else None,
-                    # Yearly changes not available in vnstock fund.listing()
-                    nav_change_1y=None,
-                    nav_change_2y=None,
-                    nav_change_3y=None,
-                    # Annualized changes not available except 36m
-                    nav_change_1y_annualized=None,
-                    nav_change_2y_annualized=None,
-                    nav_change_3y_annualized=None,
-                    nav_change_12m_annualized=None,
-                    nav_change_24m_annualized=None,
+                    nav_change_12m=float(row["nav_change_12m"])
+                    if pd.notna(row.get("nav_change_12m"))
+                    else None,
+                    nav_change_24m=float(row["nav_change_24m"])
+                    if pd.notna(row.get("nav_change_24m"))
+                    else None,
+                    nav_change_36m=float(row["nav_change_36m"])
+                    if pd.notna(row.get("nav_change_36m"))
+                    else None,
                     nav_change_36m_annualized=float(row["nav_change_36m_annualized"])
                     if pd.notna(row.get("nav_change_36m_annualized"))
                     else None,
-                    # Fund ownership not available in vnstock fund.listing()
-                    fund_ownership=None,
-                    management_fee=float(row["management_fee"])
-                    if pd.notna(row.get("management_fee"))
-                    else None,
-                    # Use inception_date instead of issue_date
-                    issue_date=str(row["inception_date"])
-                    if pd.notna(row.get("inception_date"))
-                    else None,
-                    fund_id=int(row.get("fund_id_fmarket", 0)),
+                    nav_update_at=str(row.get("nav_update_at", "")),
+                    fund_id_fmarket=int(row.get("fund_id_fmarket", 0)),
+                    fund_code=str(row.get("fund_code", "")),
+                    vsd_fee_id=str(row.get("vsd_fee_id", "")),
                 )
             )
 
@@ -105,7 +106,7 @@ def search_funds(symbol: str) -> list[FundSearch]:
         symbol: Partial name or abbreviation to search (e.g., "VCBF", "BCF")
 
     Returns:
-        List of FundSearch objects containing fund_id and short_name.
+        List of FundSearch objects containing id and short_name.
         Returns empty list if no matches found.
 
     Raises:
@@ -130,7 +131,7 @@ def search_funds(symbol: str) -> list[FundSearch]:
         for _, row in df.iterrows():
             results.append(
                 FundSearch(
-                    fund_id=0,  # API doesn't return fund_id for this endpoint
+                    id=int(row.get("id", 0)),
                     short_name=str(row.get("shortName", "")),
                 )
             )
@@ -177,14 +178,14 @@ def get_fund_nav_report(symbol: str) -> list[FundNavReport]:
         for _, row in df.iterrows():
             results.append(
                 FundNavReport(
-                    nav_date=str(row.get("date", "")),
+                    date=str(row.get("date", "")),
                     nav_per_unit=float(row.get("nav_per_unit", 0.0)),
-                    fund_id=0,  # API doesn't return fund_id for this endpoint
+                    short_name=str(row.get("short_name", "")),
                 )
             )
 
         # Sort by date descending (newest first)
-        results.sort(key=lambda x: x.nav_date, reverse=True)
+        results.sort(key=lambda x: x.date, reverse=True)
 
         return results
     except ValueError:
@@ -228,11 +229,13 @@ def get_fund_top_holdings(symbol: str) -> list[FundTopHolding]:
         for _, row in df.iterrows():
             results.append(
                 FundTopHolding(
-                    code=str(row.get("stock_code", "")),
+                    stock_code=str(row.get("stock_code", "")),
                     industry=str(row.get("industry", "")),
-                    percent_asset=float(row.get("net_asset_percent", 0.0)),
-                    update_date=str(row.get("updateDate", "")),
-                    fund_id=0,  # API doesn't return fund_id for this endpoint
+                    net_asset_percent=float(row.get("net_asset_percent", 0.0)),
+                    type_asset=str(row.get("type_asset", "")),
+                    update_at=str(row.get("update_at", "")),
+                    fund_id=int(row.get("fundId", 0)),
+                    short_name=str(row.get("short_name", "")),
                 )
             )
 
@@ -281,7 +284,8 @@ def get_fund_industry_allocation(symbol: str) -> list[FundIndustryHolding]:
             results.append(
                 FundIndustryHolding(
                     industry=str(row.get("industry", "")),
-                    percent_asset=float(row.get("net_asset_percent", 0.0)),
+                    net_asset_percent=float(row.get("net_asset_percent", 0.0)),
+                    short_name=str(row.get("short_name", "")),
                 )
             )
 
@@ -329,8 +333,9 @@ def get_fund_asset_allocation(symbol: str) -> list[FundAssetHolding]:
         for _, row in df.iterrows():
             results.append(
                 FundAssetHolding(
+                    asset_percent=float(row.get("asset_percent", 0.0)),
                     asset_type=str(row.get("asset_type", "")),
-                    percent_asset=float(row.get("asset_percent", 0.0)),
+                    short_name=str(row.get("short_name", "")),
                 )
             )
 

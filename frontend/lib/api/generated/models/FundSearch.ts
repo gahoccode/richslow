@@ -12,7 +12,7 @@ export type FundSearch = {
     /**
      * Unique fund identifier
      */
-    fund_id: number;
+    id: number;
     /**
      * Fund abbreviation
      */
