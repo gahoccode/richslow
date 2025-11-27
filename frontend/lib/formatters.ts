@@ -53,7 +53,7 @@ export function formatRatio(
  */
 export function formatPercentage(num: number | null | undefined): string {
   if (num === null || num === undefined || isNaN(num)) return 'N/A';
-  return num.toFixed(2) + '%';
+  return (num * 100).toFixed(2) + '%';
 }
 
 /**
