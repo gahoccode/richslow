@@ -120,7 +120,7 @@ export function FundsSection({ loading: externalLoading = false }: FundsSectionP
 
   const formatPercentage = (value: number | null | undefined) => {
     if (!value) return "N/A";
-    return `${(value * 100).toFixed(2)}%`;
+    return `${value.toFixed(2)}%`;
   };
 
   if (externalLoading || loading) {
@@ -213,13 +213,13 @@ export function FundsSection({ loading: externalLoading = false }: FundsSectionP
                 <TableHead>Type</TableHead>
                 <TableHead className="text-right">NAV</TableHead>
                 <TableHead className="text-right">1M Change</TableHead>
-                <TableHead className="text-right">1Y Change</TableHead>
+                <TableHead className="text-right">12M Change</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {funds.map((fund) => (
-                <TableRow key={fund.fund_id} className="cursor-pointer hover:bg-muted/50">
+                <TableRow key={fund.fund_id_fmarket} className="cursor-pointer hover:bg-muted/50">
                   <TableCell className="font-medium">
                     <div>
                       <div className="font-semibold">{fund.short_name}</div>
@@ -239,8 +239,8 @@ export function FundsSection({ loading: externalLoading = false }: FundsSectionP
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <span className={fund.nav_change_1y && fund.nav_change_1y > 0 ? "text-green-600" : fund.nav_change_1y && fund.nav_change_1y < 0 ? "text-red-600" : ""}>
-                      {formatPercentage(fund.nav_change_1y)}
+                    <span className={fund.nav_change_12m && fund.nav_change_12m > 0 ? "text-green-600" : fund.nav_change_12m && fund.nav_change_12m < 0 ? "text-red-600" : ""}>
+                      {formatPercentage(fund.nav_change_12m)}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
@@ -295,10 +295,10 @@ export function FundsSection({ loading: externalLoading = false }: FundsSectionP
                                   <TableBody>
                                     {fundDetails.topHoldings.map((holding, index) => (
                                       <TableRow key={index}>
-                                        <TableCell className="font-medium">{holding.code}</TableCell>
+                                        <TableCell className="font-medium">{holding.stock_code}</TableCell>
                                         <TableCell>{holding.industry}</TableCell>
                                         <TableCell className="text-right">
-                                          {formatPercentage(holding.percent_asset / 100)}
+                                          {formatPercentage(holding.net_asset_percent)}
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -321,7 +321,7 @@ export function FundsSection({ loading: externalLoading = false }: FundsSectionP
                                       <TableRow key={index}>
                                         <TableCell>{allocation.industry}</TableCell>
                                         <TableCell className="text-right">
-                                          {formatPercentage(allocation.percent_asset / 100)}
+                                          {formatPercentage(allocation.net_asset_percent)}
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -344,7 +344,7 @@ export function FundsSection({ loading: externalLoading = false }: FundsSectionP
                                       <TableRow key={index}>
                                         <TableCell>{allocation.asset_type}</TableCell>
                                         <TableCell className="text-right">
-                                          {formatPercentage(allocation.percent_asset / 100)}
+                                          {formatPercentage(allocation.asset_percent)}
                                         </TableCell>
                                       </TableRow>
                                     ))}
@@ -365,7 +365,7 @@ export function FundsSection({ loading: externalLoading = false }: FundsSectionP
                                   <TableBody>
                                     {fundDetails.navReport.slice(0, 20).map((nav, index) => (
                                       <TableRow key={index}>
-                                        <TableCell>{nav.nav_date}</TableCell>
+                                        <TableCell>{nav.date}</TableCell>
                                         <TableCell className="text-right">
                                           {formatCurrency(nav.nav_per_unit)}
                                         </TableCell>

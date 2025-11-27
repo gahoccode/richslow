@@ -215,18 +215,22 @@ class TestTopHoldingsEndpoint:
         """Mock top holdings data."""
         return [
             FundTopHolding(
-                code="VCB",
+                stock_code="VCB",
                 industry="Banking",
-                percent_asset=5.2,
-                update_date="2024-01-15T10:30:00",
+                net_asset_percent=5.2,
+                type_asset="Stock",
+                update_at="2024-01-15T10:30:00",
                 fund_id=123,
+                short_name="VCBF-BCF",
             ),
             FundTopHolding(
-                code="FPT",
+                stock_code="FPT",
                 industry="Technology",
-                percent_asset=4.8,
-                update_date="2024-01-15T10:30:00",
+                net_asset_percent=4.8,
+                type_asset="Stock",
+                update_at="2024-01-15T10:30:00",
                 fund_id=123,
+                short_name="VCBF-BCF",
             ),
         ]
 
@@ -242,9 +246,9 @@ class TestTopHoldingsEndpoint:
             assert response.status_code == 200
             data = response.json()
             assert len(data) == 2
-            assert data[0]["code"] == "VCB"
+            assert data[0]["stock_code"] == "VCB"
             assert data[0]["industry"] == "Banking"
-            assert data[0]["percent_asset"] == 5.2
+            assert data[0]["net_asset_percent"] == 5.2
 
     def test_get_top_holdings_not_found(self):
         """Test top holdings for non-existent fund."""
@@ -266,8 +270,12 @@ class TestIndustryAllocationEndpoint:
     def mock_industry_data(self):
         """Mock industry allocation data."""
         return [
-            FundIndustryHolding(industry="Banking", percent_asset=25.5),
-            FundIndustryHolding(industry="Technology", percent_asset=20.3),
+            FundIndustryHolding(
+                industry="Banking", net_asset_percent=25.5, short_name="VCBF-BCF"
+            ),
+            FundIndustryHolding(
+                industry="Technology", net_asset_percent=20.3, short_name="VCBF-BCF"
+            ),
         ]
 
     def test_get_industry_allocation_success(self, mock_industry_data):
@@ -283,7 +291,7 @@ class TestIndustryAllocationEndpoint:
             data = response.json()
             assert len(data) == 2
             assert data[0]["industry"] == "Banking"
-            assert data[0]["percent_asset"] == 25.5
+            assert data[0]["net_asset_percent"] == 25.5
 
     def test_get_industry_allocation_not_found(self):
         """Test industry allocation for non-existent fund."""
@@ -305,8 +313,14 @@ class TestAssetAllocationEndpoint:
     def mock_asset_data(self):
         """Mock asset allocation data."""
         return [
-            FundAssetHolding(asset_type="Cổ phiếu", percent_asset=75.0),
-            FundAssetHolding(asset_type="Tiền và tương đương tiền", percent_asset=20.0),
+            FundAssetHolding(
+                asset_type="Cổ phiếu", asset_percent=75.0, short_name="VCBF-BCF"
+            ),
+            FundAssetHolding(
+                asset_type="Tiền và tương đương tiền",
+                asset_percent=20.0,
+                short_name="VCBF-BCF",
+            ),
         ]
 
     def test_get_asset_allocation_success(self, mock_asset_data):
@@ -322,7 +336,7 @@ class TestAssetAllocationEndpoint:
             data = response.json()
             assert len(data) == 2
             assert data[0]["asset_type"] == "Cổ phiếu"
-            assert data[0]["percent_asset"] == 75.0
+            assert data[0]["asset_percent"] == 75.0
 
     def test_get_asset_allocation_not_found(self):
         """Test asset allocation for non-existent fund."""
@@ -347,6 +361,147 @@ class TestAssetAllocationEndpoint:
 
             assert response.status_code == 500
             assert "Failed to retrieve asset allocation" in response.json()["detail"]
+
+
+class TestAllocationPercentageValidation:
+    """Tests to verify allocation percentages sum to 100%."""
+
+    @pytest.fixture
+    def mock_complete_industry_allocation(self):
+        """Mock complete industry allocation data that sums to 100%."""
+        return [
+            FundIndustryHolding(
+                industry="Banking", net_asset_percent=30.5, short_name="DCDS"
+            ),
+            FundIndustryHolding(
+                industry="Technology", net_asset_percent=25.3, short_name="DCDS"
+            ),
+            FundIndustryHolding(
+                industry="Manufacturing", net_asset_percent=20.2, short_name="DCDS"
+            ),
+            FundIndustryHolding(
+                industry="Real Estate", net_asset_percent=15.0, short_name="DCDS"
+            ),
+            FundIndustryHolding(
+                industry="Retail", net_asset_percent=9.0, short_name="DCDS"
+            ),
+        ]
+
+    @pytest.fixture
+    def mock_complete_asset_allocation(self):
+        """Mock complete asset allocation data that sums to 100%."""
+        return [
+            FundAssetHolding(
+                asset_type="Cổ phiếu", asset_percent=75.5, short_name="DCDS"
+            ),
+            FundAssetHolding(
+                asset_type="Trái phiếu", asset_percent=15.3, short_name="DCDS"
+            ),
+            FundAssetHolding(
+                asset_type="Tiền và tương đương tiền",
+                asset_percent=9.2,
+                short_name="DCDS",
+            ),
+        ]
+
+    def test_industry_allocation_sums_to_100_percent(
+        self, mock_complete_industry_allocation
+    ):
+        """Test that industry allocation percentages sum to approximately 100%."""
+        with patch(
+            "app.routes.route_funds.get_fund_industry_allocation"
+        ) as mock_get_industry:
+            mock_get_industry.return_value = mock_complete_industry_allocation
+
+            response = client.get("/api/funds/DCDS/industry-allocation")
+
+            assert response.status_code == 200
+            data = response.json()
+
+            # Calculate sum of all allocation percentages
+            total_percent = sum(item["net_asset_percent"] for item in data)
+
+            # Allow for small rounding differences (within 0.1%)
+            assert (
+                99.9 <= total_percent <= 100.1
+            ), f"Industry allocation sum is {total_percent}%, expected ~100%"
+
+    def test_asset_allocation_sums_to_100_percent(self, mock_complete_asset_allocation):
+        """Test that asset allocation percentages sum to approximately 100%."""
+        with patch(
+            "app.routes.route_funds.get_fund_asset_allocation"
+        ) as mock_get_asset:
+            mock_get_asset.return_value = mock_complete_asset_allocation
+
+            response = client.get("/api/funds/DCDS/asset-allocation")
+
+            assert response.status_code == 200
+            data = response.json()
+
+            # Calculate sum of all allocation percentages
+            total_percent = sum(item["asset_percent"] for item in data)
+
+            # Allow for small rounding differences (within 0.1%)
+            assert (
+                99.9 <= total_percent <= 100.1
+            ), f"Asset allocation sum is {total_percent}%, expected ~100%"
+
+    def test_industry_allocation_invalid_sum_detection(self):
+        """Test detection of industry allocation that doesn't sum to 100%."""
+        invalid_allocation = [
+            FundIndustryHolding(
+                industry="Banking", net_asset_percent=50.0, short_name="TEST"
+            ),
+            FundIndustryHolding(
+                industry="Technology", net_asset_percent=30.0, short_name="TEST"
+            ),
+            # Only 80% total - missing allocations
+        ]
+
+        with patch(
+            "app.routes.route_funds.get_fund_industry_allocation"
+        ) as mock_get_industry:
+            mock_get_industry.return_value = invalid_allocation
+
+            response = client.get("/api/funds/TEST/industry-allocation")
+
+            assert response.status_code == 200
+            data = response.json()
+
+            total_percent = sum(item["net_asset_percent"] for item in data)
+
+            # This should fail validation
+            with pytest.raises(AssertionError, match="expected ~100%"):
+                assert (
+                    99.9 <= total_percent <= 100.1
+                ), f"Industry allocation sum is {total_percent}%, expected ~100%"
+
+    def test_asset_allocation_invalid_sum_detection(self):
+        """Test detection of asset allocation that doesn't sum to 100%."""
+        invalid_allocation = [
+            FundAssetHolding(
+                asset_type="Cổ phiếu", asset_percent=120.0, short_name="TEST"
+            ),
+            # Over 100% - data integrity issue
+        ]
+
+        with patch(
+            "app.routes.route_funds.get_fund_asset_allocation"
+        ) as mock_get_asset:
+            mock_get_asset.return_value = invalid_allocation
+
+            response = client.get("/api/funds/TEST/asset-allocation")
+
+            assert response.status_code == 200
+            data = response.json()
+
+            total_percent = sum(item["asset_percent"] for item in data)
+
+            # This should fail validation
+            with pytest.raises(AssertionError, match="expected ~100%"):
+                assert (
+                    99.9 <= total_percent <= 100.1
+                ), f"Asset allocation sum is {total_percent}%, expected ~100%"
 
 
 class TestEndpointIntegration:
