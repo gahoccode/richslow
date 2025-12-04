@@ -15,7 +15,7 @@ Next.js frontend for the RichSlow Vietnamese stock market financial analysis pla
 ## Installation
 
 ```bash
-npm install
+bun install
 ```
 
 ## Development
@@ -23,7 +23,7 @@ npm install
 Start the development server:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 The frontend will be available at [http://localhost:3001](http://localhost:3001)
@@ -77,10 +77,10 @@ frontend/
 
 | Command         | Description                           |
 | --------------- | ------------------------------------- |
-| `npm run dev`   | Start development server on port 3001 |
-| `npm run build` | Build production bundle               |
-| `npm start`     | Start production server on port 3001  |
-| `npm run lint`  | Run ESLint                            |
+| `bun run dev`   | Start development server on port 3001 |
+| `bun run build` | Build production bundle               |
+| `bun start`     | Start production server on port 3001  |
+| `bun run lint`  | Run ESLint                            |
 
 ## Features
 
@@ -145,7 +145,7 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ### Adding New shadcn/ui Components
 
 ```bash
-npx shadcn@latest add [component-name]
+bunx shadcn@latest add [component-name]
 ```
 
 Available components: button, card, chart, tabs, progress, sonner, and more.
@@ -184,8 +184,8 @@ function Component() {
 ## Building for Production
 
 ```bash
-npm run build
-npm start
+bun run build
+bun start
 ```
 
 The production server will run on port 3001.
